@@ -14,6 +14,10 @@ config/name="2DStrategyTaticGame"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+SteamManager="*res://multiplayer/steam_manager.gd"
+
 [display]
 
 window/size/viewport_width=1920
@@ -23,6 +27,7 @@ window/stretch/mode="viewport"
 [file_customization]
 
 folder_colors={
+"res://addons/": "gray",
 "res://assets/": "orange",
 "res://multiplayer/": "blue",
 "res://scenes/": "green",

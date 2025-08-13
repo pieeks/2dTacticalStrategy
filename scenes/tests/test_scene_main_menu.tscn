@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://but5t3nqqglm8"]
+
+[ext_resource type="Script" uid="uid://cvjiiclydpyuk" path="res://multiplayer/network_manager.gd" id="1_r0ux8"]
+
+[node name="MainMenu" type="Node2D"]
+
+[node name="Node2D" type="Node2D" parent="."]
+script = ExtResource("1_r0ux8")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Button" type="Button" parent="Control"]
+layout_mode = 0
+offset_right = 296.0
+offset_bottom = 213.0
+text = "Starte Spiel
+"
+
+[node name="Button2" type="Button" parent="Control"]
+layout_mode = 0
+offset_left = 375.0
+offset_top = 2.0
+offset_right = 641.0
+offset_bottom = 209.0
+text = "Join Friend
+"
+
+[connection signal="pressed" from="Control/Button" to="Node2D" method="host_game"]
+[connection signal="pressed" from="Control/Button2" to="Node2D" method="join_game"]

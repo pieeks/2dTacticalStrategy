@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://cd474c3h6d3o4"]
+
+[ext_resource type="Script" uid="uid://cvjiiclydpyuk" path="res://multiplayer/network_manager.gd" id="1_j4adk"]
+
+[node name="Main" type="Node2D"]
+
+[node name="NetworkManager" type="Node2D" parent="."]
+script = ExtResource("1_j4adk")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HostButton" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 19.0
+offset_right = 172.0
+offset_bottom = 150.0
+text = "Host"
+
+[node name="JoinButton" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 239.0
+offset_top = 23.0
+offset_right = 393.0
+offset_bottom = 148.0
+text = "Join"
+
+[node name="ItemList" type="ItemList" parent="UI"]
+layout_mode = 0
+offset_left = 484.0
+offset_top = 28.0
+offset_right = 844.0
+offset_bottom = 406.0
+
+[connection signal="pressed" from="UI/HostButton" to="NetworkManager" method="host_game"]
+[connection signal="pressed" from="UI/JoinButton" to="NetworkManager" method="join_game"]
