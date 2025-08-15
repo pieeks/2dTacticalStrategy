@@ -42,6 +42,8 @@
 	#removePlayer(peer_id)
 	#
 	# MultiplayerSpawner.gd
+	
+	
 extends MultiplayerSpawner
 
 @export var playerScene: PackedScene
