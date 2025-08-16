@@ -28,7 +28,9 @@ tile_map_data = PackedByteArray("AABHABUAAAAAAAAAAABIABYAAAAAAAAAAABJABUAAAAAAAA
 tile_set = ExtResource("2_jr7jt")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-spawn_path = NodePath(".")
+spawn_path = NodePath("../Players")
 spawn_limit = 6
 script = ExtResource("3_jr7jt")
-playerScene = ExtResource("4_d8mde")
+player_scene = ExtResource("4_d8mde")
+
+[node name="Players" type="Node" parent="."]

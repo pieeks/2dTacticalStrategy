@@ -1,9 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://cd474c3h6d3o4"]
 
-[ext_resource type="Script" uid="uid://dld0jvh8u4v0h" path="res://scenes/tests/main_menu.gd" id="1_jtxdv"]
+[ext_resource type="Script" uid="uid://dld0jvh8u4v0h" path="res://scenes/tests/main_menu.gd" id="1_5swnq"]
 
 [node name="Main" type="Node2D"]
-script = ExtResource("1_jtxdv")
+script = ExtResource("1_5swnq")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 542)

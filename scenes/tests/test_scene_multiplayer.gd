@@ -1,22 +1,23 @@
 extends Node2D
 
+@onready var multiplayer_spawn: MultiplayerSpawn = $MultiplayerSpawner
 
 func _ready() -> void:
-	print("Level Ready")
-	
-	if Globals.steam_lobby_member > 0: 
-		add_player(Globals.steam_lobby_member)
-	
-	if not multiplayer.is_server():
+	if multiplayer_spawn == null:
+		push_error("MultiplayerSpawner Node nicht gefunden!")
 		return
-	Steam.steam_server_connected.connect(add_player)
-	Steam.steam_server_disconnected.connect(del_player)
-	
 
+	# Falls du keinen Players-Container nutzt, parentet der Spawner in sich selbst.
+	# Sauberer ist ein dedizierter Container:
+	if multiplayer_spawn.spawn_path == NodePath():
+		var players_node := get_node_or_null("Players")
+		if players_node:
+			multiplayer_spawn.spawn_path = NodePath("../Players")  # vom Spawner aus gesehen
 
-func add_player(id: int):
-	$MultiplayerSpawner.spawnPlayer(Globals.steam_lobby_member)
+	# Nur Cleanup hier; Spawns macht der Spawner selbst.
+	if NetworkManagerTest.has_signal("peer_disconnected"):
+		NetworkManagerTest.connect("peer_disconnected", Callable(self, "_on_peer_disconnected"))
 
-
-func del_player():
-	pass
+func _on_peer_disconnected(peer_id: int) -> void:
+	if multiplayer_spawn:
+		multiplayer_spawn.remove_player(peer_id)

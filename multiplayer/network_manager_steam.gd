@@ -74,7 +74,7 @@ func send_p2p_packet(this_target: int, packet_data: Dictionary, send_type: int =
 	
 	if this_target == 0: 
 		print(str(lobby_members))
-		#if lobby_members.size() > 0: 
+		#if lobby_members.size() > 1: 
 		for member in lobby_members:
 			#if member['steam_id'] != Globals.steam_id:
 			Steam.sendP2PPacket(member['steam_id'], this_data, send_type, channel)

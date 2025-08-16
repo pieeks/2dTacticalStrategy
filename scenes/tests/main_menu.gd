@@ -10,8 +10,7 @@ var start_scene = preload("res://scenes/tests/test_scene_tilemap_multiplayer.tsc
 func _ready() -> void: 
 	setTimer()
 	start_scene = start_scene.instantiate()
-	NetworkManager.connect("_on_lobby_joined_finished", Callable(self, '_on_lobby_joined_finished'))
-	#ms.spawn_function = spawn_level
+	NetworkManagerSteam.connect("_on_lobby_joined_finished", Callable(self, '_on_lobby_joined_finished'))
 	Steam.lobby_match_list.connect(_on_lobby_match_list)
 	open_lobby_list()
 
@@ -26,12 +25,12 @@ func setTimer() -> void:
 
 
 func _on_host_button_pressed() -> void:
-	NetworkManager.create_lobby()
+	NetworkManagerSteam.create_lobby()
 
 
 func _on_join_button_pressed() -> void:
 	var id: int = int(lobby_id.text)
-	NetworkManager.join_lobby(id)
+	NetworkManagerTest.join_lobby(str(id), 4242)
 
 
 func open_lobby_list(): 
@@ -48,7 +47,7 @@ func _on_lobby_match_list(lobbies):
 		var but = Button.new()
 		but.set_Text(str(lobby_name), "| Player Count: ", memb_count)
 		but.set_size(Vector2(100, 5))
-		but.connect("pressed", Callable(NetworkManager, "join_lobby").bind(lobby))
+		but.connect("pressed", Callable(NetworkManagerSteam, "join_lobby").bind(lobby))
 		
 		$UI/TestLobbyContainer/Lobbies.add_child(but)
 
@@ -69,14 +68,8 @@ func _update_friend_lobbies():
 			var item = lobby_list.add_item(display_text)
 			lobby_list.set_item_metadata(item, friend_playing_game['lobby'])
 
-func spawn_level(data): 
-	var a = (load(data) as PackedScene).instantiate()
-	return a
-
 func _on_lobby_joined_finished(): 
 	print("lobby joined!")
 	print("Lobby_member: ", str(Globals.steam_lobby_member))
-	multiplayer.multiplayer_peer = SteamMultiplayerPeer.new()
-	#ms.spawn("res://scenes/tests/test_scene_tilemap_multiplayer.tscn")
-	get_tree().current_scene = start_scene
+	get_tree().change_scene_to_packed(start_scene)
 	add_child(start_scene)

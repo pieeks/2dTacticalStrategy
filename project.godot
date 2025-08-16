@@ -11,13 +11,15 @@ config_version=5
 [application]
 
 config/name="2DStrategyTaticGame"
+run/main_scene="uid://cd474c3h6d3o4"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 Globals="*res://globals.gd"
-NetworkManager="*res://multiplayer/network_manager.gd"
+NetworkManagerTest="*res://multiplayer/network_manager_test.gd"
+NetworkManagerSteam="*res://multiplayer/network_manager_steam.gd"
 
 [display]
 
