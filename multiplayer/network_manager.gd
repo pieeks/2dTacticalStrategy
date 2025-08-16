@@ -1,99 +1,119 @@
-# NetworkManager.gd
-class_name NetworkManager
-extends Node2D
+extends Node
 
-signal lobby_created_success(lobby_id)
-signal lobby_joined_success(lobby_id)
+signal _on_lobby_joined_finished
 
-var steam_peer: SteamMultiplayerPeer
-var lobby_id: int = 0
+const PACKET_READ_LIMIT : int = 32
+
+var is_host: bool = false
+var lobby_id : int = 0
+var lobby_members : Array = []
+var lobby_members_max : int = 6
+
 
 func _ready() -> void:
-	if not Engine.has_singleton("Steam"):
-		push_error("Steam API nicht geladen!")
-		return
-	
-	# Steam-Signale
 	Steam.lobby_created.connect(_on_lobby_created)
 	Steam.lobby_joined.connect(_on_lobby_joined)
 	Steam.p2p_session_request.connect(_on_p2p_session_request)
-	
-	print("NetworkManager ready.")
 
-# ---------------- Host / Client ----------------
-func host_game() -> void:
-	steam_peer = SteamMultiplayerPeer.new()
-	Steam.createLobby(Steam.LOBBY_TYPE_PUBLIC, 4)
-	print("Host: Lobby wird erstellt...")
 
-func join_game_from_file() -> void:
-	# Lobby-ID aus user:// lesen
-	if not FileAccess.file_exists("user://lobby_id.txt"):
-		push_warning("Keine lokale Lobby-ID gefunden.")
-		return
-	
-	var f = FileAccess.open("user://lobby_id.txt", FileAccess.READ)
-	var read_id = int(f.get_line())
-	f.close()
-	
-	#if not read_id:
-		#push_error("Ungültige Lobby-ID im File: " + read_id)
-		#return
-	
-	lobby_id = int(read_id)
-	print("Client: Lobby-ID aus Datei: ", lobby_id)
-	
-	steam_peer = SteamMultiplayerPeer.new()
-	steam_peer.create_client(lobby_id, 0)
-	multiplayer.multiplayer_peer = steam_peer
-	Steam.joinLobby(lobby_id)
-	print("Client: Versuche Lobby zu joinen...")
+func _process(_delta): 
+	if lobby_id > 0: 
+		read_all_p2p_packets()
 
-# ---------------- Signal-Handler ----------------
-func _on_lobby_created(result: int, new_lobby_id: int) -> void:
-	if result != 1 or new_lobby_id <= 0:
-		push_error("Lobby-Erstellung fehlgeschlagen")
-		return
-	
-	lobby_id = new_lobby_id
-	print("Host: Lobby erstellt! ID =", lobby_id)
-	
-	# Lobby-ID für lokale Tests speichern
-	var f = FileAccess.open("user://lobby_id.txt", FileAccess.WRITE)
-	f.store_line(str(lobby_id))
-	f.close()
-	
-	steam_peer.create_host(lobby_id)
-	multiplayer.multiplayer_peer = steam_peer
-	
-	emit_signal("lobby_created_success", lobby_id)
 
-func _on_lobby_joined(joined_lobby_id: int, permissions: int, locked: bool, result: int) -> void:
-	if result != 1:
-		push_warning("Lobby-Beitritt fehlgeschlagen. ID:", joined_lobby_id, " Result:", result)
-		return
+func create_lobby(): 
+	if lobby_id == 0: 
+		is_host = true
+		Steam.createLobby(Steam.LOBBY_TYPE_PUBLIC, lobby_members_max)
 
-	var host_id = Steam.getLobbyOwner(joined_lobby_id)
-	print("Lobby beigetreten:", joined_lobby_id, " Host:", host_id)
+
+func _on_lobby_created(connect: int, this_lobby_id: int): 
+	if connect == 1: 
+		lobby_id = this_lobby_id
+		
+		Steam.setLobbyJoinable(lobby_id, true)
+		
+		Steam.setLobbyData(lobby_id, "name", Globals.steam_username + "'s Lobby")
+		
+		print("CREATED LOBBY: ", lobby_id)
+		var set_relay: bool = Steam.allowP2PPacketRelay(true)
+
+
+func join_lobby(this_lobby_id: int): 
+	Steam.joinLobby(this_lobby_id)
+
+
+func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, response: int): 
+	if response == Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
+		lobby_id = this_lobby_id
+		
+		get_lobby_members()
+		make_p2p_handshake()
+		print("JOINED LOBBY: ", lobby_id)
+		Globals.steam_lobby_member = Steam.getNumLobbyMembers(this_lobby_id)
+		emit_signal("_on_lobby_joined_finished")
+
+
+func get_lobby_members(): 
+	lobby_members.clear()
 	
-	print("getSteamID: ", str(Steam.getSteamID()), " Host ID: ", str(host_id))
-	#if host_id != Steam.getSteamID():
-	if host_id > 0:
-		print("Client: Erstelle SteamMultiplayerPeer als Client.")
-		steam_peer.create_client(joined_lobby_id)
-		multiplayer.multiplayer_peer = steam_peer
+	var num_of_lobby_members: int = Steam.getNumLobbyMembers(lobby_id)
 	
-	emit_signal("lobby_joined_success", joined_lobby_id)
+	for member in range(0, num_of_lobby_members): 
+		var member_steam_id: int = Steam.getLobbyMemberByIndex(lobby_id, member)
+		var member_steam_name: String = Steam.getFriendPersonaName(member_steam_id)
+		
+		lobby_members.append({"steam_id": member_steam_id, "steam_name": member_steam_name})
 
-# ---------------- Helpers ----------------
-func _wait_for_peer_connected() -> void:
-	while steam_peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
-		await get_tree().process_frame
 
-# ---------------- P2P ----------------
-func _on_p2p_session_request(remote_id: int) -> void:
+func send_p2p_packet(this_target: int, packet_data: Dictionary, send_type: int = 0): 
+	var channel: int = 0
+	
+	var this_data: PackedByteArray
+	this_data.append_array(var_to_bytes(packet_data))
+	
+	if this_target == 0: 
+		print(str(lobby_members))
+		#if lobby_members.size() > 0: 
+		for member in lobby_members:
+			#if member['steam_id'] != Globals.steam_id:
+			Steam.sendP2PPacket(member['steam_id'], this_data, send_type, channel)
+	else: 
+		Steam.sendP2PPacket(this_target, this_data, send_type, channel)
+
+
+func _on_p2p_session_request(remote_id: int):
+	var this_requester: String = Steam.getFriendPersonaName(remote_id)
+	
 	Steam.acceptP2PSessionWithUser(remote_id)
 
-# ---------------- Debug / Test ----------------
-func debug_print_lobby_id() -> void:
-	print("Aktuelle Lobby-ID:", lobby_id)
+
+func make_p2p_handshake():
+	send_p2p_packet(0, {"message": "handshake", "steam_id": Globals.steam_id, "username": Globals.steam_username})
+
+
+func read_all_p2p_packets(read_count: int = 0): 
+	if read_count >= PACKET_READ_LIMIT:
+		return
+	
+	if Steam.getAvailableP2PPacketSize(0) > 0: 
+		read_p2p_packed()
+		read_all_p2p_packets(read_count + 1)
+
+
+func read_p2p_packed():
+	var packet_size: int = Steam.getAvailableP2PPacketSize(0)
+	
+	if packet_size > 0:
+		var this_packet: Dictionary = Steam.readP2PPacket(packet_size, 0)
+		
+		var packet_sender: int = this_packet['remote_steam_id']
+		
+		var packet_code: PackedByteArray = this_packet['data']
+		var readable_data: Dictionary = bytes_to_var(packet_code)
+		
+		if readable_data.has("message"): 
+			match readable_data["message"]: 
+				"handshake": 
+					print("PLAYER: ", readable_data["username"], "HAS JOINED!")
+					get_lobby_members()

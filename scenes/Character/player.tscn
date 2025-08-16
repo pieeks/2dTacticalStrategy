@@ -1,6 +1,6 @@
 [gd_scene load_steps=43 format=3 uid="uid://bqqfgavevdbip"]
 
-[ext_resource type="Script" uid="uid://bxa7ge7hlasck" path="res://player.gd" id="1_i7wy1"]
+[ext_resource type="Script" uid="uid://bxa7ge7hlasck" path="res://scenes/Character/player.gd" id="1_i7wy1"]
 [ext_resource type="Texture2D" uid="uid://dofop5qcrwapl" path="res://assets/character/playertestback.png" id="2_8fgnd"]
 [ext_resource type="Texture2D" uid="uid://dnwkcrulerfgq" path="res://assets/character/Sprite-0004-Sheet.png" id="2_gc4mm"]
 [ext_resource type="Texture2D" uid="uid://bp2u24an0nyk2" path="res://assets/character/Idle_KG_1.png" id="3_85mch"]

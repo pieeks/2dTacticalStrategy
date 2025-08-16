@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cd474c3h6d3o4"]
+[gd_scene load_steps=2 format=3 uid="uid://cd474c3h6d3o4"]
 
 [ext_resource type="Script" uid="uid://dld0jvh8u4v0h" path="res://scenes/tests/main_menu.gd" id="1_jtxdv"]
-[ext_resource type="Script" uid="uid://b5dxqe54wqstw" path="res://multiplayer/network_manager_new.gd" id="2_jtxdv"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_jtxdv")
@@ -47,9 +46,16 @@ offset_top = 166.0
 offset_right = 392.0
 offset_bottom = 197.0
 
-[node name="NetworkManager" type="Node2D" parent="."]
-position = Vector2(1, 1)
-script = ExtResource("2_jtxdv")
+[node name="TestLobbyContainer" type="ScrollContainer" parent="UI"]
+custom_minimum_size = Vector2(300, 400)
+layout_mode = 0
+offset_left = 918.0
+offset_top = 24.0
+offset_right = 958.0
+offset_bottom = 64.0
+
+[node name="Lobbies" type="VBoxContainer" parent="UI/TestLobbyContainer"]
+layout_mode = 2
 
 [connection signal="pressed" from="UI/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="UI/JoinButton" to="." method="_on_join_button_pressed"]

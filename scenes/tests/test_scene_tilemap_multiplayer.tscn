@@ -1,11 +1,13 @@
-[gd_scene load_steps=5 format=4 uid="uid://dpsnj7yv0nd22"]
+[gd_scene load_steps=6 format=4 uid="uid://dpsnj7yv0nd22"]
 
 [ext_resource type="TileSet" uid="uid://cvgv1bksd7b4h" path="res://tilesets/game_tile_set.tres" id="1_8oj68"]
+[ext_resource type="Script" uid="uid://w4dhrh5djxcb" path="res://scenes/tests/test_scene_multiplayer.gd" id="1_8746i"]
 [ext_resource type="TileSet" uid="uid://di5l17of2pn6n" path="res://tilesets/game_props_tile_set.tres" id="2_jr7jt"]
 [ext_resource type="Script" uid="uid://6c6yc3arq10n" path="res://multiplayer/multiplayer_spawner.gd" id="3_jr7jt"]
 [ext_resource type="PackedScene" uid="uid://bqqfgavevdbip" path="res://scenes/Character/player.tscn" id="4_d8mde"]
 
 [node name="TestSceneTilemap" type="Node2D"]
+script = ExtResource("1_8746i")
 
 [node name="GameTilemap" type="Node2D" parent="."]
 
@@ -26,8 +28,7 @@ tile_map_data = PackedByteArray("AABHABUAAAAAAAAAAABIABYAAAAAAAAAAABJABUAAAAAAAA
 tile_set = ExtResource("2_jr7jt")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-spawn_path = NodePath("../Player")
+spawn_path = NodePath(".")
+spawn_limit = 6
 script = ExtResource("3_jr7jt")
 playerScene = ExtResource("4_d8mde")
-
-[node name="Player" type="Node" parent="."]
