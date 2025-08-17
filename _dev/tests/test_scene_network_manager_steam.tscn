@@ -1,0 +1,62 @@
+[gd_scene load_steps=2 format=3 uid="uid://cd474c3h6d3o4"]
+
+[ext_resource type="Script" uid="uid://dld0jvh8u4v0h" path="res://_dev/tests/main_menu.gd" id="1_5swnq"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_5swnq")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 542)
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HostButton" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 19.0
+offset_right = 172.0
+offset_bottom = 150.0
+text = "Host"
+
+[node name="JoinButton" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 235.0
+offset_top = 20.0
+offset_right = 389.0
+offset_bottom = 150.0
+text = "Join"
+
+[node name="ItemList" type="ItemList" parent="UI"]
+layout_mode = 0
+offset_left = 500.0
+offset_top = 20.0
+offset_right = 860.0
+offset_bottom = 398.0
+
+[node name="LobbyID" type="LineEdit" parent="UI"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 166.0
+offset_right = 392.0
+offset_bottom = 197.0
+
+[node name="TestLobbyContainer" type="ScrollContainer" parent="UI"]
+custom_minimum_size = Vector2(300, 400)
+layout_mode = 0
+offset_left = 918.0
+offset_top = 24.0
+offset_right = 958.0
+offset_bottom = 64.0
+
+[node name="Lobbies" type="VBoxContainer" parent="UI/TestLobbyContainer"]
+layout_mode = 2
+
+[connection signal="pressed" from="UI/HostButton" to="." method="_on_host_button_pressed"]
+[connection signal="pressed" from="UI/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="item_clicked" from="UI/ItemList" to="." method="_on_item_list_item_clicked"]
