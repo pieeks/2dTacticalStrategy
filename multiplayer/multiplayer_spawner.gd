@@ -1,42 +1,31 @@
-# File: scripts/MultiplayerSpawn.gd
 class_name MultiplayerSpawn
 extends MultiplayerSpawner
 
 @export var player_scene: PackedScene
-var players: = {}
+var players := {}
 
 func _ready() -> void:
-	# WICHTIG: nur instanzieren + zurückgeben; Parenting macht der Spawner.
-	spawn_function = _spawn_player
-
-	# Host spawnt sich selbst + bereits verbundene Peers.
+	spawn_function = _spawn_player  # nur instanziert & zurückgeben
+	# Host hört auf "ready" und spawnt dann
 	if multiplayer.is_server():
-		spawn(multiplayer.get_unique_id())
-		for id in multiplayer.get_peers():
-			if id != multiplayer.get_unique_id():
-				spawn(id)
+		if NetworkManagerTest.has_signal("peer_ready"):
+			NetworkManagerTest.connect("peer_ready", Callable(self, "_on_peer_ready"))
+		# Host selbst sofort spawnen, falls schon ready (direkt beim Host-Start)
+		if NetworkManagerTest.is_peer_ready(multiplayer.get_unique_id()):
+			spawn(multiplayer.get_unique_id())
 
-	# Neue/gehende Peers über den NetworkManager behandeln.
-	if NetworkManagerTest.has_signal("peer_connected"):
-		NetworkManagerTest.connect("peer_connected", Callable(self, "_on_peer_connected"))
-	if NetworkManagerTest.has_signal("peer_disconnected"):
-		NetworkManagerTest.connect("peer_disconnected", Callable(self, "_on_peer_disconnected"))
+func _on_peer_ready(peer_id: int) -> void:
+	if multiplayer.is_server():
+		spawn(peer_id)  # MultiplayerSpawner übernimmt Parenting & Replikation
 
 func _spawn_player(peer_id: int) -> Node:
-	if player_scene == null:
-		push_error("Player scene not set on MultiplayerSpawn!")
+	if not player_scene:
+		push_error("Player scene not set on MultiplayerSpawn")
 		return null
 	var p := player_scene.instantiate()
-	p.set_multiplayer_authority(peer_id)  # Authority zuweisen
+	p.set_multiplayer_authority(peer_id)
 	players[peer_id] = p
-	return p  # << KEIN add_child! Spawner parentet gemäß spawn_path
-
-func _on_peer_connected(peer_id: int) -> void:
-	if multiplayer.is_server():
-		spawn(peer_id)  # serverseitig erzeugen -> repliziert zu Clients
-
-func _on_peer_disconnected(peer_id: int) -> void:
-	remove_player(peer_id)
+	return p
 
 func remove_player(peer_id: int) -> void:
 	if players.has(peer_id) and is_instance_valid(players[peer_id]):
