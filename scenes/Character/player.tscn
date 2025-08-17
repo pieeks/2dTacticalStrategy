@@ -267,6 +267,15 @@ properties/0/replication_mode = 1
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 1
+properties/2/path = NodePath(".:net_input")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:net_is_moving")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath(".:net_facing")
+properties/4/spawn = true
+properties/4/replication_mode = 1
 
 [node name="Player" type="CharacterBody2D"]
 scale = Vector2(7, 7)
@@ -286,19 +295,15 @@ shape = SubResource("RectangleShape2D_rss5s")
 [node name="NodeStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
 script = ExtResource("6_xpp3s")
 initial_node_state = NodePath("Idle")
+owner_actor_path = NodePath("..")
 metadata/_custom_type_script = "uid://bpkg8pno1bhbi"
 
-[node name="Idle" type="Node" parent="NodeStateMachine" node_paths=PackedStringArray("player", "animated_sprite_2d")]
+[node name="Idle" type="Node" parent="NodeStateMachine"]
 script = ExtResource("8_85mch")
-player = NodePath("../..")
-animated_sprite_2d = NodePath("../../AnimatedSprite2D")
 metadata/_custom_type_script = "uid://diyghm648fsof"
 
-[node name="Walk" type="Node" parent="NodeStateMachine" node_paths=PackedStringArray("player", "animated_sprite_2d")]
+[node name="Walk" type="Node" parent="NodeStateMachine"]
 script = ExtResource("9_gc4mm")
-player = NodePath("../..")
-animated_sprite_2d = NodePath("../../AnimatedSprite2D")
-speed = 100
 metadata/_custom_type_script = "uid://diyghm648fsof"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

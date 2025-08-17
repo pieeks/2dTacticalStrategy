@@ -1,41 +1,36 @@
+class_name WalkState
 extends NodeState
 
-@export var player : Player
-@export var animated_sprite_2d : AnimatedSprite2D
-@export var speed : int = 50
-
-func _on_process(_delta: float) -> void: 
-	pass
-
-
-func _on_physics_process(_delta: float)  -> void:
-	var direction: Vector2 = GameInputEvents.movement_input()
-	
-	if direction == Vector2.LEFT:
-		animated_sprite_2d.play("walk_left")
-	elif direction == Vector2.RIGHT:
-		animated_sprite_2d.play("walk_right")
-	elif direction == Vector2.DOWN:
-		animated_sprite_2d.play("walk_front")
-	elif direction == Vector2.UP:
-		animated_sprite_2d.play("walk_back")
-	
-	if direction != Vector2.ZERO:
-		player.player_direction = direction
-	
-	player.velocity = direction * speed
-	player.move_and_slide()
-
-
-
-func _on_next_transitions() -> void: 
-	if !GameInputEvents.is_movement_input():
-		transition.emit("Idle")
-
+var _player: Player
+var _sprite: AnimatedSprite2D
 
 func _on_enter() -> void:
-	pass
+	_player = owner_actor as Player
+	if _player:
+		var v := _player.move_vec_for_anim()
+		var facing := (v.normalized() if v.length() > 0.01 else _player.facing_dir())
+		var name := "walk_" + _dir_name(facing)
+		_player.play_animation(name)
 
+func _on_physics_process(_delta: float) -> void:
+	if _player == null:
+		return
+	# Richtung während der Bewegung dynamisch anpassen
+	var v := _player.move_vec_for_anim()
+	var facing := (v.normalized() if v.length() > 0.01 else _player.facing_dir())
+	var name := "walk_" + _dir_name(facing)
+	_player.play_animation(name)
 
-func _on_exit() -> void: 
-	animated_sprite_2d.stop() 
+func _on_next_transitions() -> void:
+	if _player and not _player.is_moving():
+		request_transition("Idle")
+
+func _on_exit() -> void:
+	if _sprite:
+		_sprite.stop()
+
+func _dir_name(v: Vector2) -> String:
+	if abs(v.x) > abs(v.y):
+		return "right" if v.x >= 0.0 else "left"
+	else:
+		return "front" if v.y >= 0.0 else "back"
