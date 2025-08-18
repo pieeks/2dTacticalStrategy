@@ -8,7 +8,8 @@ func _on_enter() -> void:
 	_player = owner_actor as Player
 	if _player:
 		var v := _player.move_vec_for_anim()
-		var facing := (v.normalized() if v.length() > 0.01 else _player.facing_dir())
+		var card := _snap_to_cardinal(v)
+		var facing := (card if card != Vector2.ZERO else _snap_to_cardinal(_player.facing_dir()))
 		var name := "walk_" + _dir_name(facing)
 		_player.play_animation(name)
 
@@ -17,7 +18,8 @@ func _on_physics_process(_delta: float) -> void:
 		return
 	# Richtung während der Bewegung dynamisch anpassen
 	var v := _player.move_vec_for_anim()
-	var facing := (v.normalized() if v.length() > 0.01 else _player.facing_dir())
+	var card := _snap_to_cardinal(v)
+	var facing := (card if card != Vector2.ZERO else _snap_to_cardinal(_player.facing_dir()))
 	var name := "walk_" + _dir_name(facing)
 	_player.play_animation(name)
 
@@ -34,3 +36,11 @@ func _dir_name(v: Vector2) -> String:
 		return "right" if v.x >= 0.0 else "left"
 	else:
 		return "front" if v.y >= 0.0 else "back"
+
+func _snap_to_cardinal(v: Vector2) -> Vector2:
+	if v.length() < 0.01:
+		return Vector2.ZERO
+	if abs(v.x) >= abs(v.y): 
+		return Vector2(signf(v.x), 0.0)
+	else:
+		return Vector2(0.0, signf(v.y))

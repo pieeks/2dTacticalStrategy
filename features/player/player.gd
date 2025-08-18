@@ -6,7 +6,8 @@ extends CharacterBody2D
 @onready var sm: Node = $NodeStateMachine
 @onready var sync: MultiplayerSynchronizer = $MultiplayerSynchronizer
 
-@export var speed: float = 180.0  # Warum: leicht im Inspector anpassbar
+@export var speed: float = 180.0  
+@export var input_deadzone: float = 0.15
 
 # Replizierter Bewegungszustand (Authority -> Puppets)
 var net_input: Vector2 = Vector2.ZERO
@@ -34,7 +35,9 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if _is_authority():
 		# Nur Authority liest Eingabe + bewegt
-		var dir := _read_move_input()  # nutzt walk_* Actions
+		var raw := _read_move_input()  # nutzt walk_* Actions
+		var dir := _snap_to_cardinal(raw)
+		
 		velocity = dir * speed
 		move_and_slide()
 
@@ -71,7 +74,27 @@ func _is_authority() -> bool:
 	return multiplayer.get_unique_id() == get_multiplayer_authority()
 
 func _read_move_input() -> Vector2:
-	# Achtung: Nur deine Actions (kein ui_* Fallback)
-	# get_vector(left, right, up, down)
 	var v := Input.get_vector("walk_left", "walk_right", "walk_up", "walk_down")
 	return v.normalized()
+
+
+func _snap_to_cardinal(v: Vector2) -> Vector2:
+	# Deadzone
+	if v.length() < input_deadzone:
+		return Vector2.ZERO
+
+	var ax := absf(v.x)
+	var ay := absf(v.y)
+	var eps := 0.0001
+
+	# Dominante Achse wählen; bei Gleichstand letzte Blickachse bevorzugen (Warum: Jitter vermeiden).
+	if ax > ay + eps:
+		return Vector2(float(signf(v.x)), 0.0)
+	elif ay > ax + eps:
+		return Vector2(0.0, float(signf(v.y)))
+	else:
+		# Tie-Break anhand aktueller Facing-Achse
+		if absf(net_facing.x) >= absf(net_facing.y):
+			return Vector2(float(signf(v.x)), 0.0)
+		else:
+			return Vector2(0.0, float(signf(v.y)))
