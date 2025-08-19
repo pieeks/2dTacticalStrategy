@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="2DStrategyTaticGame"
-run/main_scene="uid://cd474c3h6d3o4"
+run/main_scene="uid://dor7lv2w6ymfr"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -25,6 +25,7 @@ NetworkManagerSteam="*res://autolaod/network_manager_steam.gd"
 
 window/size/viewport_width=640
 window/size/viewport_height=360
+window/size/resizable=false
 window/stretch/mode="viewport"
 window/stretch/scale_mode="integer"
 
@@ -77,3 +78,6 @@ ui_debug_toggle={
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+textures/decals/filter=0
+textures/light_projectors/filter=0
+2d/snap/snap_2d_transforms_to_pixel=true

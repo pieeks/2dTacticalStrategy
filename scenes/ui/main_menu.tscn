@@ -1,0 +1,322 @@
+[gd_scene load_steps=4 format=3 uid="uid://dor7lv2w6ymfr"]
+
+[ext_resource type="Script" uid="uid://dj0fmryly6bby" path="res://scenes/ui/main_menu.gd" id="1_1g8jr"]
+[ext_resource type="Texture2D" uid="uid://iw4g1jiqx8u2" path="res://assets/art/pictures/Background_test.png" id="1_fe2o3"]
+[ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/fonts/playfair_font/static/PlayfairDisplay-Medium.ttf" id="1_sl1te"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1g8jr")
+
+[node name="Background" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_fe2o3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ButtonContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.5
+offset_top = -50.5
+offset_right = 44.5
+offset_bottom = 50.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="StartGame" type="Button" parent="ButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Start Game
+"
+
+[node name="Settings" type="Button" parent="ButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Settings"
+
+[node name="Quit Game" type="Button" parent="ButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Quit Game
+"
+
+[node name="SettingsPopup" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="SettingsPopup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsButtonContainer" type="VBoxContainer" parent="SettingsPopup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -35.5
+offset_top = -94.5
+offset_right = 35.5
+offset_bottom = 94.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Name" type="Label" parent="SettingsPopup/SettingsButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Settings
+"
+
+[node name="AudioSettings" type="Button" parent="SettingsPopup/SettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Audio"
+
+[node name="VideoSettings" type="Button" parent="SettingsPopup/SettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Video"
+
+[node name="Controls" type="Button" parent="SettingsPopup/SettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Controls"
+
+[node name="Back" type="Button" parent="SettingsPopup/SettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Back"
+
+[node name="AudioSettingsPopup" type="Control" parent="SettingsPopup"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AudioSettingsButtonContainer" type="VBoxContainer" parent="SettingsPopup/AudioSettingsPopup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -61.5
+offset_top = -52.5
+offset_right = 61.5
+offset_bottom = 52.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Name" type="Label" parent="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Audio Settings"
+
+[node name="VolumeSliderName" type="Label" parent="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Volume:"
+
+[node name="VolumeSlider" type="HSlider" parent="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+value = 20.0
+
+[node name="BackToSettingsPopup" type="Button" parent="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Back to Settings"
+
+[node name="VideoSettingsPopup" type="Control" parent="SettingsPopup"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VideoSettingsButtonContainer" type="VBoxContainer" parent="SettingsPopup/VideoSettingsPopup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -61.5
+offset_top = -77.5
+offset_right = 61.5
+offset_bottom = 77.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Video Settings"
+
+[node name="ResolutionDropDownName" type="Label" parent="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Resolution"
+
+[node name="ResolutionDropDown" type="OptionButton" parent="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+item_count = 4
+popup/item_0/text = "640x360"
+popup/item_0/id = 0
+popup/item_1/text = "1280x720"
+popup/item_1/id = 1
+popup/item_2/text = "1920x1080"
+popup/item_2/id = 2
+popup/item_3/text = "2560x1440"
+popup/item_3/id = 3
+
+[node name="Fullscreen" type="CheckBox" parent="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="BackToSettingsPopup" type="Button" parent="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Back to Settings"
+
+[node name="ControlSettingsPopup" type="Control" parent="SettingsPopup"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ControlSettingsButtonContainer" type="VBoxContainer" parent="SettingsPopup/ControlSettingsPopup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -59.0
+offset_top = -11.5
+offset_right = 59.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Name" type="Label" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Control Settings"
+
+[node name="MoveUPContainer" type="HBoxContainer" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
+layout_mode = 2
+
+[node name="MoveUpName" type="Label" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveUPContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Move Up"
+
+[node name="MoveUpKey" type="Button" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveUPContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "w"
+metadata/action_name = "walk_down"
+
+[node name="MoveDownContainer" type="HBoxContainer" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
+layout_mode = 2
+
+[node name="MoveDownName" type="Label" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Move Down"
+
+[node name="MoveDownKey" type="Button" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "s"
+metadata/action_name = "walk_down"
+
+[node name="MoveLeftContainer" type="HBoxContainer" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
+layout_mode = 2
+
+[node name="MoveLeftName" type="Label" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Move Left"
+
+[node name="MoveLeftKey" type="Button" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "a"
+metadata/action_name = "walk_left"
+
+[node name="MoveRightContainer" type="HBoxContainer" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
+layout_mode = 2
+
+[node name="MoveRightName" type="Label" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_fonts/font = ExtResource("1_sl1te")
+text = "Move Right"
+
+[node name="MoveRightKey" type="Button" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "f"
+metadata/action_name = "walk_right"
+
+[node name="BackToSettings" type="Button" parent="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
+layout_mode = 2
+text = "Back to Settings"
+
+[connection signal="pressed" from="ButtonContainer/Settings" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="ButtonContainer/Quit Game" to="." method="_on_quit_game_pressed"]
+[connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/AudioSettings" to="." method="_on_audio_settings_pressed"]
+[connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/VideoSettings" to="." method="_on_video_settings_pressed"]
+[connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/Controls" to="." method="_on_controls_pressed"]
+[connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/Back" to="." method="_on_back_pressed"]
+[connection signal="value_changed" from="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSlider" to="." method="_on_volume_slider_value_changed"]
+[connection signal="pressed" from="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_popup_pressed"]
+[connection signal="item_selected" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDown" to="." method="_on_resolution_drop_down_item_selected"]
+[connection signal="toggled" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/Fullscreen" to="." method="_on_fullscreen_toggled"]
+[connection signal="pressed" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_popup_pressed"]
+[connection signal="pressed" from="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/BackToSettings" to="." method="_on_back_to_settings_popup_pressed"]
