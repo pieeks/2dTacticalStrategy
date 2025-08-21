@@ -1,8 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://dor7lv2w6ymfr"]
+[gd_scene load_steps=8 format=3 uid="uid://dor7lv2w6ymfr"]
 
 [ext_resource type="Script" uid="uid://dj0fmryly6bby" path="res://scenes/ui/main_menu.gd" id="1_1g8jr"]
 [ext_resource type="Texture2D" uid="uid://iw4g1jiqx8u2" path="res://assets/art/pictures/Background_test.png" id="1_fe2o3"]
 [ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/fonts/playfair_font/static/PlayfairDisplay-Medium.ttf" id="1_sl1te"]
+[ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="3_m1kxf"]
+[ext_resource type="Script" uid="uid://cpvsh4w4w0hks" path="res://scenes/ui/audio_settings_popup.gd" id="5_x2yvf"]
+[ext_resource type="Script" uid="uid://bnva65ig66nbn" path="res://scenes/ui/video_settings_popup.gd" id="6_uhagc"]
+[ext_resource type="Script" uid="uid://205mp8k6f18p" path="res://scenes/ui/control_settings_popup.gd" id="7_btxxm"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -14,6 +18,7 @@ grow_vertical = 2
 script = ExtResource("1_1g8jr")
 
 [node name="Background" type="TextureRect" parent="."]
+visible = false
 custom_minimum_size = Vector2(640, 360)
 layout_mode = 1
 anchors_preset = 15
@@ -22,6 +27,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("1_fe2o3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Background2" type="TextureRect" parent="."]
+texture_filter = 1
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_m1kxf")
 expand_mode = 1
 stretch_mode = 6
 
@@ -126,6 +144,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("5_x2yvf")
 
 [node name="AudioSettingsButtonContainer" type="VBoxContainer" parent="SettingsPopup/AudioSettingsPopup"]
 layout_mode = 1
@@ -168,6 +187,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("6_uhagc")
 
 [node name="VideoSettingsButtonContainer" type="VBoxContainer" parent="SettingsPopup/VideoSettingsPopup"]
 layout_mode = 1
@@ -224,6 +244,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("7_btxxm")
 
 [node name="ControlSettingsButtonContainer" type="VBoxContainer" parent="SettingsPopup/ControlSettingsPopup"]
 layout_mode = 1
@@ -308,15 +329,16 @@ metadata/action_name = "walk_right"
 layout_mode = 2
 text = "Back to Settings"
 
+[connection signal="pressed" from="ButtonContainer/StartGame" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="ButtonContainer/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="ButtonContainer/Quit Game" to="." method="_on_quit_game_pressed"]
 [connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/AudioSettings" to="." method="_on_audio_settings_pressed"]
 [connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/VideoSettings" to="." method="_on_video_settings_pressed"]
 [connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/Controls" to="." method="_on_controls_pressed"]
 [connection signal="pressed" from="SettingsPopup/SettingsButtonContainer/Back" to="." method="_on_back_pressed"]
-[connection signal="value_changed" from="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSlider" to="." method="_on_volume_slider_value_changed"]
+[connection signal="value_changed" from="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSlider" to="SettingsPopup/AudioSettingsPopup" method="_on_volume_slider_value_changed"]
 [connection signal="pressed" from="SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_popup_pressed"]
-[connection signal="item_selected" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDown" to="." method="_on_resolution_drop_down_item_selected"]
-[connection signal="toggled" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/Fullscreen" to="." method="_on_fullscreen_toggled"]
+[connection signal="item_selected" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDown" to="SettingsPopup/VideoSettingsPopup" method="_on_resolution_drop_down_item_selected"]
+[connection signal="toggled" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/Fullscreen" to="SettingsPopup/VideoSettingsPopup" method="_on_fullscreen_toggled"]
 [connection signal="pressed" from="SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_popup_pressed"]
 [connection signal="pressed" from="SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/BackToSettings" to="." method="_on_back_to_settings_popup_pressed"]
