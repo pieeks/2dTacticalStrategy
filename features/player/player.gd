@@ -2,7 +2,7 @@ class_name Player
 extends CharacterBody2D
 
 @onready var cam: Camera2D = $Camera2D
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var sprite: Node2D = $Character
 @onready var sm: Node = $NodeStateMachine
 @onready var sync: MultiplayerSynchronizer = $MultiplayerSynchronizer
 
@@ -62,8 +62,7 @@ func move_vec_for_anim() -> Vector2:
 	return velocity if _is_authority() else _display_velocity
 
 func play_animation(name: String) -> void:
-	# Warum: Animationen nur instanzlokal triggern
-	if is_instance_valid(sprite) and sprite.animation != name:
+	if is_instance_valid(sprite):
 		sprite.play(name)
 
 # ----- Authority / Input -----

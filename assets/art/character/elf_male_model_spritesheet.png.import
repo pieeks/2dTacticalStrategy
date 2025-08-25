@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dnwkcrulerfgq"
-path="res://.godot/imported/Sprite-0004-Sheet.png-62f4d42e1a5105d9c8e0edc379167149.ctex"
+uid="uid://ilccoqg0u8t5"
+path="res://.godot/imported/elf_male_model_spritesheet.png-32abe428ea9134be005aea0d0b0ad617.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/character/Sprite-0004-Sheet.png"
-dest_files=["res://.godot/imported/Sprite-0004-Sheet.png-62f4d42e1a5105d9c8e0edc379167149.ctex"]
+source_file="res://assets/art/character/elf_male_model_spritesheet.png"
+dest_files=["res://.godot/imported/elf_male_model_spritesheet.png-32abe428ea9134be005aea0d0b0ad617.ctex"]
 
 [params]
 
