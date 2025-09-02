@@ -1,0 +1,6 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://dd3i1234cxqaw"]
+
+[ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/ui/PlayfairDisplay-Medium.ttf" id="1_1x47d"]
+
+[resource]
+default_font = ExtResource("1_1x47d")

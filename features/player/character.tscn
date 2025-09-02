@@ -3,8 +3,8 @@
 [ext_resource type="SpriteFrames" uid="uid://d1e01vt7wagno" path="res://features/player/character_elf_male.tres" id="1_3fhe8"]
 [ext_resource type="Script" uid="uid://0y6byn65i4o4" path="res://features/player/character.gd" id="1_sel0e"]
 [ext_resource type="SpriteFrames" uid="uid://dna2ijtsgbyg6" path="res://features/player/body/body_default.tres" id="2_sel0e"]
-[ext_resource type="SpriteFrames" uid="uid://d2pj554r04435" path="res://features/player/hair/hair.tres" id="3_8tsjk"]
 [ext_resource type="SpriteFrames" uid="uid://bewfsm20eh4kv" path="res://features/player/head/head.tres" id="4_dqkxy"]
+[ext_resource type="SpriteFrames" uid="uid://cg77m0sjq4hut" path="res://features/player/hair/hair_brown_short.tres" id="4_sel0e"]
 [ext_resource type="SpriteFrames" uid="uid://ccw5a3nljejov" path="res://features/player/leg/leg.tres" id="5_t83e5"]
 [ext_resource type="SpriteFrames" uid="uid://w5ueygsu6ccg" path="res://features/player/weapon/weapon.tres" id="6_g6mvq"]
 
@@ -12,32 +12,42 @@
 script = ExtResource("1_sel0e")
 
 [node name="Character2DSprite" type="AnimatedSprite2D" parent="."]
+z_index = 1
 sprite_frames = ExtResource("1_3fhe8")
-animation = &"walk_right"
+animation = &"idle_front"
 autoplay = "idle_front"
-frame_progress = 0.541786
 offset = Vector2(0, -15)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 3
 sprite_frames = ExtResource("2_sel0e")
-animation = &"walk_right"
+animation = &"idle_front"
 autoplay = "idle_front"
-frame_progress = 0.432471
 offset = Vector2(0, -15)
 
 [node name="Hair2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 1
-sprite_frames = ExtResource("3_8tsjk")
+sprite_frames = ExtResource("4_sel0e")
+animation = &"idle_front"
+autoplay = "idle_front"
+offset = Vector2(0, -15)
 
 [node name="Head2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 2
 sprite_frames = ExtResource("4_dqkxy")
+animation = &"walk_right"
+autoplay = "idle_front"
 
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 2
 sprite_frames = ExtResource("5_t83e5")
+animation = &"idle_front"
+autoplay = "idle_front"
+offset = Vector2(0, -15)
 
 [node name="Weapon2DSprite" type="AnimatedSprite2D" parent="."]
-z_index = 3
+visible = false
 sprite_frames = ExtResource("6_g6mvq")
+animation = &"idle_front"
+autoplay = "idle_front"
+offset = Vector2(0, -15)

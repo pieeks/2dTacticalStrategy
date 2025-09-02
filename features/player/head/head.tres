@@ -1,3 +1,44 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://bewfsm20eh4kv"]
 
 [resource]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"idle_back",
+"speed": 2.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"idle_front",
+"speed": 2.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"idle_left",
+"speed": 2.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"idle_right",
+"speed": 2.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_back",
+"speed": 4.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_front",
+"speed": 4.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_left",
+"speed": 4.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_right",
+"speed": 4.0
+}]

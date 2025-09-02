@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Globals="*res://autolaod/globals.gd"
+PlayerPartyState="*res://autolaod/player_party_state.gd"
 NetworkManagerTest="*res://autolaod/network_manager_test.gd"
 NetworkManagerSteam="*res://autolaod/network_manager_steam.gd"
 
@@ -43,6 +44,10 @@ folder_colors={
 "res://resources/tilesets/": "pink",
 "res://scenes/": "green"
 }
+
+[gui]
+
+theme/custom="uid://dd3i1234cxqaw"
 
 [input]
 

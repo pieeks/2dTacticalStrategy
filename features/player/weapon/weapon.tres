@@ -1,3 +1,62 @@
-[gd_resource type="SpriteFrames" format=3 uid="uid://w5ueygsu6ccg"]
+[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://w5ueygsu6ccg"]
+
+[ext_resource type="Texture2D" uid="uid://cbo1rwa1dmu12" path="res://assets/art/character/weapon/sword_test_1.png" id="1_g6p7m"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_84f6w"]
+atlas = ExtResource("1_g6p7m")
+region = Rect2(64, 0, 32, 32)
 
 [resource]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"idle_back",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_84f6w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_84f6w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_84f6w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_84f6w")
+}],
+"loop": true,
+"name": &"idle_front",
+"speed": 2.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"idle_left",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"idle_right",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_back",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_front",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_left",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_right",
+"speed": 5.0
+}]
