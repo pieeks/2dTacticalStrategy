@@ -30,11 +30,11 @@ properties/4/replication_mode = 1
 collision_layer = 2
 script = ExtResource("1_i7wy1")
 
-[node name="Character" parent="." instance=ExtResource("2_6xbq4")]
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -13.75)
 shape = SubResource("RectangleShape2D_rss5s")
+
+[node name="Character" parent="." instance=ExtResource("2_6xbq4")]
 
 [node name="NodeStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
 script = ExtResource("6_xpp3s")

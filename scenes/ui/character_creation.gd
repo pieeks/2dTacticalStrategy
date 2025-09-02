@@ -33,7 +33,7 @@ func _on_create_button_pressed() -> void:
 		"leg_path": ""   # später Ergänzen 
 	}
 	# Player Data
-	PlayerPartyState.player_id = "player_guid_1234" #Später Generieren!
+	PlayerPartyState.player_id = "player_guid_1234" + $CanvasLayer/UIRoot/NameHContainer/NameLineEdit.text #Später Generieren!
 	PlayerPartyState.player_data = {
 		"name": $CanvasLayer/UIRoot/NameHContainer/NameLineEdit.text, 
 		"appearance": appearance,
@@ -71,4 +71,5 @@ func _on_create_button_pressed() -> void:
 
 
 func _on_back_to_menu_pressed() -> void:
+	PlayerPartyState.get_available_character()
 	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")

@@ -5,12 +5,14 @@ var player_data : Dictionary = {}
 var party_data : Dictionary = {}
 var inventory_data : Dictionary = {}
 var base_path : String = "user://saveGames/"
+var selected_character_id : String = ""
 
 var available_characters : Array = []
 
 func _ready() -> void:
 	print("PlayerPartyState available!")
-	_get_available_character()
+	get_available_character()
+
 
 func save_to_disk() -> bool: 
 	var save_data := {
@@ -36,7 +38,36 @@ func save_to_disk() -> bool:
 	print("Save geschrieben unter: ", path)
 	return true
 
-func _get_available_character() -> Array: 
+
+func load_form_disk(pid: String) -> bool: 
+	var path = base_path + pid + "/save.json"
+	if not FileAccess.file_exists(path):
+		push_error("Kein Save gefunden unter: " + path)
+		return false
+	
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null: 
+		push_error("Konnte Datei nicht öffnen: " + path)
+		return false
+	
+	var txt = file.get_as_text()
+	file.close()
+	
+	var parsed := JSON.parse_string(txt) as Dictionary
+	if typeof(parsed) != TYPE_DICTIONARY: 
+		push_error("Save-Datei ungültig oder beschädigt: " + path)
+		return false
+	
+	player_data = parsed.get("player", {})
+	party_data = parsed.get("party", {})
+	inventory_data = parsed.get("inventory", {})
+	player_id = pid
+	
+	print("Save geladen: ", player_id)
+	return true
+
+
+func get_available_character() -> Array: 
 	available_characters.clear() 
 	
 	if not DirAccess.dir_exists_absolute(base_path): 

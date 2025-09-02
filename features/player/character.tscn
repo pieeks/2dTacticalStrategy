@@ -35,13 +35,13 @@ offset = Vector2(0, -15)
 [node name="Head2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 2
 sprite_frames = ExtResource("4_dqkxy")
-animation = &"walk_right"
+animation = &"idle_left"
 autoplay = "idle_front"
 
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 2
 sprite_frames = ExtResource("5_t83e5")
-animation = &"idle_front"
+animation = &"idle_back"
 autoplay = "idle_front"
 offset = Vector2(0, -15)
 

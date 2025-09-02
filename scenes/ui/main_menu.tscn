@@ -71,18 +71,20 @@ grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="StartGame" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
+[node name="WorldSelection" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
 layout_mode = 2
 theme = ExtResource("4_wb0q5")
-text = "Start Game
+text = "World Selection
 "
 
 [node name="CreateCharacter" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
 layout_mode = 2
+theme = ExtResource("4_wb0q5")
 text = "New Character"
 
 [node name="Settings" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
 layout_mode = 2
+theme = ExtResource("4_wb0q5")
 theme_override_fonts/font = ExtResource("1_sl1te")
 text = "Settings"
 
@@ -128,6 +130,7 @@ offset_right = 35.5
 offset_bottom = 94.5
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_wb0q5")
 
 [node name="Name" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer"]
 layout_mode = 2
@@ -371,7 +374,7 @@ offset_bottom = 250.0
 [node name="CharacterListVBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/CharacterListControl/ScrollContainer"]
 layout_mode = 2
 
-[connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/StartGame" to="." method="_on_start_game_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/WorldSelection" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/CreateCharacter" to="." method="_on_create_character_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/Quit Game" to="." method="_on_quit_game_pressed"]
