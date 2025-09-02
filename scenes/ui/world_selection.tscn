@@ -1,0 +1,90 @@
+[gd_scene load_steps=4 format=3 uid="uid://4eopfn7n21rl"]
+
+[ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="1_2rluv"]
+[ext_resource type="Script" uid="uid://dp5v174rs4tjl" path="res://scenes/ui/world_selection.gd" id="1_44pcd"]
+[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="2_rbxe0"]
+
+[node name="WorldSelection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_44pcd")
+
+[node name="Background" type="TextureRect" parent="."]
+texture_filter = 1
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_2rluv")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UIRoot" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+script = ExtResource("2_rbxe0")
+
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -73.5
+offset_top = 47.0
+offset_right = 73.5
+offset_bottom = 70.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+text = "World selection"
+horizontal_alignment = 1
+
+[node name="StartWorld" type="Button" parent="CanvasLayer/UIRoot"]
+layout_mode = 0
+offset_left = -11.0
+offset_top = 164.0
+offset_right = 59.0
+offset_bottom = 189.0
+text = "Start World
+"
+
+[node name="JoinWorld" type="Button" parent="CanvasLayer/UIRoot"]
+layout_mode = 0
+offset_left = -9.0
+offset_top = 199.0
+offset_right = 56.0
+offset_bottom = 224.0
+text = "Join World"
+
+[node name="BackToMenu" type="Button" parent="CanvasLayer/UIRoot"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -53.5
+offset_top = 272.0
+offset_right = 53.5
+offset_bottom = 302.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Back to Menu"
+
+[connection signal="pressed" from="CanvasLayer/UIRoot/StartWorld" to="." method="_on_start_world_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/JoinWorld" to="." method="_on_join_world_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/BackToMenu" to="." method="_on_back_to_menu_pressed"]

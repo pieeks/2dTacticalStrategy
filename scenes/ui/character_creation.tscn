@@ -1,0 +1,177 @@
+[gd_scene load_steps=7 format=3 uid="uid://bq86efvhw7tq5"]
+
+[ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="1_r0iii"]
+[ext_resource type="Script" uid="uid://crah00akxwilr" path="res://scenes/ui/character_creation.gd" id="1_ttryc"]
+[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="2_locca"]
+[ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://assets/ui/default_theme.tres" id="3_cb55y"]
+[ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/ui/PlayfairDisplay-Medium.ttf" id="3_tqx8g"]
+[ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://features/player/character.tscn" id="5_6jn8k"]
+
+[node name="CharacterCreation" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ttryc")
+
+[node name="Background2" type="TextureRect" parent="."]
+texture_filter = 1
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_r0iii")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UIRoot" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_locca")
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 228.0
+offset_top = 16.0
+offset_right = 375.0
+offset_bottom = 39.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+text = "Character Creation"
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 104.0
+offset_top = 96.0
+offset_right = 231.0
+offset_bottom = 208.0
+grow_vertical = 2
+
+[node name="HairHContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="HairLeftButton" type="Button" parent="CanvasLayer/UIRoot/VBoxContainer/HairHContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "←"
+
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot/VBoxContainer/HairHContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Frisur"
+horizontal_alignment = 1
+
+[node name="HairRightButton" type="Button" parent="CanvasLayer/UIRoot/VBoxContainer/HairHContainer"]
+layout_mode = 2
+text = "→"
+
+[node name="BodyHContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="BodyLeftButton" type="Button" parent="CanvasLayer/UIRoot/VBoxContainer/BodyHContainer"]
+layout_mode = 2
+text = "←"
+
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot/VBoxContainer/BodyHContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Body"
+horizontal_alignment = 1
+
+[node name="BodyRightButton" type="Button" parent="CanvasLayer/UIRoot/VBoxContainer/BodyHContainer"]
+layout_mode = 2
+text = "→"
+
+[node name="LegHContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="LegLeftButton" type="Button" parent="CanvasLayer/UIRoot/VBoxContainer/LegHContainer"]
+layout_mode = 2
+text = "←"
+
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot/VBoxContainer/LegHContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Leg"
+horizontal_alignment = 1
+
+[node name="LegRightButton" type="Button" parent="CanvasLayer/UIRoot/VBoxContainer/LegHContainer"]
+layout_mode = 2
+text = "→"
+
+[node name="NameHContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot"]
+layout_mode = 0
+offset_left = 47.0
+offset_top = 236.0
+offset_right = 241.0
+offset_bottom = 266.0
+size_flags_horizontal = 0
+
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot/NameHContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme = ExtResource("3_cb55y")
+theme_override_fonts/font = ExtResource("3_tqx8g")
+text = "Name: "
+
+[node name="NameLineEdit" type="LineEdit" parent="CanvasLayer/UIRoot/NameHContainer"]
+custom_minimum_size = Vector2(140, 20)
+layout_mode = 2
+
+[node name="CharacterPreview" type="Node2D" parent="CanvasLayer/UIRoot"]
+
+[node name="Character" parent="CanvasLayer/UIRoot/CharacterPreview" instance=ExtResource("5_6jn8k")]
+position = Vector2(314, 203)
+scale = Vector2(2, 2)
+
+[node name="CreateButton" type="Button" parent="CanvasLayer/UIRoot"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 226.0
+offset_top = 246.0
+offset_right = 366.0
+offset_bottom = 277.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Create Character
+"
+
+[node name="BackToMenu" type="Button" parent="CanvasLayer/UIRoot"]
+layout_mode = 0
+offset_left = 263.0
+offset_top = 321.0
+offset_right = 370.0
+offset_bottom = 351.0
+text = "Back to Menu"
+
+[connection signal="pressed" from="CanvasLayer/UIRoot/VBoxContainer/HairHContainer/HairLeftButton" to="." method="_on_hair_left_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/VBoxContainer/HairHContainer/HairRightButton" to="." method="_on_hair_right_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/CreateButton" to="." method="_on_create_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/BackToMenu" to="." method="_on_back_to_menu_pressed"]

@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3 uid="uid://bqqfgavevdbip"]
+
+[ext_resource type="Script" uid="uid://bxa7ge7hlasck" path="res://features/player/player.gd" id="1_i7wy1"]
+[ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://features/player/character.tscn" id="2_6xbq4"]
+[ext_resource type="Script" uid="uid://bpkg8pno1bhbi" path="res://features/player/state/node_state_machine.gd" id="6_xpp3s"]
+[ext_resource type="Script" uid="uid://bnamanmyvakfu" path="res://features/player/state/idle_state.gd" id="8_85mch"]
+[ext_resource type="Script" uid="uid://bp5s1kljkw8ec" path="res://features/player/state/walk_state.gd" id="9_gc4mm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rss5s"]
+size = Vector2(8, 26.5)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_85mch"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:net_input")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:net_is_moving")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath(".:net_facing")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+script = ExtResource("1_i7wy1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -13.75)
+shape = SubResource("RectangleShape2D_rss5s")
+
+[node name="Character" parent="." instance=ExtResource("2_6xbq4")]
+
+[node name="NodeStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
+script = ExtResource("6_xpp3s")
+initial_node_state = NodePath("Idle")
+owner_actor_path = NodePath("..")
+metadata/_custom_type_script = "uid://bpkg8pno1bhbi"
+
+[node name="Idle" type="Node" parent="NodeStateMachine"]
+script = ExtResource("8_85mch")
+metadata/_custom_type_script = "uid://diyghm648fsof"
+
+[node name="Walk" type="Node" parent="NodeStateMachine"]
+script = ExtResource("9_gc4mm")
+metadata/_custom_type_script = "uid://diyghm648fsof"
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_85mch")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2, 2)

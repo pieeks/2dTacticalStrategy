@@ -1,0 +1,9 @@
+Hauptmenu: 
+	Weitere Settings bei Audio, Video und Controls hinzufügen
+	Frontend anpassen beispiel: Buttons und weitere Layout-Elemente
+
+Character creation:
+	Funktionalität der anderen Container hinzufügen, siehe beispiel bei Haaren in character_creation.gd
+
+Next Step: 
+	Save Game Player anlegen

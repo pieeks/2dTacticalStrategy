@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlxw7sxjqydfi"]
+
+[ext_resource type="Script" uid="uid://2vo8wrvkbbfg" path="res://_dev/tests/test_scene_network_manager_enet.gd" id="1_kqugs"]
+
+[node name="TestSceneNetworkManagerEnet" type="Node2D"]
+script = ExtResource("1_kqugs")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(319, 180)
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Host" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 28.0
+offset_right = 180.0
+offset_bottom = 147.0
+scale = Vector2(0.593617, 0.514975)
+text = "Host Game
+"
+
+[node name="Join" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 135.0
+offset_top = 29.0
+offset_right = 299.0
+offset_bottom = 145.0
+scale = Vector2(0.519998, 0.52)
+text = "Join Game
+"
