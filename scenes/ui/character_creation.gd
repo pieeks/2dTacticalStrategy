@@ -5,7 +5,6 @@ extends Control
 var hair_index := 0
 
 func _ready() -> void:
-	#_set_default_values_on_character() 
 	
 	# Dev stuff
 	var hairs = character.hairSprites
@@ -37,11 +36,12 @@ func _on_create_button_pressed() -> void:
 	PlayerPartyState.player_data = {
 		"name": $CanvasLayer/UIRoot/NameHContainer/NameLineEdit.text, 
 		"appearance": appearance,
-		"meta": {
+	}
+	# Meta Data initialize
+	PlayerPartyState.meta_data = {
 			"created_unix": Time.get_unix_time_from_system(),
 			"game_build": "0.1.0"
 		}
-	}
 	# Party Data initialize
 	PlayerPartyState.party_data = {
 		"leader_id": PlayerPartyState.player_id,
@@ -63,11 +63,10 @@ func _on_create_button_pressed() -> void:
 	}
 	# Save Data
 	PlayerPartyState.save_to_disk() 
+	WorldState.player_id = PlayerPartyState.player_id
+	WorldState.save_to_disk()
 	print("Character created and saved: ", PlayerPartyState.player_data)
-
-
-#func _set_default_values_on_character() -> void: 
-	#character.set_hair("res://features/player/hair/hair.tres")
+	_on_back_to_menu_pressed()
 
 
 func _on_back_to_menu_pressed() -> void:

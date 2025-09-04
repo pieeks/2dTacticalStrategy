@@ -2,6 +2,8 @@ extends Node
 
 var player_id := ""
 var player_data : Dictionary = {}
+var meta_data : Dictionary = {}
+var position_data : Dictionary = {}
 var party_data : Dictionary = {}
 var inventory_data : Dictionary = {}
 var base_path : String = "user://saveGames/"
@@ -18,6 +20,8 @@ func save_to_disk() -> bool:
 	var save_data := {
 		"save_version": 1.0,
 		"player_id": player_id,
+		"meta" : meta_data,
+		"position" : position_data,
 		"player": player_data,
 		"party": party_data,
 		"inventory": inventory_data
@@ -59,6 +63,8 @@ func load_form_disk(pid: String) -> bool:
 		return false
 	
 	player_data = parsed.get("player", {})
+	meta_data = parsed.get("meta", {})
+	position_data = parsed.get("position", {})
 	party_data = parsed.get("party", {})
 	inventory_data = parsed.get("inventory", {})
 	player_id = pid
@@ -95,7 +101,7 @@ func get_available_character() -> Array:
 						var entry := {
 							"id": subfolder,
 							"name": player.get("name", "Unbekannt"),
-							"level": party.get("members", [])[0].get("stats", {}).get("level", 1) if party.has("members") else 1,
+							"level": party.get("members", [])[0].get("stats", {}).get("level", 1),
 							"update_unix": player.get("meta", {}).get("updated_unix", 0),
 							"path": save_path
 						}
