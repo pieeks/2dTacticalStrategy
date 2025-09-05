@@ -4,7 +4,7 @@ var player_id := ""
 var player_data : Dictionary = {}
 var meta_data : Dictionary = {}
 var position_data : Dictionary = {}
-var party_data : Dictionary = {}
+var party_data : Dictionary = {"x": 0.0, "y": 0.0}
 var inventory_data : Dictionary = {}
 var base_path : String = "user://saveGames/"
 var selected_character_id : String = ""
@@ -109,3 +109,7 @@ func get_available_character() -> Array:
 		subfolder = dir.get_next()
 	dir.list_dir_end()
 	return available_characters
+
+
+func update_position(pos: Vector2) -> void:
+	position_data = {"x": pos.x, "y": pos.y}

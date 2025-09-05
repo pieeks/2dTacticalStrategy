@@ -6,6 +6,7 @@ var steam_lobby_member: int = 0
 var steamAppId : int = 480
 var steamGameId : int = 480
 
+
 func _init(): 
 	OS.set_environment("SteamAppID", str(480))
 	OS.set_environment("SteamGameID", str(480))

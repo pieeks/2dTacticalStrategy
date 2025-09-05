@@ -22,6 +22,11 @@ var net_facing: Vector2 = Vector2.DOWN
 # Nur Darstellung bei Puppets glätten
 var _display_velocity: Vector2 = Vector2.ZERO
 
+# Update Position Timer
+var save_update_timer := 0.0
+const SAVE_UPDATE_INTERVAL := 2.0
+
+
 
 func _ready() -> void:
 	# Fallback: SM den Actor geben, falls nicht über NodePath gesetzt
@@ -34,6 +39,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _is_authority():
+		save_update_timer += delta
+		if save_update_timer >= SAVE_UPDATE_INTERVAL:
+			save_update_timer = 0.0
+			PlayerPartyState.update_position(global_position)
 		# Nur Authority liest Eingabe + bewegt
 		var raw := _read_move_input()  # nutzt walk_* Actions
 		var dir := _snap_to_cardinal(raw)

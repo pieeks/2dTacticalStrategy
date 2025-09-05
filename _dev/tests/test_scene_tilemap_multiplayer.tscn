@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=4 uid="uid://dpsnj7yv0nd22"]
+[gd_scene load_steps=8 format=4 uid="uid://dpsnj7yv0nd22"]
 
 [ext_resource type="TileSet" uid="uid://cvgv1bksd7b4h" path="res://resources/tilesets/game_tile_set.tres" id="1_8oj68"]
 [ext_resource type="Script" uid="uid://w4dhrh5djxcb" path="res://_dev/tests/test_scene_multiplayer.gd" id="1_8746i"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://6c6yc3arq10n" path="res://features/multiplayer_spawner.gd" id="3_jr7jt"]
 [ext_resource type="PackedScene" uid="uid://bqqfgavevdbip" path="res://features/player/player.tscn" id="4_d8mde"]
 [ext_resource type="PackedScene" uid="uid://8pok4n7dm3pt" path="res://features/debug/debug_overlay.tscn" id="6_tp8ts"]
+[ext_resource type="PackedScene" uid="uid://dfoplrmyisnu6" path="res://scenes/ui/esc_menu.tscn" id="7_vxt23"]
 
 [node name="TestSceneTilemap" type="Node2D"]
 script = ExtResource("1_8746i")
@@ -38,3 +39,5 @@ player_scene = ExtResource("4_d8mde")
 [node name="Players" type="Node" parent="."]
 
 [node name="CanvasLayer" parent="." instance=ExtResource("6_tp8ts")]
+
+[node name="ESCMenu" parent="." instance=ExtResource("7_vxt23")]

@@ -14,14 +14,14 @@ script = ExtResource("1_sel0e")
 [node name="Character2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 1
 sprite_frames = ExtResource("1_3fhe8")
-animation = &"idle_front"
+animation = &"walk_front"
 autoplay = "idle_front"
 offset = Vector2(0, -15)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 3
 sprite_frames = ExtResource("2_sel0e")
-animation = &"idle_front"
+animation = &"walk_front"
 autoplay = "idle_front"
 offset = Vector2(0, -15)
 
@@ -41,7 +41,7 @@ autoplay = "idle_front"
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 2
 sprite_frames = ExtResource("5_t83e5")
-animation = &"idle_back"
+animation = &"walk_front"
 autoplay = "idle_front"
 offset = Vector2(0, -15)
 
