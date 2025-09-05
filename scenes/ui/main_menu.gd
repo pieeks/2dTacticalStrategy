@@ -5,12 +5,6 @@ var level_scene: PackedScene
 
 func _ready() -> void:
 	level_scene = load(LEVEL_SCENE_PATH)
-	#if NetworkManagerTest.has_signal("lobby_joined_finished"):
-		#NetworkManagerTest.connect("lobby_joined_finished", Callable(self, "_on_lobby_joined"))
-	
-	#var test = PlayerPartyState.available_characters
-	#print(str(test))
-	
 
 
 func _on_quit_game_pressed() -> void:
@@ -41,6 +35,7 @@ func _on_controls_pressed() -> void:
 	$CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer.visible = false
 	$CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup.visible = true
 
+
 func _on_back_to_settings_popup_pressed() -> void:
 	$CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer.visible = true
 	$CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup.visible = false
@@ -51,10 +46,9 @@ func _on_back_to_settings_popup_pressed() -> void:
 func _on_lobby_joined() -> void:
 	get_tree().change_scene_to_packed(level_scene)
 
+
 func _on_start_game_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/world_selection.tscn")
-	#NetworkManagerTest.is_host = true
-	#NetworkManagerTest.create_lobby()
 
 
 func _on_create_character_pressed() -> void:

@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://0y6byn65i4o4" path="res://features/player/character.gd" id="1_sel0e"]
 [ext_resource type="SpriteFrames" uid="uid://dna2ijtsgbyg6" path="res://features/player/body/body_default.tres" id="2_sel0e"]
 [ext_resource type="SpriteFrames" uid="uid://bewfsm20eh4kv" path="res://features/player/head/head.tres" id="4_dqkxy"]
-[ext_resource type="SpriteFrames" uid="uid://cg77m0sjq4hut" path="res://features/player/hair/hair_brown_short.tres" id="4_sel0e"]
+[ext_resource type="SpriteFrames" uid="uid://kfsiajyxe6jg" path="res://features/player/hair/hair_2.tres" id="4_sel0e"]
 [ext_resource type="SpriteFrames" uid="uid://ccw5a3nljejov" path="res://features/player/leg/leg.tres" id="5_t83e5"]
 [ext_resource type="SpriteFrames" uid="uid://w5ueygsu6ccg" path="res://features/player/weapon/weapon.tres" id="6_g6mvq"]
 

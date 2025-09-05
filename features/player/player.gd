@@ -2,12 +2,17 @@ class_name Player
 extends CharacterBody2D
 
 @onready var cam: Camera2D = $Camera2D
-@onready var sprite: Node2D = $Character
+@onready var characterSprite: Node2D = $Character
 @onready var sm: Node = $NodeStateMachine
 @onready var sync: MultiplayerSynchronizer = $MultiplayerSynchronizer
 
 @export var speed: float = 180.0  
 @export var input_deadzone: float = 0.15
+
+# Player save Daten
+var player_id: String = ""
+var player_name: String = ""
+var appearance: Dictionary = {}
 
 # Replizierter Bewegungszustand (Authority -> Puppets)
 var net_input: Vector2 = Vector2.ZERO
@@ -17,20 +22,15 @@ var net_facing: Vector2 = Vector2.DOWN
 # Nur Darstellung bei Puppets glätten
 var _display_velocity: Vector2 = Vector2.ZERO
 
-func _ready() -> void:
-	# Lokale Kamera nur für Authority
-	if _is_authority():
-		cam.enabled = true
-		cam.make_current()
-	else:
-		cam.enabled = false
 
+func _ready() -> void:
 	# Fallback: SM den Actor geben, falls nicht über NodePath gesetzt
 	if "owner_actor" in sm and sm.owner_actor == null:
 		sm.owner_actor = self
 		for child in sm.get_children():
 			if child is NodeState:
 				child.owner_actor = self
+
 
 func _physics_process(delta: float) -> void:
 	if _is_authority():
@@ -40,7 +40,7 @@ func _physics_process(delta: float) -> void:
 		
 		velocity = dir * speed
 		move_and_slide()
-
+		
 		# Replizierbarer Zustand für States/Animation
 		net_input = dir
 		net_is_moving = dir.length() > 0.01
@@ -50,26 +50,31 @@ func _physics_process(delta: float) -> void:
 		# Puppet: Anzeige glätten (Position kommt vom Synchronizer)
 		_display_velocity = _display_velocity.lerp(net_input * speed, 1.0 - pow(0.001, delta))
 
+
 # ----- API für States -----
 func is_moving() -> bool:
 	return net_is_moving
 
+
 func facing_dir() -> Vector2:
 	return net_facing
+
 
 func move_vec_for_anim() -> Vector2:
 	# Warum: States bekommen sinnvolle Bewegungsgröße je nach Rolle
 	return velocity if _is_authority() else _display_velocity
 
+
 func play_animation(name: String) -> void:
-	if is_instance_valid(sprite):
-		sprite.play(name)
+	if is_instance_valid(characterSprite):
+		characterSprite.play(name)
+
 
 # ----- Authority / Input -----
 func _is_authority() -> bool:
 	# Warum: Einzelspieler/ohne Peer testbar halten
-	if not multiplayer.has_multiplayer_peer():
-		return true
+	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+		return false
 	return multiplayer.get_unique_id() == get_multiplayer_authority()
 
 func _read_move_input() -> Vector2:
@@ -97,3 +102,49 @@ func _snap_to_cardinal(v: Vector2) -> Vector2:
 			return Vector2(float(signf(v.x)), 0.0)
 		else:
 			return Vector2(0.0, float(signf(v.y)))
+
+
+# Aktualisierungen und Save / Load
+func apply_save_data(data: Dictionary, player: Node) -> void:
+		# Lokale Kamera nur für Authority
+	if _is_authority():
+		cam.enabled = true
+		cam.make_current()
+	else:
+		cam.enabled = false
+	
+	if data.has("player_id"):
+		player_id = data["player_id"]
+	if data.has("position"): 
+		#print(data["position"])
+		var vector2 = Vector2(float(data["position"]["x"]), float(data["position"]["y"]))
+		global_position = vector2
+	if data.has("name") and data["name"] != null: 
+		player_name = data["name"]
+	if data.has("appearance") and data["appearance"] != null: #TODO Erweitern bei mehr SpriteSheets
+		appearance = data["appearance"]
+		if appearance.has("hair_path"): 
+			equip_item("hair", appearance["hair_path"])
+		
+
+func equip_item(layer: String, frames_path: String) -> void:
+	if not _is_authority(): 
+		return
+	_apply_sprite_frames(frames_path, layer)
+	rpc("sync_appearance_change", multiplayer.get_unique_id(), {"path": frames_path, "layer": layer})
+	
+
+func _apply_sprite_frames(path: String, layer: String) -> void:
+	if path == "": 
+		return
+	var char_node: Character = $Character
+	match layer:
+		"hair":
+			char_node.set_hair(path) #TODO erweitern bei mehr SpritesSheets
+
+# RPCs
+@rpc("any_peer", "reliable")
+func sync_appearance_change(peer_id: int, data: Dictionary) -> void:
+	if peer_id == get_multiplayer_authority():
+		if data.has("path") and data.has("layer"):
+			_apply_sprite_frames(data["path"], data["layer"])

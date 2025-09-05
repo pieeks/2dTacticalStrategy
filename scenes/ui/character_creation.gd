@@ -61,6 +61,11 @@ func _on_create_button_pressed() -> void:
 		"gold": 50,
 		"items": {}
 	}
+	# Position Data initialzie
+	PlayerPartyState.position_data = {
+		"x": 0.0,
+		"y": 0.0,
+	}
 	# Save Data
 	PlayerPartyState.save_to_disk() 
 	WorldState.player_id = PlayerPartyState.player_id
