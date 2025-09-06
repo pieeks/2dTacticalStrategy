@@ -1,9 +1,13 @@
 extends CanvasLayer
 
+@onready var settings_popup: Control = $SettingsPopup
+
 
 func _ready() -> void:
 	visible = false
+	settings_popup.visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	settings_popup.connect("popup_closed", Callable(self, "_on_back_pressed"))
 
 
 func _input(event: InputEvent) -> void:
@@ -47,7 +51,15 @@ func _on_resume_pressed() -> void:
 
 
 func _on_options_pressed() -> void:
-	pass # Replace with function body.
+	$UIRoot/Panel/VBoxContainer.visible = false
+	$SettingsPopup.visible = true
+
+
+
+func _on_back_pressed() -> void:
+	$UIRoot/Panel/VBoxContainer.visible = true
+	$SettingsPopup.visible = false
+
 
 
 func _on_save_and_quit_pressed() -> void:

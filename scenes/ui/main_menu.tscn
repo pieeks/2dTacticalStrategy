@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dor7lv2w6ymfr"]
+[gd_scene load_steps=9 format=3 uid="uid://dor7lv2w6ymfr"]
 
 [ext_resource type="Script" uid="uid://dj0fmryly6bby" path="res://scenes/ui/main_menu.gd" id="1_1g8jr"]
 [ext_resource type="Texture2D" uid="uid://iw4g1jiqx8u2" path="res://assets/art/pictures/Background_test.png" id="1_fe2o3"]
@@ -6,9 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="3_m1kxf"]
 [ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="4_q85j6"]
 [ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://assets/ui/default_theme.tres" id="4_wb0q5"]
-[ext_resource type="Script" uid="uid://cpvsh4w4w0hks" path="res://scenes/ui/audio_settings_popup.gd" id="5_x2yvf"]
-[ext_resource type="Script" uid="uid://bnva65ig66nbn" path="res://scenes/ui/video_settings_popup.gd" id="6_uhagc"]
-[ext_resource type="Script" uid="uid://205mp8k6f18p" path="res://scenes/ui/control_settings_popup.gd" id="7_btxxm"]
+[ext_resource type="PackedScene" uid="uid://ca0m0d0f41cfi" path="res://scenes/ui/settings_popup.tscn" id="7_wb0q5"]
 [ext_resource type="Script" uid="uid://bqulcvlmosftm" path="res://scenes/ui/character_list_control.gd" id="10_8g5eo"]
 
 [node name="MainMenu" type="Control"]
@@ -51,308 +49,69 @@ stretch_mode = 6
 [node name="UIRoot" type="Control" parent="CanvasLayer"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
 script = ExtResource("4_q85j6")
 
-[node name="ButtonContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot"]
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 242.0
-offset_top = 94.0
-offset_right = 358.0
-offset_bottom = 226.0
+offset_left = 288.0
+offset_top = 32.0
+offset_right = 350.0
+offset_bottom = 48.25
+grow_horizontal = 2
+grow_vertical = 2
+text = "Main Menu"
+
+[node name="Panel" type="Panel" parent="CanvasLayer/UIRoot"]
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 1
+offset_right = 640.0
+offset_bottom = 360.0
+
+[node name="ButtonContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -58.0
+offset_top = -66.0
+offset_right = 58.0
+offset_bottom = 66.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="WorldSelection" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
+[node name="WorldSelection" type="Button" parent="CanvasLayer/UIRoot/Panel/ButtonContainer"]
 layout_mode = 2
 theme = ExtResource("4_wb0q5")
 text = "World Selection
 "
 
-[node name="CreateCharacter" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
+[node name="CreateCharacter" type="Button" parent="CanvasLayer/UIRoot/Panel/ButtonContainer"]
 layout_mode = 2
 theme = ExtResource("4_wb0q5")
 text = "New Character"
 
-[node name="Settings" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
+[node name="Settings" type="Button" parent="CanvasLayer/UIRoot/Panel/ButtonContainer"]
 layout_mode = 2
 theme = ExtResource("4_wb0q5")
 theme_override_fonts/font = ExtResource("1_sl1te")
 text = "Settings"
 
-[node name="Quit Game" type="Button" parent="CanvasLayer/UIRoot/ButtonContainer"]
+[node name="Quit Game" type="Button" parent="CanvasLayer/UIRoot/Panel/ButtonContainer"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("1_sl1te")
 text = "Quit Game
 "
 
-[node name="SettingsPopup" type="Control" parent="CanvasLayer/UIRoot"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 300.0
-offset_top = 140.0
-offset_right = 300.0
-offset_bottom = 140.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/UIRoot/SettingsPopup"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SettingsButtonContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -35.5
-offset_top = -94.5
-offset_right = 35.5
-offset_bottom = 94.5
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("4_wb0q5")
-
-[node name="Name" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Settings
-"
-
-[node name="AudioSettings" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Audio"
-
-[node name="VideoSettings" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Video"
-
-[node name="Controls" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Controls"
-
-[node name="Back" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Back"
-
-[node name="AudioSettingsPopup" type="Control" parent="CanvasLayer/UIRoot/SettingsPopup"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("5_x2yvf")
-
-[node name="AudioSettingsButtonContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -61.5
-offset_top = -52.5
-offset_right = 61.5
-offset_bottom = 52.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Name" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Audio Settings"
-
-[node name="VolumeSliderName" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Volume:"
-
-[node name="VolumeSlider" type="HSlider" parent="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
-layout_mode = 2
-value = 20.0
-
-[node name="BackToSettingsPopup" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Back to Settings"
-
-[node name="VideoSettingsPopup" type="Control" parent="CanvasLayer/UIRoot/SettingsPopup"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("6_uhagc")
-
-[node name="VideoSettingsButtonContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -61.5
-offset_top = -77.5
-offset_right = 61.5
-offset_bottom = 77.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Video Settings"
-
-[node name="ResolutionDropDownName" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Resolution"
-
-[node name="ResolutionDropDown" type="OptionButton" parent="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-item_count = 4
-popup/item_0/text = "640x360"
-popup/item_0/id = 0
-popup/item_1/text = "1280x720"
-popup/item_1/id = 1
-popup/item_2/text = "1920x1080"
-popup/item_2/id = 2
-popup/item_3/text = "2560x1440"
-popup/item_3/id = 3
-
-[node name="Fullscreen" type="CheckBox" parent="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
-layout_mode = 2
-text = "Fullscreen"
-
-[node name="BackToSettingsPopup" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Back to Settings"
-
-[node name="ControlSettingsPopup" type="Control" parent="CanvasLayer/UIRoot/SettingsPopup"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("7_btxxm")
-
-[node name="ControlSettingsButtonContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -59.0
-offset_top = -11.5
-offset_right = 59.0
-offset_bottom = 11.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Name" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Control Settings"
-
-[node name="MoveUPContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
-layout_mode = 2
-
-[node name="MoveUpName" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveUPContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Move Up"
-
-[node name="MoveUpKey" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveUPContainer"]
-layout_mode = 2
-size_flags_horizontal = 10
-text = "w"
-metadata/action_name = "walk_down"
-
-[node name="MoveDownContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
-layout_mode = 2
-
-[node name="MoveDownName" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Move Down"
-
-[node name="MoveDownKey" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer"]
-layout_mode = 2
-size_flags_horizontal = 10
-text = "s"
-metadata/action_name = "walk_down"
-
-[node name="MoveLeftContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
-layout_mode = 2
-
-[node name="MoveLeftName" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Move Left"
-
-[node name="MoveLeftKey" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer"]
-layout_mode = 2
-size_flags_horizontal = 10
-text = "a"
-metadata/action_name = "walk_left"
-
-[node name="MoveRightContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
-layout_mode = 2
-
-[node name="MoveRightName" type="Label" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("1_sl1te")
-text = "Move Right"
-
-[node name="MoveRightKey" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer"]
-layout_mode = 2
-size_flags_horizontal = 10
-text = "f"
-metadata/action_name = "walk_right"
-
-[node name="BackToSettings" type="Button" parent="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer"]
-layout_mode = 2
-text = "Back to Settings"
-
-[node name="CharacterListControl" type="Control" parent="CanvasLayer/UIRoot"]
+[node name="CharacterListControl" type="Control" parent="CanvasLayer/UIRoot/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -365,26 +124,21 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("10_8g5eo")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/UIRoot/CharacterListControl"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/UIRoot/Panel/CharacterListControl"]
 custom_minimum_size = Vector2(200, 250)
 layout_mode = 1
 offset_right = 200.0
 offset_bottom = 250.0
 
-[node name="CharacterListVBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/CharacterListControl/ScrollContainer"]
+[node name="CharacterListVBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/Panel/CharacterListControl/ScrollContainer"]
 layout_mode = 2
 
-[connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/WorldSelection" to="." method="_on_start_game_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/CreateCharacter" to="." method="_on_create_character_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/Settings" to="." method="_on_settings_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/ButtonContainer/Quit Game" to="." method="_on_quit_game_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer/AudioSettings" to="." method="_on_audio_settings_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer/VideoSettings" to="." method="_on_video_settings_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer/Controls" to="." method="_on_controls_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer/Back" to="." method="_on_back_pressed"]
-[connection signal="value_changed" from="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSlider" to="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup" method="_on_volume_slider_value_changed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup/AudioSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_popup_pressed"]
-[connection signal="item_selected" from="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDown" to="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup" method="_on_resolution_drop_down_item_selected"]
-[connection signal="toggled" from="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/Fullscreen" to="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup" method="_on_fullscreen_toggled"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup/VideoSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_popup_pressed"]
-[connection signal="pressed" from="CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup/ControlSettingsButtonContainer/BackToSettings" to="." method="_on_back_to_settings_popup_pressed"]
+[node name="SettingsPopup" parent="CanvasLayer" instance=ExtResource("7_wb0q5")]
+visible = false
+offset_right = 640.0
+offset_bottom = 360.0
+
+[connection signal="pressed" from="CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection" to="." method="_on_start_game_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/Panel/ButtonContainer/CreateCharacter" to="." method="_on_create_character_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/Panel/ButtonContainer/Settings" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/Panel/ButtonContainer/Quit Game" to="." method="_on_quit_game_pressed"]

@@ -1,11 +1,20 @@
 extends Control
 
 @onready var character_list: VBoxContainer = $ScrollContainer/CharacterListVBoxContainer
+
 var selected_row: Control = null
+
+signal character_list_avaible
+signal character_list_empty
 
 func _ready() -> void: 
 	for char_entry in PlayerPartyState.available_characters:
 		_add_character_entry(char_entry)
+	
+	if character_list.get_child_count() > 0:
+		var first_row: Control = character_list.get_child(0)
+		var first_data: Dictionary = PlayerPartyState.available_characters[0]
+		_select_first_item(first_row, first_data)
 
 
 func _add_character_entry(data: Dictionary) -> void:
@@ -31,4 +40,11 @@ func _on_character_row_clicked(event: InputEvent, row: Control, data: Dictionary
 		selected_row.modulate = Color(0.6, 0.8, 1)
 		PlayerPartyState.selected_character_id = data.get("id", "")
 		print("Character ausgewählt: ", PlayerPartyState.selected_character_id)
-	
+
+func _select_first_item(row: Control, data: Dictionary) -> void:
+	if selected_row: 
+		selected_row.modulate = Color(1, 1, 1) 
+	selected_row = row 
+	selected_row.modulate = Color(0.6, 0.8, 1)
+	PlayerPartyState.selected_character_id = data.get("id", "")
+	print("Character ausgewählt: ", PlayerPartyState.selected_character_id)

@@ -4,6 +4,8 @@ extends Control
 
 var hair_index := 0
 
+signal character_created
+
 func _ready() -> void:
 	
 	# Dev stuff
@@ -71,6 +73,7 @@ func _on_create_button_pressed() -> void:
 	WorldState.player_id = PlayerPartyState.player_id
 	WorldState.save_to_disk()
 	print("Character created and saved: ", PlayerPartyState.player_data)
+	emit_signal("character_created")
 	_on_back_to_menu_pressed()
 
 

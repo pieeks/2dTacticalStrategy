@@ -11,6 +11,7 @@ var selected_character_id : String = ""
 
 var available_characters : Array = []
 
+
 func _ready() -> void:
 	print("PlayerPartyState available!")
 	get_available_character()

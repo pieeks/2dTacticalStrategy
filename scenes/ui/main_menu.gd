@@ -1,46 +1,40 @@
 extends Control
 
-const LEVEL_SCENE_PATH := "res://_dev/tests/test_scene_tilemap_multiplayer.tscn"
+@onready var settings_popup: Control = $CanvasLayer/SettingsPopup
+@onready var character_list_control: Control = $CanvasLayer/UIRoot/Panel/CharacterListControl
 var level_scene: PackedScene
+
+const LEVEL_SCENE_PATH := "res://_dev/tests/test_scene_tilemap_multiplayer.tscn"
+
 
 func _ready() -> void:
 	level_scene = load(LEVEL_SCENE_PATH)
+	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = true
+	settings_popup.connect("popup_closed", Callable(self, "_on_back_pressed"))
+	if PlayerPartyState.available_characters.size() > 0:
+		_enable_world_selection()
 
 
 func _on_quit_game_pressed() -> void:
 	get_tree().quit()
 
 
-func _on_settings_pressed() -> void:
-	$CanvasLayer/UIRoot/SettingsPopup.visible = true
-	$CanvasLayer/UIRoot/ButtonContainer.visible = false
-
-
 func _on_back_pressed() -> void:
-	$CanvasLayer/UIRoot/SettingsPopup.visible = false
-	$CanvasLayer/UIRoot/ButtonContainer.visible = true
+	$CanvasLayer/SettingsPopup.visible = false
+	$CanvasLayer/UIRoot/Panel/ButtonContainer.visible = true
+	$CanvasLayer/UIRoot/Panel/CharacterListControl.visible = true
+	$CanvasLayer/UIRoot/Label.visible = true
 
 
-func _on_audio_settings_pressed() -> void:
-	$CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer.visible = false
-	$CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup.visible = true
+func _on_settings_pressed() -> void:
+	$CanvasLayer/SettingsPopup.visible = true
+	$CanvasLayer/UIRoot/Panel/ButtonContainer.visible = false
+	$CanvasLayer/UIRoot/Panel/CharacterListControl.visible = false
+	$CanvasLayer/UIRoot/Label.visible = false
 
 
-func _on_video_settings_pressed() -> void:
-	$CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer.visible = false
-	$CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup.visible = true
-
-
-func _on_controls_pressed() -> void:
-	$CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer.visible = false
-	$CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup.visible = true
-
-
-func _on_back_to_settings_popup_pressed() -> void:
-	$CanvasLayer/UIRoot/SettingsPopup/SettingsButtonContainer.visible = true
-	$CanvasLayer/UIRoot/SettingsPopup/AudioSettingsPopup.visible = false
-	$CanvasLayer/UIRoot/SettingsPopup/VideoSettingsPopup.visible = false
-	$CanvasLayer/UIRoot/SettingsPopup/ControlSettingsPopup.visible = false
+func _enable_world_selection() -> void:
+	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = false
 
 
 func _on_lobby_joined() -> void:
@@ -52,4 +46,7 @@ func _on_start_game_pressed() -> void:
 
 
 func _on_create_character_pressed() -> void:
+	#var scene: PackedScene = preload("res://scenes/ui/world_selection.tscn")
+	#var inst = scene.instantiate()
+	#inst._on_create_button_pressed.connect(_enable_world_selection)
 	get_tree().change_scene_to_file("res://scenes/ui/character_creation.tscn")
