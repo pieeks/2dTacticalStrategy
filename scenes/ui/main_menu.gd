@@ -46,7 +46,4 @@ func _on_start_game_pressed() -> void:
 
 
 func _on_create_character_pressed() -> void:
-	#var scene: PackedScene = preload("res://scenes/ui/world_selection.tscn")
-	#var inst = scene.instantiate()
-	#inst._on_create_button_pressed.connect(_enable_world_selection)
 	get_tree().change_scene_to_file("res://scenes/ui/character_creation.tscn")

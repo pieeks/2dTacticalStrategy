@@ -4,10 +4,10 @@ class_name DebugOverlay
 @export var autoload_path: NodePath = NodePath("/root/NetworkManagerTest") # <- anpassbar im Inspector
 @export var start_visible: bool = false
 
-@onready var panel: PanelContainer = $PanelContainer
-@onready var vbox: VBoxContainer = $PanelContainer/VBoxContainer
-@onready var lbl_title: Label = $PanelContainer/VBoxContainer/DebugOverlay    # deine Namen
-@onready var lbl_network: Label = $PanelContainer/VBoxContainer/NetworkInfo   # deine Namen
+@onready var panel: PanelContainer = $UIRoot/PanelContainer
+@onready var vbox: VBoxContainer = $UIRoot/PanelContainer/VBoxContainer
+@onready var lbl_title: Label = $UIRoot/PanelContainer/VBoxContainer/DebugOverlay    # deine Namen
+@onready var lbl_network: Label = $UIRoot/PanelContainer/VBoxContainer/NetworkInfo   # deine Namen
 
 var _nm: Node = null
 var _visible_overlay := true

@@ -46,8 +46,12 @@ func join_lobby(ip: String = "127.0.0.1", p: int = 4242) -> void:
 func _on_connected_client() -> void:
 	emit_signal("lobby_joined_finished")
 
+
 func _on_peer_connected_server(id: int) -> void:
 	emit_signal("peer_connected", id)
+	for pid in _ready_peers.keys():
+		rpc_id(id, "rpc_mark_ready", pid)
+
 
 func _on_peer_disconnected_server(id: int) -> void:
 	_ready_peers.erase(id)
@@ -63,6 +67,11 @@ func rpc_client_level_ready() -> void:
 	if multiplayer.is_server():
 		var pid := multiplayer.get_remote_sender_id()
 		_mark_ready(pid)
+		rpc("rpc_mark_ready", pid)
+
+@rpc("any_peer", "reliable")
+func rpc_mark_ready(peer_id: int) -> void:
+	_mark_ready(peer_id)
 
 func notify_server_level_ready() -> void:
 	# Client ruft das nach Level-Load

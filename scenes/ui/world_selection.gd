@@ -1,10 +1,10 @@
 extends Control
 
-const LEVEL_SCENE_PATH := "res://_dev/tests/test_scene_tilemap_multiplayer.tscn"
+const LEVEL_SCENE_PATH := "res://scenes/world/overworld.tscn"
 var level_scene: PackedScene
 
 func _ready() -> void:
-	level_scene = load(LEVEL_SCENE_PATH)
+	level_scene = preload(LEVEL_SCENE_PATH)
 	if NetworkManagerTest.has_signal("lobby_joined_finished"):
 		NetworkManagerTest.connect("lobby_joined_finished", Callable(self, "_on_lobby_joined"))
 

@@ -27,8 +27,11 @@ var save_update_timer := 0.0
 const SAVE_UPDATE_INTERVAL := 2.0
 
 
-
 func _ready() -> void:
+	if _is_authority(): 
+		setup_player_from_save(multiplayer.get_unique_id())
+	if NetworkManagerTest.has_signal("peer_connected"):
+		NetworkManagerTest.connect("peer_connected", Callable(self, "_on_new_peer_connected"))
 	# Fallback: SM den Actor geben, falls nicht über NodePath gesetzt
 	if "owner_actor" in sm and sm.owner_actor == null:
 		sm.owner_actor = self
@@ -60,6 +63,16 @@ func _physics_process(delta: float) -> void:
 		_display_velocity = _display_velocity.lerp(net_input * speed, 1.0 - pow(0.001, delta))
 
 
+func _on_new_peer_connected(new_peer_id: int) -> void:
+	if _is_authority(): 
+		var full_data := {
+			"appearance": appearance,
+			"name": player_name,
+			"player_id": player_id
+		}
+		rpc_id(new_peer_id, "rpc_sync_full_appearance_change", get_multiplayer_authority(), full_data)
+
+
 # ----- API für States -----
 func is_moving() -> bool:
 	return net_is_moving
@@ -81,7 +94,6 @@ func play_animation(name: String) -> void:
 
 # ----- Authority / Input -----
 func _is_authority() -> bool:
-	# Warum: Einzelspieler/ohne Peer testbar halten
 	if multiplayer == null or not multiplayer.has_multiplayer_peer():
 		return false
 	return multiplayer.get_unique_id() == get_multiplayer_authority()
@@ -114,7 +126,25 @@ func _snap_to_cardinal(v: Vector2) -> Vector2:
 
 
 # Aktualisierungen und Save / Load
-func apply_save_data(data: Dictionary, player: Node) -> void:
+func setup_player_from_save(peer_id: int) -> void:
+	var save_data := {}
+	if peer_id == multiplayer.get_unique_id():
+		save_data = {
+			"player_id": PlayerPartyState.player_id,
+			"name": PlayerPartyState.player_data.get("name"),
+			"position":PlayerPartyState.position_data,
+			"appearance": PlayerPartyState.player_data.get("appearance")
+		}
+	else: 
+		save_data = {
+			"player_id": str(peer_id),
+			"name": "Remote_" + str(peer_id),
+			"position": Vector2.ZERO
+		}
+	apply_save_data(save_data)
+
+
+func apply_save_data(data: Dictionary) -> void:
 		# Lokale Kamera nur für Authority
 	if _is_authority():
 		cam.enabled = true
@@ -125,7 +155,6 @@ func apply_save_data(data: Dictionary, player: Node) -> void:
 	if data.has("player_id"):
 		player_id = data["player_id"]
 	if data.has("position"): 
-		#print(data["position"])
 		var vector2 = Vector2(float(data["position"]["x"]), float(data["position"]["y"]))
 		global_position = vector2
 	if data.has("name") and data["name"] != null: 
@@ -140,7 +169,7 @@ func equip_item(layer: String, frames_path: String) -> void:
 	if not _is_authority(): 
 		return
 	_apply_sprite_frames(frames_path, layer)
-	rpc("sync_appearance_change", multiplayer.get_unique_id(), {"path": frames_path, "layer": layer})
+	rpc("rpc_sync_appearance_change", multiplayer.get_unique_id(), {"path": frames_path, "layer": layer})
 	
 
 func _apply_sprite_frames(path: String, layer: String) -> void:
@@ -153,7 +182,15 @@ func _apply_sprite_frames(path: String, layer: String) -> void:
 
 # RPCs
 @rpc("any_peer", "reliable")
-func sync_appearance_change(peer_id: int, data: Dictionary) -> void:
+func rpc_sync_appearance_change(peer_id: int, data: Dictionary) -> void:
 	if peer_id == get_multiplayer_authority():
 		if data.has("path") and data.has("layer"):
 			_apply_sprite_frames(data["path"], data["layer"])
+
+@rpc("any_peer", "reliable")
+func rpc_sync_full_appearance_change(owner_peer_id: int, full_data: Dictionary) -> void:
+	if owner_peer_id == get_multiplayer_authority():
+		if full_data.has("appearance") and full_data["appearance"] != null:
+			appearance = full_data["appearance"]
+			if appearance.has("hair_path"):
+				_apply_sprite_frames(appearance["hair_path"], "hair")

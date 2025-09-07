@@ -7,9 +7,9 @@ var steamAppId : int = 480
 var steamGameId : int = 480
 
 
-func _init(): 
-	OS.set_environment("SteamAppID", str(480))
-	OS.set_environment("SteamGameID", str(480))
+#func _init(): 
+	#OS.set_environment("SteamAppID", str(480))
+	#OS.set_environment("SteamGameID", str(480))
 
 
 
@@ -30,12 +30,12 @@ func _ready() -> void:
 	get_tree().root.content_scale_size = base_size * scale
 	get_tree().root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	
-	Steam.steamInit()
-	
-	steam_id = Steam.getSteamID()
-	steam_username = Steam.getPersonaName()
+	#
+	#Steam.steamInit()
+	#
+	#steam_id = Steam.getSteamID()
+	#steam_username = Steam.getPersonaName()
 
 
-func _process(_delta):
-	Steam.run_callbacks()
+#func _process(_delta):
+	#Steam.run_callbacks()

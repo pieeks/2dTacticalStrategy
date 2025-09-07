@@ -25,6 +25,7 @@ script = ExtResource("2_1bpm1")
 
 [node name="Name" type="Label" parent="UIRoot"]
 z_index = 1
+layout_mode = 0
 offset_left = 298.0
 offset_top = 32.0
 offset_right = 342.0
