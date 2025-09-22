@@ -9,8 +9,10 @@ extends CharacterBody2D
 @export var speed: float = 180.0  ## Movement speed of the character
 @export var input_deadzone: float = 0.15  ## Minimum input threshold before movement is registered
 
+@warning_ignore("unused_signal")
 signal animation_state_changed(anim: String)
 
+@warning_ignore("unused_private_class_variable")
 var _last_anim: String = ""
 
 ## Replicated movement state (Authority -> Puppets)

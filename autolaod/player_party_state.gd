@@ -1,22 +1,64 @@
 extends Node
 
+## PlayerPartyState
+##
+## Global singleton for managing player party state, savegames, and character data.
+##
+## Features:
+## - Stores player, meta, position, party, and inventory data
+## - Saves and loads persistent save files in JSON format
+## - Provides helper to list available characters from disk
+## - Keeps track of currently selected character
+##
+## Usage:
+## - Add as an Autoload in Project Settings
+## - Use `save_to_disk()` to persist player state
+## - Use `load_from_disk(pid)` to restore state
+## - Use `get_available_character()` to populate UI lists
+## - Update position with `update_position(Vector2)`
+
+## Unique identifier for the current player.
 var player_id := ""
+
+## Data dictionary storing player-specific information (name, appearance, etc.).
 var player_data : Dictionary = {}
+
+## Metadata dictionary (e.g. save timestamps, build version).
 var meta_data : Dictionary = {}
+
+## Position dictionary storing current world position `{x, y}`.
 var position_data : Dictionary = {}
+
+## Party-related data (members, roles, stats).
+## NOTE: This is initialized with a default `{x, y}` which may be a bug,
+##       since party_data should probably be a dictionary with members.
 var party_data : Dictionary = {"x": 0.0, "y": 0.0}
+
+## Inventory data (gold, items).
 var inventory_data : Dictionary = {}
+
+## Base folder for all savegames (inside user://).
 var base_path : String = "user://saveGames/"
+
+## Currently selected character ID (used in menus).
 var selected_character_id : String = ""
 
+## List of all available characters found on disk.
+## Each entry is a dictionary containing id, name, level, update_unix, and path.
 var available_characters : Array = []
 
 
+## Called when the singleton is initialized.
+## Prints debug info and refreshes available characters.
 func _ready() -> void:
 	print("PlayerPartyState available!")
 	get_available_character()
 
 
+## Saves the current state to disk as JSON.
+## Creates the save folder if necessary.
+##
+## @return bool: True if save succeeded, false otherwise.
 func save_to_disk() -> bool: 
 	var save_data := {
 		"save_version": 1.0,
@@ -31,28 +73,32 @@ func save_to_disk() -> bool:
 	if not DirAccess.dir_exists_absolute(base_path + player_id):
 		var err := DirAccess.make_dir_recursive_absolute(base_path + player_id)
 		if err != OK:
-			push_error("Konnte Save-Ordner nicht erstellen: " + base_path + player_id)
+			push_error("Failed to create save folder: " + base_path + player_id)
 			return false
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null: 
-		push_error("Fehler: Save-Datei konnte nicht geöffnet werden! ", path)
+		push_error("Error: could not open save file! " + path)
 		return false
-	var  json_string := JSON.stringify(save_data, "\t")
+	var json_string := JSON.stringify(save_data, "\t")
 	file.store_string(json_string)
 	file.close()
-	print("Save geschrieben unter: ", path)
+	print("Save written at: ", path)
 	return true
 
 
+## Loads a savegame from disk by player ID.
+##
+## @param pid String: The player ID whose save should be loaded.
+## @return bool: True if load succeeded, false otherwise.
 func load_form_disk(pid: String) -> bool: 
 	var path = base_path + pid + "/save.json"
 	if not FileAccess.file_exists(path):
-		push_error("Kein Save gefunden unter: " + path)
+		push_error("No save found at: " + path)
 		return false
 	
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null: 
-		push_error("Konnte Datei nicht öffnen: " + path)
+		push_error("Could not open file: " + path)
 		return false
 	
 	var txt = file.get_as_text()
@@ -60,7 +106,7 @@ func load_form_disk(pid: String) -> bool:
 	
 	var parsed := JSON.parse_string(txt) as Dictionary
 	if typeof(parsed) != TYPE_DICTIONARY: 
-		push_error("Save-Datei ungültig oder beschädigt: " + path)
+		push_error("Save file invalid or corrupted: " + path)
 		return false
 	
 	player_data = parsed.get("player", {})
@@ -70,10 +116,14 @@ func load_form_disk(pid: String) -> bool:
 	inventory_data = parsed.get("inventory", {})
 	player_id = pid
 	
-	print("Save geladen: ", player_id)
+	print("Save loaded: ", player_id)
 	return true
 
 
+## Scans save folder for available characters.
+## Builds a list of entries containing metadata for each save.
+##
+## @return Array: List of dictionaries with character info.
 func get_available_character() -> Array: 
 	available_characters.clear() 
 	
@@ -82,7 +132,7 @@ func get_available_character() -> Array:
 	
 	var dir := DirAccess.open(base_path)
 	if dir == null:
-		push_error("Konnte Ordner nicht öffnen: " + base_path)
+		push_error("Could not open folder: " + base_path)
 		return available_characters
 	
 	dir.list_dir_begin()
@@ -101,7 +151,7 @@ func get_available_character() -> Array:
 						var party = parsed.get("party", {})
 						var entry := {
 							"id": subfolder,
-							"name": player.get("name", "Unbekannt"),
+							"name": player.get("name", "Unknown"),
 							"level": party.get("members", [])[0].get("stats", {}).get("level", 1),
 							"update_unix": player.get("meta", {}).get("updated_unix", 0),
 							"path": save_path
@@ -112,5 +162,8 @@ func get_available_character() -> Array:
 	return available_characters
 
 
+## Updates the stored position for the current player.
+##
+## @param pos Vector2: The new position of the player.
 func update_position(pos: Vector2) -> void:
 	position_data = {"x": pos.x, "y": pos.y}
