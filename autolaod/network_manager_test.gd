@@ -84,3 +84,12 @@ func _mark_ready(peer_id: int) -> void:
 
 func is_peer_ready(peer_id: int) -> bool:
 	return _ready_peers.has(peer_id)
+
+# --- Multiplayer Authority ---
+
+## Checks whether this instance is the authority.
+## Only the authority instance is allowed to read input and move the character.
+func is_authority(current_node: Node) -> bool:
+	if current_node.multiplayer == null or not current_node.multiplayer.has_multiplayer_peer():
+		return false
+	return current_node.multiplayer.get_unique_id() == current_node.get_multiplayer_authority()

@@ -1,0 +1,45 @@
+[gd_scene load_steps=9 format=3 uid="uid://bqqfgavevdbip"]
+
+[ext_resource type="Script" uid="uid://bxa7ge7hlasck" path="res://scripts/characters/player_character.gd" id="1_hfyxy"]
+[ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://scenes/characters/character_appearance.tscn" id="2_hto64"]
+[ext_resource type="Script" uid="uid://bpkg8pno1bhbi" path="res://scripts/characters/state/node_state_machine.gd" id="3_1dev2"]
+[ext_resource type="PackedScene" uid="uid://bb5bm3c8l10cp" path="res://scenes/characters/character_sync.tscn" id="3_hto64"]
+[ext_resource type="Script" uid="uid://bnamanmyvakfu" path="res://scripts/characters/state/idle_state.gd" id="4_6prti"]
+[ext_resource type="Script" uid="uid://bp5s1kljkw8ec" path="res://scripts/characters/state/walk_state.gd" id="5_j376r"]
+[ext_resource type="PackedScene" uid="uid://cahb3hbcad5qp" path="res://scenes/characters/character_save.tscn" id="7_1dev2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rss5s"]
+size = Vector2(8, 26.5)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+script = ExtResource("1_hfyxy")
+speed = null
+input_deadzone = null
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -13.75)
+shape = SubResource("RectangleShape2D_rss5s")
+
+[node name="CharacterAppearance" parent="." instance=ExtResource("2_hto64")]
+
+[node name="NodeStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
+script = ExtResource("3_1dev2")
+initial_node_state = NodePath("Idle")
+owner_actor_path = NodePath("..")
+metadata/_custom_type_script = "uid://bpkg8pno1bhbi"
+
+[node name="Idle" type="Node" parent="NodeStateMachine"]
+script = ExtResource("4_6prti")
+metadata/_custom_type_script = "uid://diyghm648fsof"
+
+[node name="Walk" type="Node" parent="NodeStateMachine"]
+script = ExtResource("5_j376r")
+metadata/_custom_type_script = "uid://diyghm648fsof"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.5, 1.5)
+
+[node name="CharacterSync" parent="." instance=ExtResource("3_hto64")]
+
+[node name="CharacterSave" parent="." instance=ExtResource("7_1dev2")]

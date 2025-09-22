@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://4eopfn7n21rl"]
 
 [ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="1_2rluv"]
-[ext_resource type="Script" uid="uid://dp5v174rs4tjl" path="res://scenes/ui/world_selection.gd" id="1_44pcd"]
-[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="2_rbxe0"]
+[ext_resource type="Script" uid="uid://dp5v174rs4tjl" path="res://scripts/ui/world_selection.gd" id="1_44pcd"]
+[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="2_rbxe0"]
 
 [node name="WorldSelection" type="Control"]
 layout_mode = 3
@@ -30,17 +30,25 @@ stretch_mode = 6
 
 [node name="UIRoot" type="Control" parent="CanvasLayer"]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("2_rbxe0")
 
 [node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
 layout_mode = 0
-offset_left = 250.0
-offset_top = 32.0
-offset_right = 397.0
-offset_bottom = 55.0
+offset_left = -61.0
+offset_top = -201.0
+offset_right = 86.0
+offset_bottom = -178.0
 size_flags_horizontal = 4
 text = "World selection"
 horizontal_alignment = 1
@@ -48,8 +56,11 @@ horizontal_alignment = 1
 [node name="Panel" type="Panel" parent="CanvasLayer/UIRoot"]
 custom_minimum_size = Vector2(640, 360)
 layout_mode = 1
-offset_right = 640.0
-offset_bottom = 360.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/Panel"]
 layout_mode = 1

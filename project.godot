@@ -12,7 +12,7 @@ config_version=5
 
 config/name="2DStrategyTaticGame"
 run/main_scene="uid://dor7lv2w6ymfr"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -21,12 +21,11 @@ Globals="*res://autolaod/globals.gd"
 PlayerPartyState="*res://autolaod/player_party_state.gd"
 WorldState="*res://autolaod/world_state.gd"
 NetworkManagerTest="*res://autolaod/network_manager_test.gd"
-NetworkManagerSteam="res://autolaod/network_manager_steam.gd"
 
 [display]
 
-window/size/viewport_width=640
-window/size/viewport_height=360
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/size/resizable=false
 window/size/window_width_override=1920
 window/size/window_height_override=1080
@@ -43,7 +42,8 @@ folder_colors={
 "res://features/": "blue",
 "res://resources/": "pink",
 "res://resources/tilesets/": "pink",
-"res://scenes/": "green"
+"res://scenes/": "green",
+"res://scripts/": "teal"
 }
 
 [gui]

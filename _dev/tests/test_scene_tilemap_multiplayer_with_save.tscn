@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=4 uid="uid://dbyxa10imo2b0"]
 
 [ext_resource type="Script" uid="uid://w4dhrh5djxcb" path="res://_dev/tests/test_scene_multiplayer.gd" id="1_jeh7y"]
-[ext_resource type="TileSet" uid="uid://cvgv1bksd7b4h" path="res://resources/tilesets/game_tile_set.tres" id="2_6jkfs"]
-[ext_resource type="TileSet" uid="uid://di5l17of2pn6n" path="res://resources/tilesets/game_props_tile_set.tres" id="3_8fy1d"]
+[ext_resource type="TileSet" uid="uid://cvgv1bksd7b4h" path="res://_dev/tests/game_tile_set.tres" id="2_6jkfs"]
+[ext_resource type="TileSet" uid="uid://di5l17of2pn6n" path="res://_dev/tests/game_props_tile_set.tres" id="3_8fy1d"]
 
 [node name="TestSceneTilemap" type="Node2D"]
 script = ExtResource("1_jeh7y")
@@ -23,5 +23,5 @@ tile_map_data = PackedByteArray("AAALAAoABAAAAAQAAAALAAsABAAAAAUAAAAMAAoABAABAAQ
 tile_set = ExtResource("2_6jkfs")
 
 [node name="Props" type="TileMapLayer" parent="GameTilemap"]
-tile_map_data = PackedByteArray("AAAiAAsAAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAiAAsAAAAAAAAAAAAeAA4AAAAIAAQAAAA=")
 tile_set = ExtResource("3_8fy1d")

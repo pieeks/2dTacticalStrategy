@@ -1,24 +1,30 @@
 [gd_scene load_steps=8 format=3 uid="uid://ca0m0d0f41cfi"]
 
-[ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://assets/ui/default_theme.tres" id="1_d402b"]
-[ext_resource type="Script" uid="uid://mdubw1dkn0ul" path="res://scenes/ui/settings_popup.gd" id="1_yjfti"]
-[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="2_1bpm1"]
+[ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://resources/themes/default_theme.tres" id="1_d402b"]
+[ext_resource type="Script" uid="uid://mdubw1dkn0ul" path="res://scripts/ui/settings_popup.gd" id="1_yjfti"]
+[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="2_1bpm1"]
 [ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/ui/PlayfairDisplay-Medium.ttf" id="2_yjfti"]
-[ext_resource type="Script" uid="uid://cpvsh4w4w0hks" path="res://scenes/ui/audio_settings_popup.gd" id="3_1bpm1"]
-[ext_resource type="Script" uid="uid://bnva65ig66nbn" path="res://scenes/ui/video_settings_popup.gd" id="4_h7ats"]
-[ext_resource type="Script" uid="uid://205mp8k6f18p" path="res://scenes/ui/control_settings_popup.gd" id="5_kqam1"]
+[ext_resource type="Script" uid="uid://cpvsh4w4w0hks" path="res://scripts/ui/audio_settings_popup.gd" id="3_1bpm1"]
+[ext_resource type="Script" uid="uid://bnva65ig66nbn" path="res://scripts/ui/video_settings_popup.gd" id="4_h7ats"]
+[ext_resource type="Script" uid="uid://205mp8k6f18p" path="res://scripts/ui/control_settings_popup.gd" id="5_kqam1"]
 
 [node name="SettingsPopup" type="Control"]
 custom_minimum_size = Vector2(640, 360)
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_yjfti")
 
 [node name="UIRoot" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_1bpm1")
@@ -26,10 +32,10 @@ script = ExtResource("2_1bpm1")
 [node name="Name" type="Label" parent="UIRoot"]
 z_index = 1
 layout_mode = 0
-offset_left = 298.0
-offset_top = 32.0
-offset_right = 342.0
-offset_bottom = 48.25
+offset_left = -27.0
+offset_top = -201.0
+offset_right = 17.0
+offset_bottom = -184.0
 size_flags_horizontal = 4
 size_flags_vertical = 0
 theme_override_fonts/font = ExtResource("2_yjfti")
@@ -39,6 +45,11 @@ text = "Settings"
 z_index = 10
 custom_minimum_size = Vector2(640, 360)
 layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="SettingsButtonContainer" type="VBoxContainer" parent="UIRoot/Panel"]
 layout_mode = 1

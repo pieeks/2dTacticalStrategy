@@ -21,10 +21,13 @@ func _on_peer_ready(peer_id: int) -> void:
 
 
 func _spawn_player(peer_id: int) -> Node:
+	print("[Spawner] on peer", multiplayer.get_unique_id(), 
+		  "spawn for", peer_id, " player_scene set?", player_scene != null)
 	if not player_scene:
-		push_error("Player scene not set on MultiplayerSpawn")
+		push_error("Player scene not set on MultiplayerSpawn (peer " + str(multiplayer.get_unique_id()) + ")")
 		return null
 	var p := player_scene.instantiate()
+	print("[Spawner] instantiate OK on peer", multiplayer.get_unique_id(), " -> ", p)
 	p.set_multiplayer_authority(peer_id)
 	players[peer_id] = p
 	return p

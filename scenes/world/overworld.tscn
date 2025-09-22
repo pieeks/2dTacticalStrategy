@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://boy8hkvgl7pf8"]
 
-[ext_resource type="Script" uid="uid://bjomkmd25xl80" path="res://scenes/world/overworld.gd" id="1_espw7"]
+[ext_resource type="Script" uid="uid://bjomkmd25xl80" path="res://scripts/world/overworld.gd" id="1_espw7"]
 [ext_resource type="Script" uid="uid://6c6yc3arq10n" path="res://features/multiplayer_spawner.gd" id="1_h0wcu"]
-[ext_resource type="PackedScene" uid="uid://bqqfgavevdbip" path="res://features/player/player.tscn" id="2_espw7"]
+[ext_resource type="PackedScene" uid="uid://bqqfgavevdbip" path="res://scenes/characters/player_character.tscn" id="2_espw7"]
 [ext_resource type="PackedScene" uid="uid://bs3kg00yk4law" path="res://scenes/ui/ui_overlay.tscn" id="3_o3ojk"]
 [ext_resource type="PackedScene" uid="uid://8pok4n7dm3pt" path="res://features/debug/debug_overlay.tscn" id="4_eccxn"]
 [ext_resource type="PackedScene" uid="uid://dfoplrmyisnu6" path="res://scenes/ui/esc_menu.tscn" id="5_s753n"]

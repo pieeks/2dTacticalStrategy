@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=4 uid="uid://p5yd5ekjlji"]
 
-[ext_resource type="TileSet" uid="uid://cvgv1bksd7b4h" path="res://resources/tilesets/game_tile_set.tres" id="1_ld1o4"]
-[ext_resource type="TileSet" uid="uid://di5l17of2pn6n" path="res://resources/tilesets/game_props_tile_set.tres" id="2_c0fj1"]
-[ext_resource type="PackedScene" uid="uid://bqqfgavevdbip" path="res://features/player/player.tscn" id="3_2tef0"]
+[ext_resource type="TileSet" uid="uid://cvgv1bksd7b4h" path="res://_dev/tests/game_tile_set.tres" id="1_ld1o4"]
+[ext_resource type="TileSet" uid="uid://di5l17of2pn6n" path="res://_dev/tests/game_props_tile_set.tres" id="2_c0fj1"]
+[ext_resource type="PackedScene" uid="uid://bqqfgavevdbip" path="res://scenes/characters/player_character.tscn" id="3_2tef0"]
 
 [node name="TestSceneTilemap" type="Node2D"]
 

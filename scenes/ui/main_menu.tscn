@@ -1,13 +1,13 @@
 [gd_scene load_steps=9 format=3 uid="uid://dor7lv2w6ymfr"]
 
-[ext_resource type="Script" uid="uid://dj0fmryly6bby" path="res://scenes/ui/main_menu.gd" id="1_1g8jr"]
+[ext_resource type="Script" uid="uid://dj0fmryly6bby" path="res://scripts/ui/main_menu.gd" id="1_1g8jr"]
 [ext_resource type="Texture2D" uid="uid://iw4g1jiqx8u2" path="res://assets/art/pictures/Background_test.png" id="1_fe2o3"]
 [ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/ui/PlayfairDisplay-Medium.ttf" id="1_sl1te"]
 [ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="3_m1kxf"]
-[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="4_q85j6"]
-[ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://assets/ui/default_theme.tres" id="4_wb0q5"]
+[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="4_q85j6"]
+[ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://resources/themes/default_theme.tres" id="4_wb0q5"]
 [ext_resource type="PackedScene" uid="uid://ca0m0d0f41cfi" path="res://scenes/ui/settings_popup.tscn" id="7_wb0q5"]
-[ext_resource type="Script" uid="uid://bqulcvlmosftm" path="res://scenes/ui/character_list_control.gd" id="10_8g5eo"]
+[ext_resource type="Script" uid="uid://bqulcvlmosftm" path="res://scripts/ui/character_list_control.gd" id="10_8g5eo"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -48,7 +48,13 @@ stretch_mode = 6
 
 [node name="UIRoot" type="Control" parent="CanvasLayer"]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("4_q85j6")
 
 [node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
@@ -58,19 +64,21 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 288.0
-offset_top = 32.0
-offset_right = 350.0
-offset_bottom = 48.25
+offset_left = -36.0
+offset_top = -201.0
+offset_right = 26.0
+offset_bottom = -184.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Main Menu"
 
 [node name="Panel" type="Panel" parent="CanvasLayer/UIRoot"]
-custom_minimum_size = Vector2(640, 360)
 layout_mode = 1
-offset_right = 640.0
-offset_bottom = 360.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="ButtonContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/Panel"]
 layout_mode = 1
@@ -116,10 +124,6 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 404.0
-offset_top = 65.0
-offset_right = 404.0
-offset_bottom = 65.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("10_8g5eo")
@@ -127,16 +131,25 @@ script = ExtResource("10_8g5eo")
 [node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/UIRoot/Panel/CharacterListControl"]
 custom_minimum_size = Vector2(200, 250)
 layout_mode = 1
-offset_right = 200.0
-offset_bottom = 250.0
+offset_left = -262.0
+offset_top = -114.0
+offset_right = -62.0
+offset_bottom = 136.0
 
 [node name="CharacterListVBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/Panel/CharacterListControl/ScrollContainer"]
 layout_mode = 2
 
 [node name="SettingsPopup" parent="CanvasLayer" instance=ExtResource("7_wb0q5")]
 visible = false
-offset_right = 640.0
-offset_bottom = 360.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -180.0
+offset_right = 320.0
+offset_bottom = 180.0
 
 [connection signal="pressed" from="CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/Panel/ButtonContainer/CreateCharacter" to="." method="_on_create_character_pressed"]

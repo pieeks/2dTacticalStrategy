@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dfoplrmyisnu6"]
 
-[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="1_guea3"]
-[ext_resource type="Script" uid="uid://cdgliiipr84b2" path="res://scenes/ui/esc_menu.gd" id="1_wvp1r"]
+[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="1_guea3"]
+[ext_resource type="Script" uid="uid://cdgliiipr84b2" path="res://scripts/ui/esc_menu.gd" id="1_wvp1r"]
 [ext_resource type="PackedScene" uid="uid://ca0m0d0f41cfi" path="res://scenes/ui/settings_popup.tscn" id="3_wvp1r"]
 
 [node name="ESCMenu" type="CanvasLayer"]
@@ -10,15 +10,18 @@ script = ExtResource("1_wvp1r")
 
 [node name="UIRoot" type="Control" parent="."]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 script = ExtResource("1_guea3")
 
 [node name="ColorRect" type="ColorRect" parent="UIRoot"]
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,9 +31,12 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.333333)
 
 [node name="Panel" type="Panel" parent="UIRoot"]
-layout_mode = 0
-offset_right = 640.0
-offset_bottom = 360.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UIRoot/Panel"]
 z_index = 1
@@ -60,12 +66,17 @@ layout_mode = 2
 text = "Save & Quit"
 
 [node name="SettingsPopup" parent="." instance=ExtResource("3_wvp1r")]
+visible = false
 custom_minimum_size = Vector2(1, 1)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -0.5
+offset_top = -0.5
+offset_right = 0.5
+offset_bottom = 0.5
 
 [connection signal="pressed" from="UIRoot/Panel/VBoxContainer/Resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="UIRoot/Panel/VBoxContainer/Options" to="." method="_on_options_pressed"]

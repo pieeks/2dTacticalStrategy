@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://8pok4n7dm3pt"]
 
 [ext_resource type="Script" uid="uid://dtafhm4bue5bc" path="res://features/debug/debug_overlay.gd" id="1_tasbd"]
-[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scenes/ui/ui_scaler.gd" id="2_kybr7"]
+[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="2_kybr7"]
 
 [node name="CanvasLayer" type="CanvasLayer"]
 script = ExtResource("1_tasbd")
