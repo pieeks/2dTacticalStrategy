@@ -1,3 +1,6 @@
+class_name IdleState
+extends NodeState
+
 ## IdleState
 ##
 ## StateMachine state for handling idle animations.
@@ -9,8 +12,6 @@
 ## - Emits animation change events only when animation actually changes
 ## - Transitions to Walk state when movement input is detected
 
-class_name IdleState
-extends NodeState
 
 ## Cached reference to the owning PlayerCharacter.
 var _player: PlayerCharacter

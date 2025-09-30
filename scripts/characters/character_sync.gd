@@ -1,66 +1,83 @@
-#class_name CharacterSync
-extends MultiplayerSynchronizer
+## CharacterSync
+##
+## Synchronization helper for networked characters.
+## This node is responsible for keeping appearance, position, and animation
+## in sync across the network using RPCs.
+##
+## Usage:
+## - Attach CharacterSync as a child of PlayerCharacter.
+## - Call `set_appearance_node()` in PlayerCharacter._ready() to link the
+##   CharacterAppearance node.
+## - Use `apply_and_sync_appearance()` when changing appearance locally;
+##   it will update both local visuals and broadcast to other peers.
+##
+## Replication rules:
+## - Appearance is sent reliably to ensure consistency.
+## - Position and animations are sent with unreliable_ordered for efficiency
+##   (older packets can be dropped in favor of newer updates).
 
-## Drop-in replacement for the former abstract network entity.
-## Lives as its own scene (root = MultiplayerSynchronizer) and applies appearance changes.
+class_name CharacterSync
+extends Node
 
-## Current appearance state (paths per layer)
+## Stores the current appearance dataset (e.g. paths for race, hair, body, legs).
 var appearance: Dictionary = {}
 
-## Reference to the visual CharacterAppearance node (set by parent)
+## Reference to the CharacterAppearance node that actually renders visuals.
+## Must be set by the parent (PlayerCharacter).
 var appearance_node: CharacterAppearance = null
 
 
-# --- Setup ---
-
-## Parent must call this once in _ready().
+## Links the CharacterAppearance node to this sync node.
+## Must be called once by the parent in _ready().
+##
+## @param node CharacterAppearance: The node responsible for visuals.
 func set_appearance_node(node: CharacterAppearance) -> void:
 	appearance_node = node
 
 
-# --- RPCs (keep signatures unchanged) ---
+# --- RPCs ---
 
-## Syncs a single appearance layer (race, hair, body, leg) across peers.
-## NOTE: No authority gating here; authority is checked on send. All peers apply the change.
+## Applies a full appearance dataset on all peers, including the sender.
+## Called when a new player joins or when full data must be synchronized.
+##
+## @param data Dictionary: Contains appearance keys (race_path, hair_path, body_path, leg_path).
 @rpc("any_peer", "reliable")
-func rpc_sync_appearance_change(_peer_id: int, data: Dictionary) -> void:
-	if data.has("path") and data.has("layer"):
-		_apply_sprite_frames(data["path"], data["layer"])
-
-## Syncs the full appearance data for late-join peers.
-## NOTE: Signature kept (owner_peer_id, full_data) but we do not gate by owner here.
-@rpc("any_peer", "reliable")
-func rpc_sync_full_appearance_change(_owner_peer_id: int, full_data: Dictionary) -> void:
-	if full_data.has("appearance") and full_data["appearance"] != null:
-		appearance = full_data["appearance"]
-		if appearance.has("race_path"):
-			_apply_sprite_frames(appearance["race_path"], "race")
-		if appearance.has("hair_path"):
-			_apply_sprite_frames(appearance["hair_path"], "hair")
-		if appearance.has("body_path"):
-			_apply_sprite_frames(appearance["body_path"], "body")
-		if appearance.has("leg_path"):
-			_apply_sprite_frames(appearance["leg_path"], "leg")
+func rpc_sync_full_appearance(data: Dictionary) -> void:
+	if appearance_node:
+		appearance_node.apply_full_data(data)
 
 
-# --- Public API (unchanged) ---
+## Synchronizes the character's global position.
+## Sent frequently by the authority using unreliable_ordered replication.
+##
+## @param pos Vector2: The global position of the player.
+@rpc("any_peer", "unreliable_ordered")
+func rpc_sync_position(pos: Vector2) -> void:
+	var actor := get_parent() # Expected to be PlayerCharacter
+	if actor:
+		actor.global_position = pos
 
-## Equip locally and replicate to all peers.
-func equip_item(layer: String, frames_path: String) -> void:
-	if not NetworkManagerTest.is_authority(self):
-		return
-	_apply_sprite_frames(frames_path, layer)
-	rpc("rpc_sync_appearance_change", multiplayer.get_unique_id(), {"path": frames_path, "layer": layer})
+
+## Synchronizes animation state across peers.
+## Called by authority whenever animation changes (e.g. idle_left, walk_right).
+##
+## @param anim String: The animation name to play.
+@rpc("any_peer", "unreliable_ordered")
+func rpc_sync_animation(anim: String) -> void:
+	if appearance_node:
+		appearance_node.play(anim)
 
 
-# --- Internal Helpers (unchanged name/behavior) ---
+# --- Public API ---
 
-## Applies a single layer to the bound CharacterAppearance node.
-func _apply_sprite_frames(path: String, layer: String) -> void:
-	if path == "" or appearance_node == null:
-		return
-	match layer:
-		"race": appearance_node.set_race(path)
-		"hair": appearance_node.set_hair(path)
-		"body": appearance_node.set_body(path)
-		"leg":  appearance_node.set_leg(path)
+## Applies new appearance data locally and, if authority, broadcasts to others.
+##
+## @param data Dictionary: Contains appearance data with resource paths.
+func apply_and_sync_appearance(data: Dictionary) -> void:
+	# 1) Always apply locally so the local player sees changes immediately
+	if appearance_node:
+		appearance_node.apply_full_data(data)
+
+	# 2) Broadcast only if this peer has authority
+	if NetworkManagerTest.is_authority(self):
+		rpc("rpc_sync_full_appearance", data)

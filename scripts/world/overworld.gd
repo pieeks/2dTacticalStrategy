@@ -26,6 +26,8 @@ extends Node2D
 ## Node used as the parent for all player instances.
 @onready var players: Node = $Players
 
+@onready var npc_container: NPCContainer = $NPCContainer
+
 ## Default level to load when this scene starts.
 const DEFAULT_LEVEL = preload("res://scenes/world/levels/biom_1.tscn")
 
@@ -63,6 +65,10 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		multiplayer_spawner.remove_player(peer_id)
 
 
+func _on_level_ready(level: Node, npc_information: Dictionary) -> void:
+	npc_container.register_level(level, npc_information)
+
+
 ## Loads a given level scene.
 ## Clears the current LevelContainer and instantiates the new scene.
 ##
@@ -72,6 +78,7 @@ func _load_level(level_scene: PackedScene) -> void:
 		child.queue_free()
 	
 	var level: Node2D = level_scene.instantiate()
+	level.level_ready.connect(_on_level_ready)
 	level_container.add_child(level)
 	
 	print("Level loaded: ", level_scene)

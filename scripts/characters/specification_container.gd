@@ -1,0 +1,2 @@
+class_name NpcSpecification
+extends NPCController

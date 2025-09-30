@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bb5bm3c8l10cp"]
 
-[ext_resource type="Script" uid="uid://d3yjvinhk7cwe" path="res://scripts/characters/character_sync_2.gd" id="1_3mgkv"]
+[ext_resource type="Script" uid="uid://d3yjvinhk7cwe" path="res://scripts/characters/character_sync.gd" id="1_3mgkv"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ufk1h"]
 

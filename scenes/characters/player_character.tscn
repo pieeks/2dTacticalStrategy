@@ -9,16 +9,14 @@
 [ext_resource type="PackedScene" uid="uid://cahb3hbcad5qp" path="res://scenes/characters/character_save.tscn" id="7_1dev2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rss5s"]
-size = Vector2(8, 26.5)
+size = Vector2(14, 39.5)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
 script = ExtResource("1_hfyxy")
-speed = null
-input_deadzone = null
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -13.75)
+position = Vector2(0, -21)
 shape = SubResource("RectangleShape2D_rss5s")
 
 [node name="CharacterAppearance" parent="." instance=ExtResource("2_hto64")]
