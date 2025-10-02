@@ -34,7 +34,7 @@ func register_level(level: Node, npc_information: Dictionary) -> void:
 
 
 func _spawn_npc_at_path(path: Path2D, npc_type: String) -> void: 
-	var follower = path.get_node('PathFollow2D')
+	var follower = path.get_node('PathFollow2D') as PathFollow2D
 	if follower == null:
 		push_warning("No PathFollow2D under %s" % path.name)
 		return
@@ -45,5 +45,19 @@ func _spawn_npc_at_path(path: Path2D, npc_type: String) -> void:
 	print("Spawned %s on path %s" % [npc_type, path.name])
 	
 
-func _spawn_npc_at_area(node: Node, npc_type: String) -> void:
-	pass 
+
+func _spawn_npc_at_area(area: Area2D, npc_type: String) -> void:
+	if area == null:
+		push_warning("No Area2D under %s" % area.name)
+		return
+	
+	var poly = area.get_node("Polygon2D") as Polygon2D
+	if poly == null: 
+		push_warning("No Polygon2D under %s" % area.name)
+		return
+	
+	var npc = npc_scene.instantiate()
+	npc = area.set_patrol_points(npc, poly)
+	area.add_child(npc)
+	
+	print("Spawned %s on path %s" % [npc_type, area.name])

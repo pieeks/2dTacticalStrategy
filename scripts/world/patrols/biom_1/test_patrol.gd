@@ -71,7 +71,7 @@ func _update_npc_direction(dir: Vector2) -> void:
 		return
 	
 	npc.net_facing = dir.normalized()
-	print("Facing:", npc.net_facing)
+	#print("Facing:", npc.net_facing)
 	
 	if dir.length() > 0.1:
 		if npc.state_machine:

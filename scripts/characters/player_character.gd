@@ -85,19 +85,36 @@ func _physics_process(delta: float) -> void:
 		if save_update_timer >= SAVE_UPDATE_INTERVAL:
 			save_update_timer = 0.0
 			PlayerPartyState.update_position(global_position)
-
+		
+		## 4 - Richtungen Laufen
+		## Input + movement
+		#var raw := _read_move_input()
+		#var dir := _snap_to_cardinal(raw)
+		#velocity = dir * speed
+		#move_and_slide()
+#
+		## Replicated state
+		#net_input = dir
+		#net_is_moving = dir.length() > 0.01
+		#if net_is_moving:
+			#net_facing = dir.normalized()
+		
+		## 8 Richtungen Laufen
 		# Input + movement
 		var raw := _read_move_input()
-		var dir := _snap_to_cardinal(raw)
-		velocity = dir * speed
+		
+		# Bewegung darf diagonal sein
+		velocity = raw.normalized() * speed
 		move_and_slide()
-
-		# Replicated state
-		net_input = dir
-		net_is_moving = dir.length() > 0.01
+		
+		# Animation/Richtungsdaten bleiben auf 4 Richtungen beschränkt
+		var dir_for_anim = _snap_to_cardinal(raw)
+		
+		net_input = dir_for_anim
+		net_is_moving = raw.length() > 0.01
 		if net_is_moving:
-			net_facing = dir.normalized()
-
+			net_facing = dir_for_anim
+	
 		# Broadcast position
 		sync.rpc("rpc_sync_position", global_position)
 	else:
