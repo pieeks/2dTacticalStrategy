@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=4 uid="uid://d1smnt3l63i5r"]
+[gd_scene load_steps=6 format=4 uid="uid://d1smnt3l63i5r"]
 
 [ext_resource type="Script" uid="uid://csxfjo27j4355" path="res://scripts/world/biom_1.gd" id="1_l0g45"]
 [ext_resource type="TileSet" uid="uid://l4kya6c8iy4y" path="res://resources/tilesets/biom_1.tres" id="1_xgcw2"]
@@ -10,9 +10,6 @@ _data = {
 "points": PackedVector2Array(0, 0, 0, 0, 170, 305, 0, 0, 0, 0, 1231, 302.77777, 0, 0, 0, 0, 1236, 82, 0, 0, 0, 0, 1233, -491)
 }
 point_count = 4
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_l0g45"]
-size = Vector2(1136, 168.5)
 
 [node name="Biom1" type="Node2D"]
 script = ExtResource("1_l0g45")
@@ -43,12 +40,5 @@ script = ExtResource("3_kk82i")
 [node name="TestSpawnArea" type="Area2D" parent="NPCSpawnDefinition"]
 script = ExtResource("4_demgq")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="NPCSpawnDefinition/TestSpawnArea"]
-position = Vector2(653, 554.75)
-shape = SubResource("RectangleShape2D_l0g45")
-
-[node name="Polygon2D" type="Polygon2D" parent="NPCSpawnDefinition/TestSpawnArea"]
-position = Vector2(1464, -214)
-color = Color(1, 1, 1, 0)
-polygon = PackedVector2Array(-292, -676, -282, -162, -288, 404, -585, 408, -1096, 404, -1089, -686)
-uv = PackedVector2Array(-672.5, -149.5, -471.5, -175.5, -300.5, -28.5, -563.5, 133.5, -822.5, -32.5, -668.5, -158.5)
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="NPCSpawnDefinition/TestSpawnArea"]
+polygon = PackedVector2Array(14, -20, 1191, -20, 1192, -555, 13, -551)

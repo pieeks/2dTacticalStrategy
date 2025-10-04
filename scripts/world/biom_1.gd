@@ -2,7 +2,7 @@ extends Node2D
 
 var npc_information: Dictionary = {
 	"TestPath": {"count": 1},
-	"TestSpawnArea": {"count": 2}
+	"TestSpawnArea": {"count": 4}
 }
 
 var npc_spawn_definition: Node

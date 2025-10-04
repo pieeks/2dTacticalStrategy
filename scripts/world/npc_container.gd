@@ -3,6 +3,8 @@ extends Node
 
 var npc_scene := preload("res://scenes/characters/npc_character.tscn")
 
+var patrol_counter: int = 0
+
 func _ready() -> void:
 	pass
 
@@ -40,8 +42,8 @@ func _spawn_npc_at_path(path: Path2D, npc_type: String) -> void:
 		return
 	
 	var npc = npc_scene.instantiate()
-	follower.add_child(npc)
 	#TODO: NPC-Spezifikation anhand von npc_type setzen
+	follower.add_child(npc)
 	print("Spawned %s on path %s" % [npc_type, path.name])
 	
 
@@ -51,13 +53,26 @@ func _spawn_npc_at_area(area: Area2D, npc_type: String) -> void:
 		push_warning("No Area2D under %s" % area.name)
 		return
 	
-	var poly = area.get_node("Polygon2D") as Polygon2D
+	var poly = area.get_node("CollisionPolygon2D") as CollisionPolygon2D
 	if poly == null: 
-		push_warning("No Polygon2D under %s" % area.name)
+		push_warning("No CollisionPolygon2D under %s" % area.name)
 		return
 	
+	var patrol = Path2D.new()
+	patrol.name = area.name + "Patrol" + str(patrol_counter)
+	patrol_counter = patrol_counter + 1
+	
+	var followNode = PathFollow2D.new()
+	var script := load("res://scripts/world/patrols/biom_1/test_patrol.gd")
 	var npc = npc_scene.instantiate()
-	npc = area.set_patrol_points(npc, poly)
-	area.add_child(npc)
+	#TODO: NPC-Spezifikation anhand von npc_type setzen
+	followNode.add_child(npc)
+	followNode.set_script(script)
+	followNode.rotates = false
+	patrol.add_child(followNode)
+	
+	patrol = area.set_patrol_points(patrol, poly)
+	
+	$".".add_child(patrol)
 	
 	print("Spawned %s on path %s" % [npc_type, area.name])
