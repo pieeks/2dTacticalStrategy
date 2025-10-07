@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b7x2582e6j3r1"]
+
+[ext_resource type="Script" uid="uid://bfuxgho1wd7cb" path="res://scripts/characters/specification_container.gd" id="1_mdjgs"]
+
+[node name="NPCSpecificatioinsContainer" type="Node"]
+script = ExtResource("1_mdjgs")

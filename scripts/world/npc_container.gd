@@ -42,8 +42,9 @@ func _spawn_npc_at_path(path: Path2D, npc_type: String) -> void:
 		return
 	
 	var npc = npc_scene.instantiate()
-	#TODO: NPC-Spezifikation anhand von npc_type setzen
 	follower.add_child(npc)
+	npc.specification.load_npc_enemy_data(npc_type)
+	
 	print("Spawned %s on path %s" % [npc_type, path.name])
 	
 
@@ -65,14 +66,14 @@ func _spawn_npc_at_area(area: Area2D, npc_type: String) -> void:
 	var followNode = PathFollow2D.new()
 	var script := load("res://scripts/world/patrols/biom_1/test_patrol.gd")
 	var npc = npc_scene.instantiate()
-	#TODO: NPC-Spezifikation anhand von npc_type setzen
+	
 	followNode.add_child(npc)
 	followNode.set_script(script)
 	followNode.rotates = false
 	patrol.add_child(followNode)
 	
 	patrol = area.set_patrol_points(patrol, poly)
-	
 	$".".add_child(patrol)
+	npc.specification.load_npc_enemy_data(npc_type)
 	
 	print("Spawned %s on path %s" % [npc_type, area.name])

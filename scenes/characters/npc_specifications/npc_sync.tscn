@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5v72tphylmod"]
+
+[ext_resource type="Script" uid="uid://cyr4q1apjfspo" path="res://scripts/characters/npc_sync.gd" id="1_s0so0"]
+
+[node name="NPCSync" type="Node"]
+script = ExtResource("1_s0so0")

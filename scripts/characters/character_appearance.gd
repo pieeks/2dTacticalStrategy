@@ -49,9 +49,9 @@ func _ready() -> void:
 	bodySprites = load_files("res://features/character/body/basic/", ".tres")
 	legSprites = load_files("res://features/character/leg/basic/", ".tres")
 	
-	print(hairSprites[0].resource_path)
-	print(bodySprites[0].resource_path)
-	print(legSprites[0].resource_path)
+	#print(hairSprites[0].resource_path)
+	#print(bodySprites[0].resource_path)
+	#print(legSprites[0].resource_path)
 
 
 ## Returns the resource path of the currently active race SpriteFrames.

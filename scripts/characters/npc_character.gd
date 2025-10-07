@@ -19,6 +19,8 @@ extends CharacterController
 ## Reference to the appearance node (shared with players).
 @onready var appearance: CharacterAppearance = $CharacterAppearance
 
+@onready var specification: NpcSpecification = $NPCSpecificatioinsContainer
+
 
 ## Called when the NPC enters the scene tree.
 ## Injects actor reference into the state machine.

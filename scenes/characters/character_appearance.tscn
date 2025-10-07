@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://0y6byn65i4o4" path="res://scripts/characters/character_appearance.gd" id="1_l6wwr"]
 [ext_resource type="SpriteFrames" uid="uid://d0mh8hgk1dc2i" path="res://features/character/race/elf_basic.tres" id="2_dokhl"]
-[ext_resource type="SpriteFrames" uid="uid://d3dwy843k0g5d" path="res://features/character/body/basic/green.tres" id="3_5a22h"]
+[ext_resource type="SpriteFrames" uid="uid://dna2ijtsgbyg6" path="res://features/character/body/basic/blue.tres" id="3_l6wwr"]
 [ext_resource type="SpriteFrames" uid="uid://d2pj554r04435" path="res://features/character/hair/basic/brown_basic.tres" id="4_o2vfw"]
 [ext_resource type="SpriteFrames" uid="uid://bewfsm20eh4kv" path="res://features/character/head/head.tres" id="5_7lux8"]
 [ext_resource type="SpriteFrames" uid="uid://eiaxaq8sp1m0" path="res://features/character/leg/basic/blue.tres" id="6_tlpxg"]
@@ -20,7 +20,7 @@ offset = Vector2(0, -30)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 3
-sprite_frames = ExtResource("3_5a22h")
+sprite_frames = ExtResource("3_l6wwr")
 animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)

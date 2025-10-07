@@ -29,9 +29,10 @@ signal character_created
 ## Called when the node enters the scene tree.
 ## Prints debug information about loaded hair options.
 func _ready() -> void:
+	pass
 	# Dev/debug output
-	var hairs = character.hairSprites
-	print("Haare geladen: ", hairs.size())
+	#var hairs = character.hairSprites
+	#print("Haare geladen: ", hairs.size())
 
 
 # --- Race selection ---
@@ -40,14 +41,12 @@ func _ready() -> void:
 func _on_race_left_button_pressed() -> void:
 	race_index = (race_index - 1 + character.raceSprites.size()) % character.raceSprites.size()
 	var path = character.raceSprites[race_index].resource_path
-	print(race_index)
 	character.set_race(path)
 
 ## Cycles race selection forwards and updates preview.
 func _on_race_right_button_pressed() -> void:
 	race_index = (race_index + 1) % character.raceSprites.size()
 	var path = character.raceSprites[race_index].resource_path
-	print(race_index)
 	character.set_race(path)
 
 
@@ -57,14 +56,12 @@ func _on_race_right_button_pressed() -> void:
 func _on_hair_left_button_pressed() -> void:
 	hair_index = (hair_index - 1 + character.hairSprites.size()) % character.hairSprites.size()
 	var path = character.hairSprites[hair_index].resource_path
-	print(hair_index)
 	character.set_hair(path)
 
 ## Cycles hair selection forwards and updates preview.
 func _on_hair_right_button_pressed() -> void:
 	hair_index = (hair_index + 1) % character.hairSprites.size()
 	var path = character.hairSprites[hair_index].resource_path
-	print(hair_index)
 	character.set_hair(path)
 
 
@@ -74,14 +71,12 @@ func _on_hair_right_button_pressed() -> void:
 func _on_body_left_button_pressed() -> void:
 	body_index = (body_index - 1 + character.bodySprites.size()) % character.bodySprites.size()
 	var path = character.bodySprites[body_index].resource_path
-	print(body_index)
 	character.set_body(path)
 
 ## Cycles body selection forwards and updates preview.
 func _on_body_right_button_pressed() -> void:
 	body_index = (body_index + 1) % character.bodySprites.size()
 	var path = character.bodySprites[body_index].resource_path
-	print(body_index)
 	character.set_body(path)
 
 
@@ -91,14 +86,12 @@ func _on_body_right_button_pressed() -> void:
 func _on_leg_left_button_pressed() -> void:
 	leg_index = (leg_index - 1 + character.legSprites.size()) % character.legSprites.size()
 	var path = character.legSprites[leg_index].resource_path
-	print(leg_index)
 	character.set_leg(path)
 
 ## Cycles leg selection forwards and updates preview.
 func _on_leg_right_button_pressed() -> void:
 	leg_index = (leg_index + 1) % character.legSprites.size()
 	var path = character.legSprites[leg_index].resource_path
-	print(leg_index)
 	character.set_leg(path)
 
 
@@ -113,7 +106,7 @@ func _on_create_button_pressed() -> void:
 	var appearance := {
 		"race_path": character.raceSprites[race_index].resource_path,
 		"hair_path": character.hairSprites[hair_index].resource_path,
-		"body_path": character.legSprites[body_index].resource_path, # ⚠️ Body currently using legSprites → check later
+		"body_path": character.bodySprites[body_index].resource_path, 
 		"leg_path": character.legSprites[leg_index].resource_path,
 	}
 	
