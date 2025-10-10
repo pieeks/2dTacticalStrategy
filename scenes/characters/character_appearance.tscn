@@ -12,34 +12,29 @@
 script = ExtResource("1_l6wwr")
 
 [node name="Race2DSprite" type="AnimatedSprite2D" parent="."]
-z_index = 1
 sprite_frames = ExtResource("2_dokhl")
 animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
-z_index = 3
 sprite_frames = ExtResource("3_l6wwr")
 animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Hair2DSprite" type="AnimatedSprite2D" parent="."]
-z_index = 1
 sprite_frames = ExtResource("4_o2vfw")
 animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Head2DSprite" type="AnimatedSprite2D" parent="."]
-z_index = 2
 sprite_frames = ExtResource("5_7lux8")
 animation = &"idle_front"
 autoplay = "idle_front"
 
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
-z_index = 2
 sprite_frames = ExtResource("6_tlpxg")
 animation = &"idle_front"
 autoplay = "idle_front"

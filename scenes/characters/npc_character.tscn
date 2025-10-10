@@ -1,20 +1,23 @@
-[gd_scene load_steps=8 format=3 uid="uid://d3pw8lpi7jdfx"]
+[gd_scene load_steps=9 format=3 uid="uid://d3pw8lpi7jdfx"]
 
 [ext_resource type="Script" uid="uid://dwrohlp1lkur4" path="res://scripts/characters/npc_character.gd" id="1_5lcte"]
 [ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://scenes/characters/character_appearance.tscn" id="1_16wv8"]
 [ext_resource type="Script" uid="uid://bvnb888sx17ot" path="res://scripts/characters/state/idle_npc_state.gd" id="3_l1lkx"]
 [ext_resource type="Script" uid="uid://bpkg8pno1bhbi" path="res://scripts/characters/state/node_state_machine.gd" id="3_oiye3"]
 [ext_resource type="Script" uid="uid://dq6ak12v04hdy" path="res://scripts/characters/state/walk_npc_state.gd" id="4_cpq63"]
+[ext_resource type="Script" uid="uid://bixx6ume40vog" path="res://scripts/characters/state/follow_target_npc.gd" id="6_ax4aq"]
 [ext_resource type="PackedScene" uid="uid://b7x2582e6j3r1" path="res://scenes/characters/npc_specificatioins_container.tscn" id="6_oiye3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vwdjj"]
-size = Vector2(20, 38)
+size = Vector2(15.887739, 14.252375)
 
 [node name="NPCCharacter" type="CharacterBody2D"]
+collision_layer = 8
+collision_mask = 12
 script = ExtResource("1_5lcte")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -18)
+position = Vector2(0, -18.747751)
 scale = Vector2(0.62941617, 0.946895)
 shape = SubResource("RectangleShape2D_vwdjj")
 
@@ -30,5 +33,8 @@ script = ExtResource("3_l1lkx")
 
 [node name="WalkNPC" type="Node" parent="StateMachine"]
 script = ExtResource("4_cpq63")
+
+[node name="FollowTargetNPC" type="Node" parent="StateMachine"]
+script = ExtResource("6_ax4aq")
 
 [node name="NPCSpecificatioinsContainer" parent="." instance=ExtResource("6_oiye3")]

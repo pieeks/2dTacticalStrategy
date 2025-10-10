@@ -1,7 +1,7 @@
 extends Node2D
 
 var npc_information: Dictionary = {
-	"TestPath": {"count": 1, "type": "slime_basic"},
+	"TestPath": {"count": 1, "type": "test_npc_basic"},
 	"TestSpawnArea": {"count": 4, "type": "slime_basic"}
 }
 

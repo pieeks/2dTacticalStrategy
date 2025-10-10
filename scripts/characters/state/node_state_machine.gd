@@ -81,7 +81,7 @@ func _physics_process(delta: float) -> void:
 ## Checks for invalid transitions and calls exit/enter lifecycle methods.
 ##
 ## @param node_state_name String: Name of the state to transition to.
-func transition_to(node_state_name: String) -> void:
+func transition_to(node_state_name: String, msg := {}) -> void:
 	if node_state_name.to_lower() == current_node_state_name.to_lower():
 		return
 	var next: NodeState = node_states.get(node_state_name.to_lower())
@@ -89,14 +89,20 @@ func transition_to(node_state_name: String) -> void:
 		return
 	if current_node_state:
 		current_node_state._on_exit()
-	_change_state(next)
+	_change_state(next, msg)
 
 
 ## Changes current state to the given one.
 ## Updates state references and calls enter lifecycle method.
 ##
 ## @param next NodeState: The state node to switch to.
-func _change_state(next: NodeState) -> void:
+func _change_state(next: NodeState, msg := {}) -> void:
 	current_node_state = next
 	current_node_state_name = next.name
-	current_node_state._on_enter()
+	if "_on_enter" in next and current_node_state.has_method("_on_enter"):
+		var arg_count := current_node_state.get_method_argument_count("_on_enter")
+		if arg_count > 0: 
+			current_node_state.call("_on_enter", msg)
+		else:
+			current_node_state._on_enter()
+	

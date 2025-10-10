@@ -21,6 +21,7 @@ extends CharacterController
 
 @onready var specification: NpcSpecification = $NPCSpecificatioinsContainer
 
+var force_fight_area: ForceFightArea
 
 ## Called when the NPC enters the scene tree.
 ## Injects actor reference into the state machine.
@@ -35,3 +36,16 @@ func _ready() -> void:
 func play_animation(anim: String) -> void:
 	if is_instance_valid(appearance):
 		appearance.play(anim)
+
+
+func set_force_fight_area(force_fight_area_node: Node) -> void:
+	force_fight_area = force_fight_area_node
+
+
+func stop_patrol() -> void:
+	if get_parent() is PathFollow2D:
+		get_parent().set_process(false)
+
+func resume_patrol() -> void:
+	if get_parent() is PathFollow2D:
+		get_parent().set_process(true)

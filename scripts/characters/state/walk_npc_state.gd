@@ -23,7 +23,6 @@ var _sprite: AnimatedSprite2D
 func _on_enter() -> void:
 	_npc = owner_actor as NPCCharacter
 	if _npc:
-		# CharacterAppear ist dein Visuals-Node
 		_sprite = _npc.get_node_or_null("CharacterAppearance") as AnimatedSprite2D
 		_npc._last_anim = ""
 		var facing = _snap_to_cardinal(_npc.facing_dir())
@@ -40,7 +39,7 @@ func _on_physics_process(_delta: float) -> void:
 
 	var facing = _snap_to_cardinal(_npc.facing_dir())
 	if facing == Vector2.ZERO:
-		request_transition("idle")   # State-Name in deiner Scene
+		request_transition("idle")   
 		return
 
 	var animationName := "walk_" + _dir_name(facing)

@@ -27,15 +27,15 @@ func register_level(level: Node, npc_information: Dictionary) -> void:
 		
 		for i in range(count):
 			if node is Path2D:
-				_spawn_npc_at_path(node, npc_type)
+				_spawn_npc_at_path(node, npc_type, i)
 			elif node is Area2D:
-				_spawn_npc_at_area(node, npc_type)
+				_spawn_npc_at_area(node, npc_type, i)
 			else:
 				push_warning("Unsupported spawn node type: %s" % node)
 		
 
 
-func _spawn_npc_at_path(path: Path2D, npc_type: String) -> void: 
+func _spawn_npc_at_path(path: Path2D, npc_type: String, count: int) -> void: 
 	var follower = path.get_node('PathFollow2D') as PathFollow2D
 	if follower == null:
 		push_warning("No PathFollow2D under %s" % path.name)
@@ -43,13 +43,13 @@ func _spawn_npc_at_path(path: Path2D, npc_type: String) -> void:
 	
 	var npc = npc_scene.instantiate()
 	follower.add_child(npc)
-	npc.specification.load_npc_enemy_data(npc_type)
+	npc.specification.load_npc_enemy_data(npc_type, count)
 	
-	print("Spawned %s on path %s" % [npc_type, path.name])
+	#print("Spawned %s on path %s" % [npc_type, path.name])
 	
 
 
-func _spawn_npc_at_area(area: Area2D, npc_type: String) -> void:
+func _spawn_npc_at_area(area: Area2D, npc_type: String, count: int) -> void:
 	if area == null:
 		push_warning("No Area2D under %s" % area.name)
 		return
@@ -74,6 +74,6 @@ func _spawn_npc_at_area(area: Area2D, npc_type: String) -> void:
 	
 	patrol = area.set_patrol_points(patrol, poly)
 	$".".add_child(patrol)
-	npc.specification.load_npc_enemy_data(npc_type)
+	npc.specification.load_npc_enemy_data(npc_type, count)
 	
-	print("Spawned %s on path %s" % [npc_type, area.name])
+	#print("Spawned %s on path %s" % [npc_type, area.name])

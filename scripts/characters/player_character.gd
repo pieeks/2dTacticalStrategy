@@ -19,6 +19,7 @@ extends CharacterController
 
 @onready var save: CharacterSave = $CharacterSave                           ## Handles player save/load
 @onready var appearance: CharacterAppearance = $CharacterAppearance         ## Visual representation of the character
+@onready var action: ActionTriggerArea = $ActionArea2D
 @onready var sm: Node = $NodeStateMachine                                   ## State machine controlling behavior states
 @onready var sync: CharacterSync = $CharacterSync                           ## Sync scene responsible for RPCs
 @onready var cam: Camera2D = $Camera2D                                      ## Local camera for authority player
@@ -46,6 +47,9 @@ func _ready() -> void:
 	if NetworkManagerTest.is_authority(self):
 		if save:
 			save.setup_player_from_save(multiplayer.get_unique_id(), self)
+			if save.player_id != "" && save.player_name != "": 
+				self.name = save.player_name + "_" + save.player_id
+				add_to_group("Players")
 			if save.appearance.size() > 0:
 				sync.apply_and_sync_appearance(save.appearance)
 

@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://bqqfgavevdbip"]
+[gd_scene load_steps=10 format=3 uid="uid://bqqfgavevdbip"]
 
 [ext_resource type="Script" uid="uid://bxa7ge7hlasck" path="res://scripts/characters/player_character.gd" id="1_hfyxy"]
+[ext_resource type="PackedScene" uid="uid://ecph2jhmr1nm" path="res://scenes/characters/npc_specifications/action_area_2d.tscn" id="2_6prti"]
 [ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://scenes/characters/character_appearance.tscn" id="2_hto64"]
 [ext_resource type="Script" uid="uid://bpkg8pno1bhbi" path="res://scripts/characters/state/node_state_machine.gd" id="3_1dev2"]
 [ext_resource type="PackedScene" uid="uid://bb5bm3c8l10cp" path="res://scenes/characters/character_sync.tscn" id="3_hto64"]
@@ -12,11 +13,17 @@
 size = Vector2(14, 39.5)
 
 [node name="Player" type="CharacterBody2D"]
-collision_layer = 2
+collision_layer = 4
+collision_mask = 10
 script = ExtResource("1_hfyxy")
+speed = null
+input_deadzone = null
+
+[node name="ActionArea2D" parent="." instance=ExtResource("2_6prti")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -21)
+position = Vector2(1, -19)
+scale = Vector2(0.6791045, 0.40149778)
 shape = SubResource("RectangleShape2D_rss5s")
 
 [node name="CharacterAppearance" parent="." instance=ExtResource("2_hto64")]
