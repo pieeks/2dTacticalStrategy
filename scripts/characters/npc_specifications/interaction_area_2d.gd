@@ -1,7 +1,6 @@
 extends Area2D
 
 
-
 func _ready() -> void:
 	pass
 
@@ -17,8 +16,10 @@ func _on_body_entered(body: Node2D) -> void:
 			body.action.action_triggerd.connect(_on_interact.bind(body))
 
 
-func _on_body_exited(body: Node2D) -> void:
-	pass # Replace with function body.
+func _on_body_exited(_body: Node2D) -> void:
+	$"..".resume_patrol()
 
 func _on_interact(player: Node2D):
 	print("Player: ", player.name, " hat die Taste E gedrückt.")
+	$"..".stop_patrol()
+	$"..".state_machine.transition_to("IdleNPC")

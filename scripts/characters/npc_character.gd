@@ -46,6 +46,7 @@ func stop_patrol() -> void:
 	if get_parent() is PathFollow2D:
 		get_parent().set_process(false)
 
+
 func resume_patrol() -> void:
 	if get_parent() is PathFollow2D:
 		get_parent().set_process(true)
