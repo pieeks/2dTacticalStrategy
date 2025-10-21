@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bqqfgavevdbip"]
+[gd_scene load_steps=12 format=3 uid="uid://bqqfgavevdbip"]
 
 [ext_resource type="Script" uid="uid://bxa7ge7hlasck" path="res://scripts/characters/player_character.gd" id="1_hfyxy"]
 [ext_resource type="PackedScene" uid="uid://ecph2jhmr1nm" path="res://scenes/characters/npc_specifications/action_area_2d.tscn" id="2_6prti"]
@@ -8,16 +8,18 @@
 [ext_resource type="Script" uid="uid://bnamanmyvakfu" path="res://scripts/characters/state/idle_state.gd" id="4_6prti"]
 [ext_resource type="Script" uid="uid://bp5s1kljkw8ec" path="res://scripts/characters/state/walk_state.gd" id="5_j376r"]
 [ext_resource type="PackedScene" uid="uid://cahb3hbcad5qp" path="res://scenes/characters/character_save.tscn" id="7_1dev2"]
+[ext_resource type="Script" uid="uid://dmwcrshkvw2et" path="res://scripts/world/activation_area.gd" id="9_j376r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rss5s"]
 size = Vector2(14, 39.5)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6prti"]
+radius = 900.0
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 4
 collision_mask = 10
 script = ExtResource("1_hfyxy")
-speed = null
-input_deadzone = null
 
 [node name="ActionArea2D" parent="." instance=ExtResource("2_6prti")]
 
@@ -48,3 +50,14 @@ zoom = Vector2(1.5, 1.5)
 [node name="CharacterSync" parent="." instance=ExtResource("3_hto64")]
 
 [node name="CharacterSave" parent="." instance=ExtResource("7_1dev2")]
+
+[node name="ActivationArea" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 8
+script = ExtResource("9_j376r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ActivationArea"]
+shape = SubResource("CircleShape2D_6prti")
+
+[connection signal="body_entered" from="ActivationArea" to="ActivationArea" method="_on_body_entered"]
+[connection signal="body_exited" from="ActivationArea" to="ActivationArea" method="_on_body_exited"]

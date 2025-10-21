@@ -28,6 +28,8 @@ signal peer_connected(peer_id: int)
 signal peer_disconnected(peer_id: int)
 ## Emitted when a peer signals that it is ready (late-join handshake).
 signal peer_ready(peer_id: int)
+## Emitted when a peer later joined
+signal late_joiner_detected(peer_id: int)
 
 ## True if this instance is running as host/server.
 var is_host: bool = false
@@ -94,6 +96,7 @@ func _on_peer_connected_server(id: int) -> void:
 	emit_signal("peer_connected", id)
 	for pid in _ready_peers.keys():
 		rpc_id(id, "rpc_mark_ready", pid)
+	emit_signal("late_joiner_detected", id)
 
 
 ## Called when a peer disconnects from the host.

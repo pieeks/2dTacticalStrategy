@@ -26,6 +26,9 @@ var appearance: Dictionary = {}
 ## Must be set by the parent (PlayerCharacter).
 var appearance_node: CharacterAppearance = null
 
+## Definition from max interaction distance
+const INTERACTION_RANGE: float = 60.0 
+const INTERACTION_RANGE_SQUARED: float = INTERACTION_RANGE * INTERACTION_RANGE
 
 ## Links the CharacterAppearance node to this sync node.
 ## Must be called once by the parent in _ready().

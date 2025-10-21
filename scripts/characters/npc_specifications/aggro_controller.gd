@@ -29,7 +29,7 @@ func _on_aggro_enter(body: Node2D) -> void:
 	if not body.is_in_group("Players"):
 		return
 
-	print("[AggroController]: Player entered aggro range of", npc.name)
+	#print("[AggroController]: Player entered aggro range of", npc.name)
 	target = body
 	is_chasing = true
 
@@ -44,13 +44,13 @@ func _on_aggro_enter(body: Node2D) -> void:
 # -- Wenn Spieler AggroRange verlässt
 func _on_aggro_exit(body: Node2D) -> void:
 	if body == target:
-		print("[AggroController]: Player left aggro range, starting exit timer")
+		#print("[AggroController]: Player left aggro range, starting exit timer")
 		exit_timer.start()
 
 
 # -- Wenn Timer abläuft und Spieler nicht zurückkam
 func _on_exit_timer_timeout() -> void:
-	print("[AggroController]: Aggro timeout, returning to patrol")
+	#print("[AggroController]: Aggro timeout, returning to patrol")
 	target = null
 	is_chasing = false
 
@@ -63,6 +63,6 @@ func _on_exit_timer_timeout() -> void:
 
 # -- Wenn Spieler ForceFightArea betritt
 func _on_force_fight() -> void:
-	print("[AggroController]: Force fight triggered by", npc.name)
+	#print("[AggroController]: Force fight triggered by", npc.name)
 	if npc.has_method("start_battle_with"):
 		npc.start_battle_with(target)

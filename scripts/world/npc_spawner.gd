@@ -1,14 +1,14 @@
-class_name NPCContainer
-extends Node
+class_name NPCSpawner
+extends MultiplayerSpawn
 
 var npc_scene := preload("res://scenes/characters/npc_character.tscn")
 
 var patrol_counter: int = 0
 
 func _ready() -> void:
-	pass
+	spawn_function = _spawn_npcs
 
-func register_level(level: Node, npc_information: Dictionary) -> void:
+func _spawn_npcs(level: Node, npc_information: Dictionary) -> void:
 	var defs = level.npc_spawn_definition
 	if defs == null: 
 		push_error("No NPCSpawnDefinition node found in biom %s" % level.name)
@@ -32,7 +32,7 @@ func register_level(level: Node, npc_information: Dictionary) -> void:
 				_spawn_npc_at_area(node, npc_type, i)
 			else:
 				push_warning("Unsupported spawn node type: %s" % node)
-		
+
 
 
 func _spawn_npc_at_path(path: Path2D, npc_type: String, count: int) -> void: 
@@ -64,7 +64,7 @@ func _spawn_npc_at_area(area: Area2D, npc_type: String, count: int) -> void:
 	patrol_counter = patrol_counter + 1
 	
 	var followNode = PathFollow2D.new()
-	var script := load("res://scripts/world/patrols/biom_1/test_patrol.gd")
+	var script := load("res://scripts/world/patrols/biom_1/patrol.gd")
 	var npc = npc_scene.instantiate()
 	
 	followNode.add_child(npc)
@@ -73,7 +73,12 @@ func _spawn_npc_at_area(area: Area2D, npc_type: String, count: int) -> void:
 	patrol.add_child(followNode)
 	
 	patrol = area.set_patrol_points(patrol, poly)
-	$".".add_child(patrol)
+	area.add_child(patrol)
 	npc.specification.load_npc_enemy_data(npc_type, count)
 	
 	#print("Spawned %s on path %s" % [npc_type, area.name])
+
+
+func test_spawn_func() -> void:
+	var npc = npc_scene.instantiate()
+	$".".add_child(npc)

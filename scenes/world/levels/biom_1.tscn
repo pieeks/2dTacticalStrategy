@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://csxfjo27j4355" path="res://scripts/world/biom_1.gd" id="1_l0g45"]
 [ext_resource type="TileSet" uid="uid://l4kya6c8iy4y" path="res://resources/tilesets/biom_1.tres" id="1_xgcw2"]
-[ext_resource type="Script" uid="uid://ois0xsaei70s" path="res://scripts/world/patrols/biom_1/test_patrol.gd" id="3_kk82i"]
-[ext_resource type="Script" uid="uid://m2t5tkuxt7ay" path="res://scripts/world/spawn_areas/test_spawn_area.gd" id="4_demgq"]
+[ext_resource type="Script" uid="uid://m2t5tkuxt7ay" path="res://scripts/world/spawn_areas/spawn_area.gd" id="4_demgq"]
+[ext_resource type="PackedScene" uid="uid://d3pw8lpi7jdfx" path="res://scenes/characters/npc_character.tscn" id="6_ek14l"]
 
 [sub_resource type="Curve2D" id="Curve2D_xgcw2"]
 _data = {
@@ -13,6 +13,7 @@ point_count = 4
 
 [node name="Biom1" type="Node2D"]
 script = ExtResource("1_l0g45")
+modular_npc_scene = ExtResource("6_ek14l")
 
 [node name="GameTilemap" type="Node2D" parent="."]
 
@@ -35,10 +36,15 @@ curve = SubResource("Curve2D_xgcw2")
 [node name="PathFollow2D" type="PathFollow2D" parent="NPCSpawnDefinition/TestPath"]
 position = Vector2(170, 305)
 rotates = false
-script = ExtResource("3_kk82i")
 
 [node name="TestSpawnArea" type="Area2D" parent="NPCSpawnDefinition"]
 script = ExtResource("4_demgq")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="NPCSpawnDefinition/TestSpawnArea"]
 polygon = PackedVector2Array(14, -20, 1191, -20, 1192, -555, 13, -551)
+
+[node name="NPCContainer" type="Node" parent="."]
+
+[node name="NPCSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../NPCContainer")
+spawn_limit = 100

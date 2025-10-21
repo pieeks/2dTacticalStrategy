@@ -26,7 +26,6 @@ extends Node2D
 ## Node used as the parent for all player instances.
 @onready var players: Node = $Players
 
-@onready var npc_container: NPCContainer = $NPCContainer
 
 ## Default level to load when this scene starts.
 const DEFAULT_LEVEL = preload("res://scenes/world/levels/biom_1.tscn")
@@ -39,9 +38,9 @@ const DEFAULT_LEVEL = preload("res://scenes/world/levels/biom_1.tscn")
 ## - Loads default level
 func _ready() -> void: 
 	# Ensure clean parenting target for spawns (can also be set in Inspector)
-	if multiplayer_spawner and multiplayer_spawner.spawn_path == NodePath():
-		if players:
-			multiplayer_spawner.spawn_path = NodePath("../Players")
+	#if multiplayer_spawner and multiplayer_spawner.spawn_path == NodePath():
+		#if players:
+			#multiplayer_spawner.spawn_path = NodePath("../Players")
 	
 	# Client: notify host after level load to avoid race conditions
 	if not multiplayer.is_server():
@@ -51,6 +50,9 @@ func _ready() -> void:
 	# Cleanup when peers disconnect
 	if NetworkManagerTest.has_signal("peer_disconnected"):
 		NetworkManagerTest.connect("peer_disconnected", Callable(self, "_on_peer_disconnected"))
+	
+	if multiplayer.is_server():
+		NetworkManagerTest.late_joiner_detected.connect(_on_later_joiner_detected)
 	
 	# Load default level
 	_load_level(DEFAULT_LEVEL)
@@ -65,8 +67,31 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		multiplayer_spawner.remove_player(peer_id)
 
 
-func _on_level_ready(level: Node, npc_information: Dictionary) -> void:
-	npc_container.register_level(level, npc_information)
+func _on_later_joiner_detected(new_peer_id: int) -> void:
+	print("Overworld (Host): Synchronisiere Level-Zustand für neuen Spieler ", new_peer_id)
+	
+	await get_tree().create_timer(0.5).timeout
+	
+	if level_container.get_child_count() == 0:
+		print("Overworld (Host): Kein Level zum Synchronisieren gefunden.")
+		return
+	var current_level = level_container.get_child(0)
+	
+	var npc_container = current_level.get_node_or_null("NPCContainer")
+	if not npc_container:
+		print("Overworld (Host): Kein NPCContainer im Level gefunden.")
+		return
+	
+	for npc in npc_container.get_children():
+		if npc is NPCCharacter and npc.is_awake:
+			var current_anim = npc._last_anim 
+			if not current_anim.is_empty():
+				print("Overworld (Host): Sende Init-Anim '", current_anim, "' für ", npc.name, " an Client ", new_peer_id)
+				npc.play_animation_rpc.rpc_id(new_peer_id, current_anim)
+
+
+func _on_level_ready() -> void:
+	pass
 
 
 ## Loads a given level scene.
@@ -78,7 +103,9 @@ func _load_level(level_scene: PackedScene) -> void:
 		child.queue_free()
 	
 	var level: Node2D = level_scene.instantiate()
+	
 	level.level_ready.connect(_on_level_ready)
 	level_container.add_child(level)
+	level.initialize_level_for_players(players)
 	
 	print("Level loaded: ", level_scene)

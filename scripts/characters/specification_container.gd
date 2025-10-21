@@ -21,13 +21,7 @@ func _ready() -> void:
 
 func set_specifical_nodes() -> void: 
 	$"..".name = npc_name + "_" + str(npc_count)
-	add_to_group("NPCs")
-	if npc_is_hostile == false: 
-		var interaction_shape_2d := preload("res://scenes/characters/npc_specifications/interaction_area_2d.tscn")
-		var interactionNode := interaction_shape_2d.instantiate()
-		
-		$"..".add_child(interactionNode)
-	elif npc_is_hostile == true:
+	if npc_is_hostile == true: 
 		var aggro_shape_2d := preload("res://scenes/characters/npc_specifications/aggro_area_2d.tscn")
 		var aggro_node := aggro_shape_2d.instantiate()
 		var force_fight_shape_2d := preload("res://scenes/characters/npc_specifications/force_fight_area_2d.tscn")
@@ -40,10 +34,12 @@ func set_specifical_nodes() -> void:
 		$"..".set_force_fight_area(force_fight_node)
 		$"..".add_child(aggro_controller_node)
 	
-	if npc_sync.get("isActive") == true: 
-		var sync := preload("res://scenes/characters/npc_specifications/npc_sync.tscn")
-		var syncNode := sync.instantiate()
-		$".".add_child(syncNode)
+	if NetworkManagerTest.is_host == true: 
+		if npc_sync.get("isActive") == true: 
+			var sync := preload("res://scenes/characters/npc_specifications/npc_sync.tscn")
+			var syncNode := sync.instantiate()
+			$".".add_child(syncNode)
+			$"..".set_npc_sync(syncNode)
 	
 	if npc_appearance.size() > 0: 
 		if npc_appearance.has("race_path"):

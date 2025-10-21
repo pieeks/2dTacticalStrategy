@@ -24,6 +24,8 @@ extends CharacterController
 @onready var sync: CharacterSync = $CharacterSync                           ## Sync scene responsible for RPCs
 @onready var cam: Camera2D = $Camera2D                                      ## Local camera for authority player
 
+@export var player_name: String 
+
 ## Timer for periodically saving and broadcasting position updates.
 var save_update_timer := 0.0
 const SAVE_UPDATE_INTERVAL := 1.5
@@ -47,16 +49,14 @@ func _ready() -> void:
 	if NetworkManagerTest.is_authority(self):
 		if save:
 			save.setup_player_from_save(multiplayer.get_unique_id(), self)
-			if save.player_id != "" && save.player_name != "": 
-				self.name = save.player_name + "_" + save.player_id
-				add_to_group("Players")
 			if save.appearance.size() > 0:
 				sync.apply_and_sync_appearance(save.appearance)
-
+				player_name = save.player_name
+	
 	# Handle late-joiners
 	if NetworkManagerTest.has_signal("peer_connected"):
 		NetworkManagerTest.connect("peer_connected", Callable(self, "_on_new_peer_connected"))
-
+	
 	# Assign self as owner_actor for states (fallback)
 	if "owner_actor" in sm and sm.owner_actor == null:
 		sm.owner_actor = self
@@ -72,8 +72,14 @@ func _ready() -> void:
 	else:
 		cam.enabled = false
 	
+	add_to_group("Players")
 	# Connect animation change signal
 	connect("animation_state_changed", Callable(self, "_on_animation_state_changed"))
+	action.end_interaction_signal.connect(_end_interaction)
+
+
+func _end_interaction(target: Node) -> void:
+	target.end_interaction.rpc_id(1)
 
 
 # --- Physics ---
@@ -89,19 +95,6 @@ func _physics_process(delta: float) -> void:
 		if save_update_timer >= SAVE_UPDATE_INTERVAL:
 			save_update_timer = 0.0
 			PlayerPartyState.update_position(global_position)
-		
-		## 4 - Richtungen Laufen
-		## Input + movement
-		#var raw := _read_move_input()
-		#var dir := _snap_to_cardinal(raw)
-		#velocity = dir * speed
-		#move_and_slide()
-#
-		## Replicated state
-		#net_input = dir
-		#net_is_moving = dir.length() > 0.01
-		#if net_is_moving:
-			#net_facing = dir.normalized()
 		
 		## 8 Richtungen Laufen
 		# Input + movement
@@ -125,6 +118,13 @@ func _physics_process(delta: float) -> void:
 		# Puppet smoothing (interpolates remote motion)
 		_display_velocity = _display_velocity.lerp(net_input * speed, 1.0 - pow(0.001, delta))
 
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("Action"):
+		var target: Node = null
+		target = action.get_closest_target(self.global_position)
+		if target != null: 
+			target.request_interaction.rpc_id(1, self.name)
 
 # --- Networking ---
 

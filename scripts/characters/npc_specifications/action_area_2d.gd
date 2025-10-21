@@ -1,22 +1,32 @@
 class_name ActionTriggerArea
 extends Area2D
 
-signal action_triggerd
 
-var current_target: Node = null
+var current_target: Array[Node]
 
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("Action"): 
-		emit_signal("action_triggerd")
-
+signal end_interaction_signal(Node2D)
 
 func _on_body_entered(body: Node2D) -> void:
-	current_target = body
+	current_target.append(body)
 	print("in body action area:" , body.name )
-	if body.specification.npc_is_hostile == true &&  not body.force_fight_area.force_fight.is_connected(_on_force_fight):
-		body.force_fight_area.force_fight.connect(_on_force_fight)
 
 
+func _on_body_exited(body: Node2D) -> void:
+	emit_signal("end_interaction_signal", body)
+	current_target.erase(body)
 
-func _on_force_fight() -> void:
-	print("Fight is forced.")
+
+func get_closest_target(from_position: Vector2) -> Node:
+	var closest_target: Node = null
+	var closest_dist_sq: float = INF
+	
+	for target in current_target:
+		if not is_instance_valid(target):
+			continue 
+		var dist_sq: float = from_position.distance_squared_to(target.global_position)
+		
+		if dist_sq < closest_dist_sq:
+			closest_dist_sq = dist_sq
+			closest_target = target
+	
+	return closest_target
