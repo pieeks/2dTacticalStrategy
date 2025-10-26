@@ -65,7 +65,7 @@ func rpc_sync_position(pos: Vector2) -> void:
 ## Called by authority whenever animation changes (e.g. idle_left, walk_right).
 ##
 ## @param anim String: The animation name to play.
-@rpc("any_peer", "unreliable_ordered")
+@rpc("any_peer", "call_local" ,"reliable")
 func rpc_sync_animation(anim: String) -> void:
 	if appearance_node:
 		appearance_node.play(anim)

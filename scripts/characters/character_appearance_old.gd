@@ -14,7 +14,7 @@
 ## Attach this node to a PlayerCharacter or NPC scene, and call the provided
 ## setters (e.g. set_race(), set_body()) or apply_full_data() to update visuals.
 
-class_name CharacterAppearance
+class_name CharacterAppearanceOld
 extends Node2D
 
 ## References to all sprite layers that form the character's appearance.
@@ -52,6 +52,10 @@ func _ready() -> void:
 	hairSprites = load_files("res://features/character/hair/basic/", ".tres")
 	bodySprites = load_files("res://features/character/body/basic/", ".tres")
 	legSprites = load_files("res://features/character/leg/basic/", ".tres")
+	
+	#print(hairSprites[0].resource_path)
+	#print(bodySprites[0].resource_path)
+	#print(legSprites[0].resource_path)
 
 
 ## Returns the resource path of the currently active race SpriteFrames.
@@ -72,6 +76,7 @@ func set_race(resource_path: String) -> void:
 		if frames is SpriteFrames:
 			var race := $Race2DSprite as AnimatedSprite2D
 			race.sprite_frames = frames
+			#synchronize_all_animation(race.animation)
 
 
 ## Returns the resource path of the current hair SpriteFrames.
@@ -89,6 +94,7 @@ func set_hair(resource_path: String) -> void:
 		if frames is SpriteFrames:
 			var hair := $Hair2DSprite as AnimatedSprite2D
 			hair.sprite_frames = frames
+			#synchronize_animation(hair)
 
 
 ## Returns the resource path of the current leg SpriteFrames.
@@ -106,6 +112,7 @@ func set_leg(resource_path: String) -> void:
 		if frames is SpriteFrames:
 			var leg := $Leg2DSprite as AnimatedSprite2D
 			leg.sprite_frames = frames
+			#synchronize_animation(leg)
 
 
 ## Returns the resource path of the current body SpriteFrames.
@@ -123,6 +130,7 @@ func set_body(resource_path: String) -> void:
 		if frames is SpriteFrames:
 			var body := $Body2DSprite as AnimatedSprite2D
 			body.sprite_frames = frames
+			#synchronize_animation(body)
 
 
 ## Plays an animation on all available layers.
@@ -139,6 +147,36 @@ func play(animation_name: String, speed: float = 1.0) -> void:
 		animation_player.speed_scale = speed
 	else:
 		animation_player.stop()
+	
+	#for layer in layers: 
+		#if layer.sprite_frames and layer.sprite_frames.has_animation(animation_name):
+			#layer.play(animation_name)
+			#layer.speed_scale = speed
+		#else:
+			#layer.stop()
+			#layer.frame = 0
+
+
+### Synchronizes a new AnimatedSprite2D layer with the currently active animation.
+### Copies frame index, frame progress, and speed scale from the base (race) layer.
+#func synchronize_animation(new_animated_sprite: AnimatedSprite2D) -> void:
+	#print("Current Anima: ", current_animation)
+	#if current_animation != "" and new_animated_sprite.sprite_frames.has_animation(current_animation): 
+		#var base = $Race2DSprite
+		#new_animated_sprite.play(current_animation)
+		#new_animated_sprite.frame = base.frame
+		#new_animated_sprite.frame_progress = base.frame_progress
+		#new_animated_sprite.speed_scale = base.speed_scale
+#
+#
+### Synchronizes all layers to a new animation name.
+### Resets frame index and progress to 0 for consistency.
+#func synchronize_all_animation(new_anim_name: String) -> void:
+	#for layer in layers:
+		#if layer and layer.sprite_frames.has_animation(new_anim_name):
+			#layer.play(new_anim_name)
+			#layer.frame = 0
+			#layer.frame_progress = 0.0
 
 
 ## Loads all SpriteFrames resources in a directory matching a file extension.

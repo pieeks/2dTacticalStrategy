@@ -16,9 +16,6 @@ extends NodeState
 ## Cached reference to the owning PlayerCharacter.
 var _player: PlayerCharacter
 
-## Cached reference to the AnimatedSprite2D used for visuals.
-var _sprite: AnimatedSprite2D
-
 
 ## Called when the state is entered.
 ## Fetches references and plays the correct idle animation immediately.
@@ -26,8 +23,6 @@ func _on_enter() -> void:
 	# References are resolved here to keep states network-agnostic.
 	_player = owner_actor as PlayerCharacter
 	if _player:
-		_sprite = _player.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
-		# Reset last_anim so idle animation is guaranteed to trigger
 		_player._last_anim = ""
 		var animationName := "idle_" + _dir_name(_player.facing_dir())
 		_emit_and_play(animationName)
@@ -47,13 +42,6 @@ func _on_physics_process(_delta: float) -> void:
 func _on_next_transitions() -> void:
 	if _player and _player.is_moving():
 		request_transition("Walk")
-
-
-## Called when exiting the state.
-## Stops the sprite animation.
-func _on_exit() -> void:
-	if _sprite:
-		_sprite.stop()
 
 
 ## Maps a facing vector to a string suffix used in animation names.

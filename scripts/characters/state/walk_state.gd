@@ -15,9 +15,6 @@ extends NodeState
 ## Cached reference to the owning PlayerCharacter.
 var _player: PlayerCharacter
 
-## Optional reference to the AnimatedSprite2D (not always required here).
-var _sprite: AnimatedSprite2D
-
 
 ## Called when the state is entered.
 ## Resets last animation and starts the correct walk animation
@@ -50,13 +47,6 @@ func _on_physics_process(_delta: float) -> void:
 func _on_next_transitions() -> void:
 	if _player and not _player.is_moving():
 		request_transition("Idle")
-
-
-## Called when exiting the state.
-## Stops the sprite animation if reference exists.
-func _on_exit() -> void:
-	if _sprite:
-		_sprite.stop()
 
 
 ## Maps a movement vector to a string suffix for animation naming.
