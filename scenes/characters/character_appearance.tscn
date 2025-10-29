@@ -150,7 +150,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0.2, 0.6333333, 1.1, 1.5, 1.9666667),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
-"values": [0.07330382858376164, -0.21642082724729647, -0.9389871375729495, -0.21642082724729647, 0.07330382858376164]
+"values": [0.07330382858376164, -0.21642082724729647, -0.9389871375729496, -0.21642082724729647, 0.07330382858376164]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -163,106 +163,6 @@ tracks/4/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [&"fight_idle_front", &"fight_idle_front", &"fight_idle_front", &"fight_idle_front", &"fight_idle_front"]
-}
-
-[sub_resource type="Animation" id="Animation_7lux8"]
-resource_name = "idle_front"
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Race2DSprite:animation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Body2DSprite:animation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Body2DSprite:frame")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Hair2DSprite:animation")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("Hair2DSprite:frame")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("Leg2DSprite:animation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("Leg2DSprite:frame")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3]
-}
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = true
-tracks/7/path = NodePath("Race2DSprite:frame")
-tracks/7/interp = 1
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3]
 }
 
 [sub_resource type="Animation" id="Animation_tlpxg"]
@@ -365,8 +265,8 @@ tracks/7/keys = {
 "values": [0, 1, 2, 3]
 }
 
-[sub_resource type="Animation" id="Animation_dokhl"]
-resource_name = "idle_right"
+[sub_resource type="Animation" id="Animation_7lux8"]
+resource_name = "idle_front"
 loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -378,7 +278,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -390,7 +290,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -414,7 +314,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -438,7 +338,7 @@ tracks/5/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -565,8 +465,8 @@ tracks/7/keys = {
 "values": [0, 1, 2, 3]
 }
 
-[sub_resource type="Animation" id="Animation_btsnq"]
-resource_name = "walk_front"
+[sub_resource type="Animation" id="Animation_dokhl"]
+resource_name = "idle_right"
 loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -578,7 +478,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -590,7 +490,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -614,7 +514,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -638,7 +538,7 @@ tracks/5/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -765,8 +665,8 @@ tracks/7/keys = {
 "values": [0, 1, 2, 3]
 }
 
-[sub_resource type="Animation" id="Animation_ls8ac"]
-resource_name = "walk_right"
+[sub_resource type="Animation" id="Animation_btsnq"]
+resource_name = "walk_front"
 loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -778,7 +678,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -790,7 +690,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -814,7 +714,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -838,7 +738,7 @@ tracks/5/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -965,6 +865,106 @@ tracks/7/keys = {
 "values": [0, 1, 2, 3]
 }
 
+[sub_resource type="Animation" id="Animation_ls8ac"]
+resource_name = "walk_right"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Race2DSprite:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Body2DSprite:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Body2DSprite:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hair2DSprite:animation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hair2DSprite:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Leg2DSprite:animation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Leg2DSprite:frame")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Race2DSprite:frame")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_0kxve"]
 _data = {
 &"RESET": SubResource("Animation_5a22h"),
@@ -990,13 +990,13 @@ offset = Vector2(0, -30)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("3_l6wwr")
-animation = &"idle_back"
+animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Hair2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("4_dokhl")
-animation = &"idle_back"
+animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
@@ -1008,7 +1008,7 @@ autoplay = "idle_front"
 
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("6_dokhl")
-animation = &"idle_back"
+animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 

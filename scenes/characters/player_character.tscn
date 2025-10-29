@@ -45,7 +45,7 @@ script = ExtResource("5_j376r")
 metadata/_custom_type_script = "uid://diyghm648fsof"
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(1.5, 1.5)
+zoom = Vector2(0.5, 0.5)
 
 [node name="CharacterSync" parent="." instance=ExtResource("3_hto64")]
 
@@ -57,6 +57,7 @@ collision_mask = 8
 script = ExtResource("9_j376r")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ActivationArea"]
+scale = Vector2(1.3116118, 1.2026044)
 shape = SubResource("CircleShape2D_6prti")
 
 [connection signal="body_entered" from="ActivationArea" to="ActivationArea" method="_on_body_entered"]

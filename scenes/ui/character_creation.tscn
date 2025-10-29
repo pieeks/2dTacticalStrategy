@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://bq86efvhw7tq5"]
+[gd_scene load_steps=6 format=3 uid="uid://bq86efvhw7tq5"]
 
 [ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="1_r0iii"]
 [ext_resource type="Script" uid="uid://crah00akxwilr" path="res://scripts/ui/character_creation.gd" id="1_ttryc"]
-[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="2_locca"]
 [ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://resources/themes/default_theme.tres" id="3_cb55y"]
 [ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/ui/PlayfairDisplay-Medium.ttf" id="3_tqx8g"]
 [ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://scenes/characters/character_appearance.tscn" id="5_6jn8k"]
@@ -20,11 +19,8 @@ script = ExtResource("1_ttryc")
 texture_filter = 1
 custom_minimum_size = Vector2(640, 360)
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_right = 640.0
+offset_bottom = 360.0
 texture = ExtResource("1_r0iii")
 expand_mode = 1
 stretch_mode = 6
@@ -33,18 +29,11 @@ stretch_mode = 6
 
 [node name="UIRoot" type="Control" parent="CanvasLayer"]
 layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("2_locca")
 
 [node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
 layout_mode = 1
@@ -53,10 +42,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -74.0
-offset_top = -188.0
-offset_right = 73.0
-offset_bottom = -165.0
+offset_left = -73.0
+offset_top = -141.0
+offset_right = 74.0
+offset_bottom = -118.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
@@ -65,14 +54,18 @@ horizontal_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot"]
 layout_mode = 1
-anchors_preset = 4
+anchors_preset = 8
+anchor_left = 0.5
 anchor_top = 0.5
+anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -244.0
-offset_top = -67.0
-offset_right = -117.0
-offset_bottom = 45.0
+offset_left = -165.0
+offset_top = -41.0
+offset_right = -33.0
+offset_bottom = 73.0
+grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(0.7182595, 0.7089084)
 
 [node name="RaceHContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot/VBoxContainer"]
 layout_mode = 2
@@ -150,10 +143,11 @@ text = "→"
 
 [node name="NameHContainer" type="HBoxContainer" parent="CanvasLayer/UIRoot"]
 layout_mode = 0
-offset_left = -292.0
-offset_top = 75.0
-offset_right = -98.0
-offset_bottom = 105.0
+offset_left = 268.0
+offset_top = 76.0
+offset_right = 462.0
+offset_bottom = 106.0
+scale = Vector2(0.557167, 0.6988177)
 size_flags_horizontal = 0
 
 [node name="Label" type="Label" parent="CanvasLayer/UIRoot/NameHContainer"]
@@ -168,11 +162,11 @@ custom_minimum_size = Vector2(140, 20)
 layout_mode = 2
 
 [node name="CharacterPreview" type="Node2D" parent="CanvasLayer/UIRoot"]
-position = Vector2(-289, -164)
+position = Vector2(333, 185)
 
 [node name="CharacterAppearance" parent="CanvasLayer/UIRoot/CharacterPreview" instance=ExtResource("5_6jn8k")]
-position = Vector2(314, 203)
-scale = Vector2(2, 2)
+position = Vector2(-5.9604645e-08, 39)
+scale = Vector2(2.155635, 1.8908207)
 
 [node name="CreateButton" type="Button" parent="CanvasLayer/UIRoot"]
 layout_mode = 1
@@ -181,21 +175,23 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -63.0
-offset_top = 102.0
-offset_right = 77.0
-offset_bottom = 133.0
+offset_left = -35.0
+offset_top = -82.0
+offset_right = 105.0
+offset_bottom = -51.0
 grow_horizontal = 2
 grow_vertical = 0
+scale = Vector2(0.7582751, 0.9319099)
 text = "Create Character
 "
 
 [node name="BackToMenu" type="Button" parent="CanvasLayer/UIRoot"]
 layout_mode = 0
-offset_left = -26.0
-offset_top = 189.0
-offset_right = 81.0
-offset_bottom = 219.0
+offset_left = 295.00012
+offset_top = 325.0
+offset_right = 402.00012
+offset_bottom = 355.0
+scale = Vector2(0.83534265, 0.85926133)
 text = "Back to Menu"
 
 [connection signal="pressed" from="CanvasLayer/UIRoot/VBoxContainer/RaceHContainer/RaceLeftButton" to="." method="_on_race_left_button_pressed"]

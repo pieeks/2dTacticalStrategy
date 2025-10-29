@@ -45,21 +45,21 @@ func _ready() -> void:
 	print("Global script loaded")
 	
 	# --- Display scaling ---
-	var base_size = Vector2i(640, 360)   # base logical resolution
-	var window_size = DisplayServer.window_get_size()
-
-	# Calculate integer scaling factor (avoid fractional scaling)
-	var scale_x = floor(window_size.x / base_size.x)
-	var scale_y = floor(window_size.y / base_size.y)
-	var scale = min(scale_x, scale_y)
-
-	if scale < 1:
-		scale = 1
-
-	# Apply scaling to root viewport
-	get_tree().root.content_scale_size = base_size * scale
-	get_tree().root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
-	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	#var base_size = Vector2i(640, 360)   # base logical resolution
+	#var window_size = DisplayServer.window_get_size()
+#
+	## Calculate integer scaling factor (avoid fractional scaling)
+	#var scale_x = floor(window_size.x / base_size.x)
+	#var scale_y = floor(window_size.y / base_size.y)
+	#var scale = min(scale_x, scale_y)
+#
+	#if scale < 1:
+		#scale = 1
+#
+	## Apply scaling to root viewport
+	#get_tree().root.content_scale_size = base_size * scale
+	#get_tree().root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	#get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 
 	# --- Steamworks integration (commented out by default) ---
 	# Steam.steamInit()
