@@ -26,6 +26,9 @@ extends CharacterController
 
 @export var player_name: String 
 
+var is_interacting: bool = false
+var player_ui: CanvasLayer
+
 ## Timer for periodically saving and broadcasting position updates.
 var save_update_timer := 0.0
 const SAVE_UPDATE_INTERVAL := 1.5
@@ -79,7 +82,11 @@ func _ready() -> void:
 
 
 func _end_interaction(target: Node) -> void:
-	target.end_interaction.rpc_id(1)
+	if target.is_in_group("NPCs") && target.is_interacting == true:
+		target.end_interaction.rpc_id(1)
+	elif target.is_in_group("Players") && target.is_interacting == true:
+		target.sync.end_interaction.rpc_id(1)
+	print("end interaction")
 
 
 # --- Physics ---
@@ -120,11 +127,18 @@ func _physics_process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if not is_multiplayer_authority():
+		return
+	
 	if event.is_action_pressed("Action"):
 		var target: Node = null
 		target = action.get_closest_target(self.global_position)
 		if target != null: 
-			target.request_interaction.rpc_id(1, self.name)
+			if target.is_in_group("NPCs"):
+				target.request_interaction.rpc_id(1, self.name)
+			if target.is_in_group("Players"): 
+				print("is in Group: Players")
+				target.sync.request_interaction_player.rpc_id(1, self.name)
 
 # --- Networking ---
 

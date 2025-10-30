@@ -22,6 +22,7 @@ collision_mask = 10
 script = ExtResource("1_hfyxy")
 
 [node name="ActionArea2D" parent="." instance=ExtResource("2_6prti")]
+collision_mask = 12
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(1, -19)

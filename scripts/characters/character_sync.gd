@@ -71,6 +71,47 @@ func rpc_sync_animation(anim: String) -> void:
 		appearance_node.play(anim)
 
 
+@rpc("any_peer", "call_local", "reliable")
+func interaction_approved(_npc_data: Dictionary) -> void:
+	var actor := get_parent()
+	actor.player_ui.show_interaction_menu()
+
+
+@rpc("any_peer", "call_local", "reliable")
+func request_interaction_player(player_name: String):
+	if not multiplayer.is_server():
+		return
+	
+	var player_node = get_tree().get_root().get_node_or_null("Overworld/Players/" + player_name)
+	var actor := get_parent()
+	
+	if not is_instance_valid(player_node):
+		printerr("Host: Konnte Spieler mit ID nicht finden: ", player_name)
+		return 
+	
+	var interaction_range: float = 60.0 
+	var dist_sq: float = player_node.global_position.distance_squared_to(actor.global_position)
+	
+	if dist_sq <= interaction_range * interaction_range:
+		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " genehmigt.")
+		actor.is_interacting = true
+		#optional: Bestätigung senden an Spieler
+	else:
+		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " abgelehnt (Distanz).")
+
+
+@rpc("any_peer", "call_local", "reliable")
+func end_interaction():
+	if not multiplayer.is_server():
+		return
+	var actor := get_parent()
+	if not actor.is_interacting:
+		return
+		
+	print("Host: ", self.name, " beendet Interaktion.")
+	actor.is_interacting = false 
+
+
 # --- Public API ---
 
 ## Applies new appearance data locally and, if authority, broadcasts to others.

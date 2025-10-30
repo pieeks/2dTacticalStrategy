@@ -26,7 +26,6 @@ extends Node2D
 ## Node used as the parent for all player instances.
 @onready var players: Node = $Players
 
-
 ## Default level to load when this scene starts.
 const DEFAULT_LEVEL = preload("res://scenes/world/levels/biom_1.tscn")
 

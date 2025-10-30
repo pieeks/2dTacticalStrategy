@@ -31,6 +31,8 @@ var patrol_behavior: PatrolBehavior = PatrolBehavior.LOOP
 var _initialization_data: Dictionary
 var force_fight_area: Area2D
 
+var npc_data: Dictionary
+
 
 # --- Godot Lebenszyklus-Funktionen ---
 
@@ -197,7 +199,8 @@ func request_interaction(player_name: String):
 		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " genehmigt.")
 		is_interacting = true
 		state_machine.transition_to('IdleNPC')
-		#optional: Bestätigung senden an Spieler
+		var peer_id_to_reply_to = player_node.get_multiplayer_authority()
+		player_node.sync.interaction_approved.rpc_id(peer_id_to_reply_to, self.npc_data)
 	else:
 		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " abgelehnt (Distanz).")
 

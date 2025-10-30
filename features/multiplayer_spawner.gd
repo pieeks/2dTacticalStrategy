@@ -15,12 +15,13 @@ extends MultiplayerSpawner
 ## - Keeps a dictionary of all active players for easy access
 ## - Provides a method to remove players cleanly
 
+@onready var player_ui: PlayerUI = $"../PlayerUi"
+
 ## The scene to be spawned for each peer (usually PlayerCharacter.tscn).
 @export var player_scene: PackedScene
 
 ## Dictionary of spawned players, keyed by peer_id.
 var players := {}
-
 
 ## Called when the node enters the scene tree.
 ## - Sets spawn function
@@ -60,6 +61,7 @@ func _spawn_player(peer_id: int) -> Node:
 	var p := player_scene.instantiate()
 	print("[Spawner] instantiate OK on peer", multiplayer.get_unique_id(), " -> ", p)
 	p.set_multiplayer_authority(peer_id)
+	p.player_ui = player_ui
 	players[peer_id] = p
 	return p
 

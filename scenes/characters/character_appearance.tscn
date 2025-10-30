@@ -5,7 +5,7 @@
 [ext_resource type="SpriteFrames" uid="uid://d3dwy843k0g5d" path="res://features/character/body/basic/green.tres" id="3_l6wwr"]
 [ext_resource type="SpriteFrames" uid="uid://cg77m0sjq4hut" path="res://features/character/hair/basic/blue_basic.tres" id="4_dokhl"]
 [ext_resource type="SpriteFrames" uid="uid://bewfsm20eh4kv" path="res://features/character/head/head.tres" id="5_7lux8"]
-[ext_resource type="SpriteFrames" uid="uid://ccw5a3nljejov" path="res://features/character/leg/basic/brown.tres" id="6_dokhl"]
+[ext_resource type="SpriteFrames" uid="uid://eiaxaq8sp1m0" path="res://features/character/leg/basic/blue.tres" id="6_dokhl"]
 [ext_resource type="SpriteFrames" uid="uid://ia6em5hxwmbc" path="res://features/character/weapon/sword_and_shield/sword_and_shield_test.tres" id="7_0kxve"]
 [ext_resource type="SpriteFrames" uid="uid://vnj57ub7yf78" path="res://features/character/weapon/shield.tres" id="8_dokhl"]
 
@@ -990,13 +990,13 @@ offset = Vector2(0, -30)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("3_l6wwr")
-animation = &"idle_front"
+animation = &"walk_left"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Hair2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("4_dokhl")
-animation = &"idle_front"
+animation = &"walk_left"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
@@ -1008,7 +1008,7 @@ autoplay = "idle_front"
 
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("6_dokhl")
-animation = &"idle_front"
+animation = &"walk_left"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 

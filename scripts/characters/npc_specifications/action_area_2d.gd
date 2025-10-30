@@ -1,17 +1,24 @@
 class_name ActionTriggerArea
 extends Area2D
 
+@onready var actor := get_parent()
 
 var current_target: Array[Node]
 
 signal end_interaction_signal(Node2D)
 
 func _on_body_entered(body: Node2D) -> void:
+	if not actor.is_multiplayer_authority(): 
+		return
+	if body == actor:
+		return
 	current_target.append(body)
 	print("in body action area:" , body.name )
 
 
 func _on_body_exited(body: Node2D) -> void:
+	if not actor.is_multiplayer_authority(): 
+		return
 	emit_signal("end_interaction_signal", body)
 	current_target.erase(body)
 
