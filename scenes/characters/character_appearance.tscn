@@ -2,86 +2,88 @@
 
 [ext_resource type="Script" uid="uid://0y6byn65i4o4" path="res://scripts/characters/character_appearance.gd" id="1_l6wwr"]
 [ext_resource type="SpriteFrames" uid="uid://d0mh8hgk1dc2i" path="res://features/character/race/elf_basic.tres" id="2_dokhl"]
-[ext_resource type="SpriteFrames" uid="uid://d3dwy843k0g5d" path="res://features/character/body/basic/green.tres" id="3_l6wwr"]
-[ext_resource type="SpriteFrames" uid="uid://cg77m0sjq4hut" path="res://features/character/hair/basic/blue_basic.tres" id="4_dokhl"]
+[ext_resource type="SpriteFrames" uid="uid://d3dwy843k0g5d" path="res://features/character/body/basic/green.tres" id="3_5a22h"]
+[ext_resource type="SpriteFrames" uid="uid://d2pj554r04435" path="res://features/character/hair/basic/brown_basic.tres" id="4_o2vfw"]
 [ext_resource type="SpriteFrames" uid="uid://bewfsm20eh4kv" path="res://features/character/head/head.tres" id="5_7lux8"]
-[ext_resource type="SpriteFrames" uid="uid://eiaxaq8sp1m0" path="res://features/character/leg/basic/blue.tres" id="6_dokhl"]
-[ext_resource type="SpriteFrames" uid="uid://ia6em5hxwmbc" path="res://features/character/weapon/sword_and_shield/sword_and_shield_test.tres" id="7_0kxve"]
+[ext_resource type="SpriteFrames" uid="uid://ccw5a3nljejov" path="res://features/character/leg/basic/brown.tres" id="6_5a22h"]
+[ext_resource type="SpriteFrames" uid="uid://dcov77l5ogi5b" path="res://features/character/hand/elf_hand.tres" id="7_5a22h"]
+[ext_resource type="SpriteFrames" uid="uid://ch6kdk3ot3q8s" path="res://features/character/weapon/swords/sword_1.tres" id="7_dokhl"]
 [ext_resource type="SpriteFrames" uid="uid://vnj57ub7yf78" path="res://features/character/weapon/shield.tres" id="8_dokhl"]
 
-[sub_resource type="Animation" id="Animation_5a22h"]
-length = 0.001
+[sub_resource type="Animation" id="Animation_tlpxg"]
+resource_name = "idle_back"
+loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Race2DSprite:frame")
+tracks/0/path = NodePath("Race2DSprite:animation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0]
+"values": [&"idle_back"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("OffWeaponAttachmentPoint:position")
+tracks/1/path = NodePath("Body2DSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(9, -18)]
+"update": 1,
+"values": [&"idle_back"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("MainWeaponAttachmentPoint:rotation")
+tracks/2/path = NodePath("Body2DSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Race2DSprite:animation")
+tracks/3/path = NodePath("Hair2DSprite:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"fight_idle_front"]
+"values": [&"idle_back"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Body2DSprite:frame")
+tracks/4/path = NodePath("Hair2DSprite:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0]
+"values": [0, 1, 2, 3]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Hair2DSprite:frame")
+tracks/5/path = NodePath("Leg2DSprite:animation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0]
+"values": [&"idle_back"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -90,15 +92,165 @@ tracks/6/path = NodePath("Leg2DSprite:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Race2DSprite:frame")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_7lux8"]
+resource_name = "idle_front"
+length = 1.1
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Race2DSprite:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0]
+"values": [&"idle_front"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Body2DSprite:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"idle_front"]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Body2DSprite:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hair2DSprite:animation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"idle_front"]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hair2DSprite:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Leg2DSprite:animation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"idle_front"]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Leg2DSprite:frame")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Race2DSprite:frame")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("MainWeaponAttachmentPoint/MainWeapon2DSprite:visible")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("OffWeaponAttachmentPoint/OffWeapon2DSprite:visible")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("HandSprite2D:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
 }
 
 [sub_resource type="Animation" id="Animation_o2vfw"]
 resource_name = "fight_idle_front"
-length = 2.0
+length = 1.2
+loop_mode = 1
 markers = [{
 "color": Color(1, 1, 1, 1),
 "name": &"Marker1",
@@ -111,7 +263,7 @@ tracks/0/path = NodePath("Race2DSprite:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.43333334, 0.8666667, 1.3, 1.7333333),
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 1, 0]
@@ -123,10 +275,10 @@ tracks/1/path = NodePath("MainWeaponAttachmentPoint:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0.2, 0.6333333, 1.1, 1.5, 1.9666667),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(-7, -16), Vector2(-7, -15), Vector2(-7, -15), Vector2(-7, -15), Vector2(-7, -16)]
+"values": [Vector2(-6, -16), Vector2(-6, -15), Vector2(-6, -16)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -135,10 +287,10 @@ tracks/2/path = NodePath("OffWeaponAttachmentPoint:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.2, 0.6333333, 1.1, 1.5, 1.9666667),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(9, -18), Vector2(9, -17), Vector2(9, -17), Vector2(9, -17), Vector2(9, -18)]
+"values": [Vector2(9, -18), Vector2(9, -17), Vector2(9, -18)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -147,10 +299,10 @@ tracks/3/path = NodePath("MainWeaponAttachmentPoint:rotation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0.2, 0.6333333, 1.1, 1.5, 1.9666667),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
 "update": 1,
-"values": [0.07330382858376164, -0.21642082724729647, -0.9389871375729496, -0.21642082724729647, 0.07330382858376164]
+"values": [0.073303826, 0.073303826]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -159,210 +311,178 @@ tracks/4/path = NodePath("Race2DSprite:animation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.6333333, 1.1, 1.5, 1.9666667),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"idle_front_battle"]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hair2DSprite:frame")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
-"values": [&"fight_idle_front", &"fight_idle_front", &"fight_idle_front", &"fight_idle_front", &"fight_idle_front"]
-}
-
-[sub_resource type="Animation" id="Animation_tlpxg"]
-resource_name = "idle_back"
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Race2DSprite:animation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_back", &"idle_back", &"idle_back", &"idle_back"]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Body2DSprite:animation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_back", &"idle_back", &"idle_back", &"idle_back"]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Body2DSprite:frame")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Hair2DSprite:animation")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_back", &"idle_back", &"idle_back", &"idle_back"]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("Hair2DSprite:frame")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("Leg2DSprite:animation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [&"idle_back", &"idle_back", &"idle_back", &"idle_back"]
+"values": [0, 1, 2, 3, 0]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Leg2DSprite:frame")
+tracks/6/path = NodePath("Hair2DSprite:animation")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [&"idle_front_battle"]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("Race2DSprite:frame")
+tracks/7/path = NodePath("MainWeaponAttachmentPoint/MainWeapon2DSprite:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0, 1.2),
+"transitions": PackedFloat32Array(1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [0, 0]
 }
-
-[sub_resource type="Animation" id="Animation_7lux8"]
-resource_name = "idle_front"
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Race2DSprite:animation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("MainWeaponAttachmentPoint/MainWeapon2DSprite:animation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
+"values": [&"silver_sword"]
 }
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Body2DSprite:animation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("HandSprite2D:frame")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9, 1.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
+"values": [0, 1, 2, 3, 0]
 }
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Body2DSprite:frame")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("HandSprite2D:animation")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [&"idle_front_battle"]
 }
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Hair2DSprite:animation")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Body2DSprite:frame")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9, 1.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
+"values": [0, 1, 2, 3, 0]
 }
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("Hair2DSprite:frame")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Body2DSprite:animation")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [&"idle_front_battle"]
 }
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("Leg2DSprite:animation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Leg2DSprite:frame")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9, 1.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
-"values": [&"idle_front", &"idle_front", &"idle_front", &"idle_front"]
+"values": [0, 1, 2, 3, 0]
 }
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("Leg2DSprite:frame")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Leg2DSprite:animation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [&"idle_front_battle"]
 }
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = true
-tracks/7/path = NodePath("Race2DSprite:frame")
-tracks/7/interp = 1
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("OffWeaponAttachmentPoint/OffWeapon2DSprite:z_index")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [20]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("MainWeaponAttachmentPoint/MainWeapon2DSprite:visible")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("HandSprite2D:visible")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/18/type = "value"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("OffWeaponAttachmentPoint/OffWeapon2DSprite:visible")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_0kxve"]
@@ -375,10 +495,10 @@ tracks/0/path = NodePath("Race2DSprite:animation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_left", &"idle_left", &"idle_left", &"idle_left"]
+"values": [&"idle_left"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -387,10 +507,10 @@ tracks/1/path = NodePath("Body2DSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_left", &"idle_left", &"idle_left", &"idle_left"]
+"values": [&"idle_left"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -399,7 +519,7 @@ tracks/2/path = NodePath("Body2DSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -411,10 +531,10 @@ tracks/3/path = NodePath("Hair2DSprite:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_left", &"idle_left", &"idle_left", &"idle_left"]
+"values": [&"idle_left"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -423,7 +543,7 @@ tracks/4/path = NodePath("Hair2DSprite:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -435,10 +555,10 @@ tracks/5/path = NodePath("Leg2DSprite:animation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_left", &"idle_left", &"idle_left", &"idle_left"]
+"values": [&"idle_left"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -447,7 +567,7 @@ tracks/6/path = NodePath("Leg2DSprite:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -459,7 +579,7 @@ tracks/7/path = NodePath("Race2DSprite:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -475,10 +595,10 @@ tracks/0/path = NodePath("Race2DSprite:animation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_right"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -487,10 +607,10 @@ tracks/1/path = NodePath("Body2DSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_right"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -499,7 +619,7 @@ tracks/2/path = NodePath("Body2DSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -511,10 +631,10 @@ tracks/3/path = NodePath("Hair2DSprite:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_right"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -523,7 +643,7 @@ tracks/4/path = NodePath("Hair2DSprite:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -535,10 +655,10 @@ tracks/5/path = NodePath("Leg2DSprite:animation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"idle_right", &"idle_right", &"idle_right", &"idle_right"]
+"values": [&"idle_right"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -547,7 +667,7 @@ tracks/6/path = NodePath("Leg2DSprite:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -559,7 +679,7 @@ tracks/7/path = NodePath("Race2DSprite:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -575,10 +695,10 @@ tracks/0/path = NodePath("Race2DSprite:animation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_back", &"walk_back", &"walk_back", &"walk_back"]
+"values": [&"walk_back"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -587,10 +707,10 @@ tracks/1/path = NodePath("Body2DSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_back", &"walk_back", &"walk_back", &"walk_back"]
+"values": [&"walk_back"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -599,10 +719,10 @@ tracks/2/path = NodePath("Body2DSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -611,10 +731,10 @@ tracks/3/path = NodePath("Hair2DSprite:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_back", &"walk_back", &"walk_back", &"walk_back"]
+"values": [&"walk_back"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -623,10 +743,10 @@ tracks/4/path = NodePath("Hair2DSprite:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -635,10 +755,10 @@ tracks/5/path = NodePath("Leg2DSprite:animation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_back", &"walk_back", &"walk_back", &"walk_back"]
+"values": [&"walk_back"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -647,10 +767,10 @@ tracks/6/path = NodePath("Leg2DSprite:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -659,10 +779,10 @@ tracks/7/path = NodePath("Race2DSprite:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 
 [sub_resource type="Animation" id="Animation_btsnq"]
@@ -675,10 +795,10 @@ tracks/0/path = NodePath("Race2DSprite:animation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"walk_front"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -687,10 +807,10 @@ tracks/1/path = NodePath("Body2DSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"walk_front"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -699,10 +819,10 @@ tracks/2/path = NodePath("Body2DSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -711,10 +831,10 @@ tracks/3/path = NodePath("Hair2DSprite:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"walk_front"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -723,10 +843,10 @@ tracks/4/path = NodePath("Hair2DSprite:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -735,10 +855,10 @@ tracks/5/path = NodePath("Leg2DSprite:animation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_front", &"walk_front", &"walk_front", &"walk_front"]
+"values": [&"walk_front"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -747,10 +867,10 @@ tracks/6/path = NodePath("Leg2DSprite:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -759,10 +879,10 @@ tracks/7/path = NodePath("Race2DSprite:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 
 [sub_resource type="Animation" id="Animation_slebv"]
@@ -775,10 +895,10 @@ tracks/0/path = NodePath("Race2DSprite:animation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_left", &"walk_left", &"walk_left", &"walk_left"]
+"values": [&"walk_left"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -787,10 +907,10 @@ tracks/1/path = NodePath("Body2DSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_left", &"walk_left", &"walk_left", &"walk_left"]
+"values": [&"walk_left"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -799,10 +919,10 @@ tracks/2/path = NodePath("Body2DSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -811,10 +931,10 @@ tracks/3/path = NodePath("Hair2DSprite:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_left", &"walk_left", &"walk_left", &"walk_left"]
+"values": [&"walk_left"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -823,10 +943,10 @@ tracks/4/path = NodePath("Hair2DSprite:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -835,10 +955,10 @@ tracks/5/path = NodePath("Leg2DSprite:animation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_left", &"walk_left", &"walk_left", &"walk_left"]
+"values": [&"walk_left"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -847,10 +967,10 @@ tracks/6/path = NodePath("Leg2DSprite:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -859,10 +979,10 @@ tracks/7/path = NodePath("Race2DSprite:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 
 [sub_resource type="Animation" id="Animation_ls8ac"]
@@ -875,10 +995,10 @@ tracks/0/path = NodePath("Race2DSprite:animation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_right"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -887,10 +1007,10 @@ tracks/1/path = NodePath("Body2DSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_right"]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -899,10 +1019,10 @@ tracks/2/path = NodePath("Body2DSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -911,10 +1031,10 @@ tracks/3/path = NodePath("Hair2DSprite:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_right"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -923,10 +1043,10 @@ tracks/4/path = NodePath("Hair2DSprite:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -935,10 +1055,10 @@ tracks/5/path = NodePath("Leg2DSprite:animation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"walk_right", &"walk_right", &"walk_right", &"walk_right"]
+"values": [&"walk_right"]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -947,10 +1067,10 @@ tracks/6/path = NodePath("Leg2DSprite:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -959,18 +1079,17 @@ tracks/7/path = NodePath("Race2DSprite:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.3, 0.6, 0.9),
+"times": PackedFloat32Array(0, 0.23333333, 0.46666667, 0.73333335),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3]
+"values": [1, 2, 3, 0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_0kxve"]
 _data = {
-&"RESET": SubResource("Animation_5a22h"),
-&"fight_idle_front": SubResource("Animation_o2vfw"),
 &"idle_back": SubResource("Animation_tlpxg"),
 &"idle_front": SubResource("Animation_7lux8"),
+&"idle_front_battle": SubResource("Animation_o2vfw"),
 &"idle_left": SubResource("Animation_0kxve"),
 &"idle_right": SubResource("Animation_dokhl"),
 &"walk_back": SubResource("Animation_ne2bh"),
@@ -984,50 +1103,63 @@ script = ExtResource("1_l6wwr")
 
 [node name="Race2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("2_dokhl")
-animation = &"fight_idle_front"
+animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
-sprite_frames = ExtResource("3_l6wwr")
-animation = &"walk_left"
+z_index = 5
+sprite_frames = ExtResource("3_5a22h")
+animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Hair2DSprite" type="AnimatedSprite2D" parent="."]
-sprite_frames = ExtResource("4_dokhl")
-animation = &"walk_left"
+sprite_frames = ExtResource("4_o2vfw")
+animation = &"idle_front"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="Head2DSprite" type="AnimatedSprite2D" parent="."]
-visible = false
 sprite_frames = ExtResource("5_7lux8")
-animation = &"walk_front"
+animation = &"idle_front"
 autoplay = "idle_front"
 
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
-sprite_frames = ExtResource("6_dokhl")
-animation = &"walk_left"
+sprite_frames = ExtResource("6_5a22h")
+animation = &"idle_front"
+autoplay = "idle_front"
+offset = Vector2(0, -30)
+
+[node name="HandSprite2D" type="AnimatedSprite2D" parent="."]
+visible = false
+z_index = 10
+sprite_frames = ExtResource("7_5a22h")
+animation = &"walk_right_battle"
 autoplay = "idle_front"
 offset = Vector2(0, -30)
 
 [node name="MainWeaponAttachmentPoint" type="Marker2D" parent="."]
-visible = false
-position = Vector2(-7, -16)
+position = Vector2(-6, -16)
+rotation = 0.073303826
 
 [node name="MainWeapon2DSprite" type="AnimatedSprite2D" parent="MainWeaponAttachmentPoint"]
-position = Vector2(-9, 3)
-sprite_frames = ExtResource("7_0kxve")
-animation = &"shield_and_short_test"
-frame_progress = 0.7779583
+visible = false
+z_index = 5
+position = Vector2(-7.905279, 1.5832202)
+rotation = 0.29569814
+scale = Vector2(0.659, 0.7)
+sprite_frames = ExtResource("7_dokhl")
+animation = &"silver_sword"
+autoplay = "silver_sword"
 offset = Vector2(0, -15)
 
 [node name="OffWeaponAttachmentPoint" type="Marker2D" parent="."]
-visible = false
 position = Vector2(9, -18)
 
 [node name="OffWeapon2DSprite" type="AnimatedSprite2D" parent="OffWeaponAttachmentPoint"]
+visible = false
+z_index = 20
 position = Vector2(7, -12)
 sprite_frames = ExtResource("8_dokhl")
 
@@ -1035,3 +1167,4 @@ sprite_frames = ExtResource("8_dokhl")
 libraries = {
 &"": SubResource("AnimationLibrary_0kxve")
 }
+autoplay = "idle_front"

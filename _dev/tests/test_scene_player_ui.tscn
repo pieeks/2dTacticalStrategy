@@ -30,7 +30,6 @@ scale = Vector2(0.057055753, 0.072622515)
 texture = ExtResource("2_tya0h")
 
 [node name="Quests" type="ItemList" parent="HUD"]
-visible = false
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -60,7 +59,6 @@ size_flags_vertical = 0
 icon = ExtResource("2_fgyyo")
 
 [node name="Alliance" type="ItemList" parent="HUD"]
-visible = false
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -79,7 +77,6 @@ item_0/text = "Test"
 item_1/text = "Test1"
 
 [node name="ActionBarContainer" type="HBoxContainer" parent="HUD"]
-visible = false
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -181,3 +178,5 @@ scale = Vector2(0.38698363, 0.39251733)
 item_count = 2
 item_0/text = "Test"
 item_1/text = "Test1"
+
+[connection signal="pressed" from="InteractionMenu/InteractionButtonContainer/Leave" to="." method="_on_leave_pressed"]

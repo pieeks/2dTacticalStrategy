@@ -52,6 +52,7 @@ func _ready() -> void:
 	hairSprites = load_files("res://features/character/hair/basic/", ".tres")
 	bodySprites = load_files("res://features/character/body/basic/", ".tres")
 	legSprites = load_files("res://features/character/leg/basic/", ".tres")
+	animation_player.play(current_animation)
 
 
 ## Returns the resource path of the currently active race SpriteFrames.

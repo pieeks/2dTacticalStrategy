@@ -72,9 +72,9 @@ func rpc_sync_animation(anim: String) -> void:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func interaction_approved(_npc_data: Dictionary) -> void:
+func interaction_approved(npc_data: Dictionary, npc_path: String) -> void:
 	var actor := get_parent()
-	actor.player_ui.show_interaction_menu()
+	actor.player_ui.show_interaction_menu(npc_data, npc_path)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -95,6 +95,7 @@ func request_interaction_player(player_name: String):
 	if dist_sq <= interaction_range * interaction_range:
 		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " genehmigt.")
 		actor.is_interacting = true
+		actor.player_ui.show_interaction_menu({}, "")
 		#optional: Bestätigung senden an Spieler
 	else:
 		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " abgelehnt (Distanz).")

@@ -58,11 +58,13 @@ func _on_hair_left_button_pressed() -> void:
 	var path = character.hairSprites[hair_index].resource_path
 	character.set_hair(path)
 
+
 ## Cycles hair selection forwards and updates preview.
 func _on_hair_right_button_pressed() -> void:
 	hair_index = (hair_index + 1) % character.hairSprites.size()
 	var path = character.hairSprites[hair_index].resource_path
 	character.set_hair(path)
+
 
 
 # --- Body selection ---

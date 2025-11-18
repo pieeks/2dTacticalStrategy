@@ -78,10 +78,11 @@ func _ready() -> void:
 	add_to_group("Players")
 	# Connect animation change signal
 	connect("animation_state_changed", Callable(self, "_on_animation_state_changed"))
-	action.end_interaction_signal.connect(_end_interaction)
+	action.end_interaction_signal.connect(end_interaction)
 
 
-func _end_interaction(target: Node) -> void:
+
+func end_interaction(target: Node) -> void:
 	if target.is_in_group("NPCs") && target.is_interacting == true:
 		target.end_interaction.rpc_id(1)
 	elif target.is_in_group("Players") && target.is_interacting == true:
@@ -138,7 +139,8 @@ func _input(event: InputEvent) -> void:
 				target.request_interaction.rpc_id(1, self.name)
 			if target.is_in_group("Players"): 
 				print("is in Group: Players")
-				target.sync.request_interaction_player.rpc_id(1, self.name)
+				sync.interaction_approved.rpc_id(multiplayer.get_unique_id(), {}, "")
+				#target.sync.request_interaction_player.rpc_id(1, self.name)
 
 # --- Networking ---
 

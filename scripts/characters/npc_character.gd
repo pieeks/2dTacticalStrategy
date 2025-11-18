@@ -200,7 +200,7 @@ func request_interaction(player_name: String):
 		is_interacting = true
 		state_machine.transition_to('IdleNPC')
 		var peer_id_to_reply_to = player_node.get_multiplayer_authority()
-		player_node.sync.interaction_approved.rpc_id(peer_id_to_reply_to, self.npc_data)
+		player_node.sync.interaction_approved.rpc_id(peer_id_to_reply_to, self.npc_data, self.get_path())
 	else:
 		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " abgelehnt (Distanz).")
 
