@@ -1869,24 +1869,21 @@ script = ExtResource("1_l6wwr")
 
 [node name="Race2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("2_dokhl")
-animation = &"idle_back_battle"
+animation = &"idle_left_battle"
 autoplay = "idle_front"
-frame = 1
 offset = Vector2(0, -30)
 
 [node name="Body2DSprite" type="AnimatedSprite2D" parent="."]
 z_index = 5
 sprite_frames = ExtResource("3_5a22h")
-animation = &"idle_back_battle"
+animation = &"idle_left_battle"
 autoplay = "idle_front"
-frame = 3
 offset = Vector2(0, -30)
 
 [node name="Hair2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("4_o2vfw")
-animation = &"idle_back_battle"
+animation = &"idle_left_battle"
 autoplay = "idle_front"
-frame = 3
 offset = Vector2(0, -30)
 
 [node name="Head2DSprite" type="AnimatedSprite2D" parent="."]
@@ -1896,22 +1893,19 @@ autoplay = "idle_front"
 
 [node name="Leg2DSprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("6_5a22h")
-animation = &"idle_back_battle"
+animation = &"idle_left_battle"
 autoplay = "idle_front"
-frame = 3
 offset = Vector2(0, -30)
 
 [node name="HandSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 10
 sprite_frames = ExtResource("7_5a22h")
-animation = &"idle_back_battle"
+animation = &"idle_left_battle"
 autoplay = "idle_front"
-frame = 3
 offset = Vector2(0, -30)
 
 [node name="MainWeaponAttachmentPoint" type="Marker2D" parent="."]
-position = Vector2(4, -22)
-rotation = 1.2217305
+position = Vector2(-1, -12)
 
 [node name="MainWeapon2DSprite" type="AnimatedSprite2D" parent="MainWeaponAttachmentPoint"]
 z_index = 5
@@ -1922,7 +1916,7 @@ autoplay = "silver_sword"
 offset = Vector2(0, -15)
 
 [node name="OffWeaponAttachmentPoint" type="Marker2D" parent="."]
-position = Vector2(-8, -18)
+position = Vector2(-6, -18)
 
 [node name="OffWeapon2DSprite" type="AnimatedSprite2D" parent="OffWeaponAttachmentPoint"]
 z_index = -5
