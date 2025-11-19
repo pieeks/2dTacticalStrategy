@@ -1,0 +1,33 @@
+[gd_scene load_steps=8 format=3 uid="uid://boy8hkvgl7pf8"]
+
+[ext_resource type="Script" uid="uid://bjomkmd25xl80" path="res://scripts/world/overworld.gd" id="1_espw7"]
+[ext_resource type="Script" uid="uid://6c6yc3arq10n" path="res://features/multiplayer_spawner.gd" id="1_h0wcu"]
+[ext_resource type="PackedScene" uid="uid://bqqfgavevdbip" path="res://scenes/characters/player_character.tscn" id="2_espw7"]
+[ext_resource type="PackedScene" uid="uid://bs3kg00yk4law" path="res://scenes/ui/ui_overlay.tscn" id="3_o3ojk"]
+[ext_resource type="PackedScene" uid="uid://8pok4n7dm3pt" path="res://features/debug/debug_overlay.tscn" id="4_eccxn"]
+[ext_resource type="PackedScene" uid="uid://dfoplrmyisnu6" path="res://scenes/ui/esc_menu.tscn" id="5_s753n"]
+[ext_resource type="PackedScene" uid="uid://ccttboprhnvjo" path="res://_dev/tests/test_scene_player_ui.tscn" id="7_o3ojk"]
+
+[node name="Overworld" type="Node2D"]
+script = ExtResource("1_espw7")
+
+[node name="LevelContainer" type="Node2D" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Players")
+spawn_limit = 6
+script = ExtResource("1_h0wcu")
+player_scene = ExtResource("2_espw7")
+
+[node name="Players" type="Node" parent="."]
+
+[node name="UIOverlay" parent="." instance=ExtResource("3_o3ojk")]
+visible = false
+
+[node name="ESCMenu" parent="." instance=ExtResource("5_s753n")]
+layer = 3
+
+[node name="DebugOverlay" parent="." instance=ExtResource("4_eccxn")]
+layer = 2
+
+[node name="PlayerUi" parent="." instance=ExtResource("7_o3ojk")]

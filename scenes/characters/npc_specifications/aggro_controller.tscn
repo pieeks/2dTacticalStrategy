@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1d7oiopie01y"]
+
+[ext_resource type="Script" uid="uid://d3yb2s3ofgdb8" path="res://scripts/characters/npc_specifications/aggro_controller.gd" id="1_ta0g7"]
+
+[node name="AggroController" type="Node"]
+script = ExtResource("1_ta0g7")

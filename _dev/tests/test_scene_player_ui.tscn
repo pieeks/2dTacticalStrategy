@@ -1,0 +1,182 @@
+[gd_scene load_steps=4 format=3 uid="uid://ccttboprhnvjo"]
+
+[ext_resource type="Script" uid="uid://b4pdgtiugv1lh" path="res://scripts/ui/player_ui.gd" id="1_fgyyo"]
+[ext_resource type="Texture2D" uid="uid://cuywx6177nt2" path="res://assets/art/icons/button_icon_test.png" id="2_fgyyo"]
+[ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="2_tya0h"]
+
+[node name="PlayerUi" type="CanvasLayer"]
+layer = 2
+script = ExtResource("1_fgyyo")
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Map" type="TextureRect" parent="HUD"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -88.0
+offset_top = 1.0
+offset_right = 1448.0
+offset_bottom = 1025.0
+grow_horizontal = 0
+scale = Vector2(0.057055753, 0.072622515)
+texture = ExtResource("2_tya0h")
+
+[node name="Quests" type="ItemList" parent="HUD"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -70.0
+offset_right = 57.0
+offset_bottom = 146.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(0.55443496, 0.7161465)
+item_count = 2
+item_0/text = "Test"
+item_1/text = "Test1"
+
+[node name="GeneralMenu" type="Button" parent="HUD"]
+layout_mode = 0
+offset_left = 558.0
+offset_top = 313.0
+offset_right = 612.0
+offset_bottom = 356.0
+scale = Vector2(0.50918955, 0.46993953)
+size_flags_horizontal = 4
+size_flags_vertical = 0
+icon = ExtResource("2_fgyyo")
+
+[node name="Alliance" type="ItemList" parent="HUD"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -627.0
+offset_top = -90.0
+offset_right = -450.0
+offset_bottom = 126.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(0.6438608, 0.72186154)
+item_count = 2
+item_0/text = "Test"
+item_1/text = "Test1"
+
+[node name="ActionBarContainer" type="HBoxContainer" parent="HUD"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -48.0
+offset_right = 252.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(0.57741904, 0.58353156)
+
+[node name="Button" type="Button" parent="HUD/ActionBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+icon = ExtResource("2_fgyyo")
+
+[node name="Button2" type="Button" parent="HUD/ActionBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+icon = ExtResource("2_fgyyo")
+
+[node name="Button3" type="Button" parent="HUD/ActionBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+icon = ExtResource("2_fgyyo")
+
+[node name="Button4" type="Button" parent="HUD/ActionBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+icon = ExtResource("2_fgyyo")
+
+[node name="Button5" type="Button" parent="HUD/ActionBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+icon = ExtResource("2_fgyyo")
+
+[node name="Button6" type="Button" parent="HUD/ActionBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+icon = ExtResource("2_fgyyo")
+
+[node name="InteractionMenu" type="PanelContainer" parent="."]
+visible = false
+offset_left = 493.0
+offset_top = 120.0
+offset_right = 534.0
+offset_bottom = 232.0
+
+[node name="InteractionButtonContainer" type="VBoxContainer" parent="InteractionMenu"]
+layout_mode = 2
+
+[node name="Talk" type="Button" parent="InteractionMenu/InteractionButtonContainer"]
+visible = false
+layout_mode = 2
+text = "Talk"
+
+[node name="Trade" type="Button" parent="InteractionMenu/InteractionButtonContainer"]
+visible = false
+layout_mode = 2
+text = "Trade"
+
+[node name="Quest" type="Button" parent="InteractionMenu/InteractionButtonContainer"]
+visible = false
+layout_mode = 2
+text = "Quest"
+
+[node name="Leave" type="Button" parent="InteractionMenu/InteractionButtonContainer"]
+visible = false
+layout_mode = 2
+text = "Leave"
+
+[node name="Inventory" type="GridContainer" parent="."]
+visible = false
+offset_left = 24.0
+offset_top = 89.0
+offset_right = 64.0
+offset_bottom = 129.0
+columns = 10
+
+[node name="Chat" type="ItemList" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -88.0
+offset_right = 380.0
+offset_bottom = 87.0
+grow_vertical = 0
+scale = Vector2(0.38698363, 0.39251733)
+item_count = 2
+item_0/text = "Test"
+item_1/text = "Test1"
+
+[connection signal="pressed" from="InteractionMenu/InteractionButtonContainer/Leave" to="." method="_on_leave_pressed"]

@@ -1,0 +1,13 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://dd3i1234cxqaw"]
+
+[ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/ui/PlayfairDisplay-Medium.ttf" id="1_1x47d"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1x47d"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[resource]
+default_font = ExtResource("1_1x47d")
+default_font_size = 12
+Button/colors/font_color = Color(0.816832, 0.531106, 0.273279, 1)
+Label/colors/font_color = Color(0.815686, 0.529412, 0.27451, 1)
+Panel/styles/panel = SubResource("StyleBoxFlat_1x47d")

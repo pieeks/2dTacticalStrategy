@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://bb5bm3c8l10cp"]
+
+[ext_resource type="Script" uid="uid://d3yjvinhk7cwe" path="res://scripts/characters/character_sync.gd" id="1_3mgkv"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ufk1h"]
+
+[node name="CharacterSync" type="MultiplayerSynchronizer"]
+replication_config = SubResource("SceneReplicationConfig_ufk1h")
+script = ExtResource("1_3mgkv")

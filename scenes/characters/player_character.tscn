@@ -1,0 +1,65 @@
+[gd_scene load_steps=12 format=3 uid="uid://bqqfgavevdbip"]
+
+[ext_resource type="Script" uid="uid://bxa7ge7hlasck" path="res://scripts/characters/player_character.gd" id="1_hfyxy"]
+[ext_resource type="PackedScene" uid="uid://ecph2jhmr1nm" path="res://scenes/characters/npc_specifications/action_area_2d.tscn" id="2_6prti"]
+[ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://scenes/characters/character_appearance.tscn" id="2_hto64"]
+[ext_resource type="Script" uid="uid://bpkg8pno1bhbi" path="res://scripts/characters/state/node_state_machine.gd" id="3_1dev2"]
+[ext_resource type="PackedScene" uid="uid://bb5bm3c8l10cp" path="res://scenes/characters/character_sync.tscn" id="3_hto64"]
+[ext_resource type="Script" uid="uid://bnamanmyvakfu" path="res://scripts/characters/state/idle_state.gd" id="4_6prti"]
+[ext_resource type="Script" uid="uid://bp5s1kljkw8ec" path="res://scripts/characters/state/walk_state.gd" id="5_j376r"]
+[ext_resource type="PackedScene" uid="uid://cahb3hbcad5qp" path="res://scenes/characters/character_save.tscn" id="7_1dev2"]
+[ext_resource type="Script" uid="uid://dmwcrshkvw2et" path="res://scripts/world/activation_area.gd" id="9_j376r"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rss5s"]
+size = Vector2(14, 39.5)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6prti"]
+radius = 900.0
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 10
+script = ExtResource("1_hfyxy")
+
+[node name="ActionArea2D" parent="." instance=ExtResource("2_6prti")]
+collision_mask = 12
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, -19)
+scale = Vector2(0.6791045, 0.40149778)
+shape = SubResource("RectangleShape2D_rss5s")
+
+[node name="CharacterAppearance" parent="." instance=ExtResource("2_hto64")]
+
+[node name="NodeStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
+script = ExtResource("3_1dev2")
+initial_node_state = NodePath("Idle")
+owner_actor_path = NodePath("..")
+metadata/_custom_type_script = "uid://bpkg8pno1bhbi"
+
+[node name="Idle" type="Node" parent="NodeStateMachine"]
+script = ExtResource("4_6prti")
+metadata/_custom_type_script = "uid://diyghm648fsof"
+
+[node name="Walk" type="Node" parent="NodeStateMachine"]
+script = ExtResource("5_j376r")
+metadata/_custom_type_script = "uid://diyghm648fsof"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.5, 0.5)
+
+[node name="CharacterSync" parent="." instance=ExtResource("3_hto64")]
+
+[node name="CharacterSave" parent="." instance=ExtResource("7_1dev2")]
+
+[node name="ActivationArea" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 8
+script = ExtResource("9_j376r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ActivationArea"]
+scale = Vector2(1.3116118, 1.2026044)
+shape = SubResource("CircleShape2D_6prti")
+
+[connection signal="body_entered" from="ActivationArea" to="ActivationArea" method="_on_body_entered"]
+[connection signal="body_exited" from="ActivationArea" to="ActivationArea" method="_on_body_exited"]

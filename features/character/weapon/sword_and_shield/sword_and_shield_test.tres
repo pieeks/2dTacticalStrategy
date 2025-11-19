@@ -1,0 +1,18 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://ia6em5hxwmbc"]
+
+[ext_resource type="Texture2D" uid="uid://bgra0xockuoji" path="res://assets/art/character/weapon/sword_and_shields/sword_and_shield_test_1.png" id="1_7ktla"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xypdh"]
+atlas = ExtResource("1_7ktla")
+region = Rect2(0, 0, 32, 64)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xypdh")
+}],
+"loop": true,
+"name": &"shield_and_short_test",
+"speed": 1.0
+}]

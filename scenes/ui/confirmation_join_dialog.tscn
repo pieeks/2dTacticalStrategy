@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cjjqqdkpg21jb"]
 
-[ext_resource type="Script" uid="uid://byo0bmchylouv" path="res://scenes/ui/confirmation_join_dialog.gd" id="1_6g2t6"]
+[ext_resource type="Script" uid="uid://byo0bmchylouv" path="res://scripts/ui/confirmation_join_dialog.gd" id="1_6g2t6"]
 
 [node name="ConfirmationJoinDialog" type="ConfirmationDialog"]
 script = ExtResource("1_6g2t6")

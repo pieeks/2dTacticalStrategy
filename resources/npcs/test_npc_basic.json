@@ -1,0 +1,22 @@
+{
+	"name": "test_npc_basic",
+	"appearance": {
+		"body_path": "res://features/character/body/basic/green.tres",
+		"hair_path": "res://features/character/hair/basic/blue_basic.tres",
+		"leg_path": "res://features/character/leg/basic/blue.tres",
+		"race_path": "res://features/character/race/elf_basic.tres"
+	},
+	"sync": {
+		"isActice": "true"
+	},
+	"stats": {
+		"health": 100.0,
+		"minDamage": 2.0,
+		"maxDamage": 10.0
+	},
+	"loot": {
+		"minGold": 1.0,
+		"maxGold": 4.0
+	},
+	"is_hostile": false
+}
