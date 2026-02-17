@@ -9,9 +9,7 @@ extends LevelLoadManager
 	"TestSpawnArea": {"count": 4, "type": "slime_basic"}
 }
 
-
 signal level_ready
-
 
 func _ready() -> void:
 	npc_spawn_information = level_npc_spawn_information

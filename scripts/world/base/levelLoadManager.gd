@@ -10,6 +10,8 @@ var npc_spawn_information: Dictionary
 
 var players_container: Node
 
+
+
 func initialize_level_for_players(p_container: Node):
 	self.players_container = p_container
 	
