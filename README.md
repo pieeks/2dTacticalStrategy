@@ -1,4 +1,4 @@
-# 2DStrategyTaticGame
+# 2DStrategyTacticalGame
 
 2D-Multiplayer-RPG mit eigenständigen Partys und geplantem taktischem Grid-Kampf. Entwickelt mit **Godot 4.5** und **GDScript** (Viewport 640×360, Stretch `canvas_items`).
 

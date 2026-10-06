@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="2DStrategyTaticGame"
+config/name="2DStrategyTacticalGame"
 run/main_scene="uid://dor7lv2w6ymfr"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
