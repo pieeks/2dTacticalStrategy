@@ -56,15 +56,15 @@ Hinweis: Design-Docs erwähnen noch „Tilemap“; für den Kampf-Prototype gilt
 
 Ziel: Start / Join / Leave / Destroy + Late-Join-Sync, **ohne** Turn-Gameplay.
 
-- [ ] Ordner/Struktur anlegen z. B. `scripts/battle/`, `scenes/battle/`
-- [ ] **`FightManager`** (Host-Autorität) anlegen und unter Overworld einbinden
-- [ ] **`FightLayer`** in `overworld.tscn` (Container für Kampfinstanzen)
-- [ ] **`FightTemplate`**-Szene: Grid-Root, Participant-Liste, Character-Container, eigener `MultiplayerSpawner` falls nötig
-- [ ] RPCs: Start / Join / Leave / Destroy / Sync-für-Late-Joiner
-- [ ] Sichtbarkeit: Kampf nur für Teilnehmer sichtbar
-- [ ] World-Movement pausieren/blockieren solange Peer im Fight (`is_peer_in_fight`)
-- [ ] Nach Leave/End: World-Kamera / Steuerung wiederherstellen
-- [ ] Manuelles Test-UI (Debug: Start/Leave Fight) zum Validieren — später durch echte Trigger ersetzen
+- [x] Ordner/Struktur anlegen z. B. `scripts/battle/`, `scenes/battle/`
+- [x] **`FightManager`** (Host-Autorität) anlegen und unter Overworld einbinden
+- [x] **`FightLayer`** in `overworld.tscn` (Container für Kampfinstanzen)
+- [x] **`FightTemplate`**-Szene: Grid-Root, Participant-Liste, Character-Container, eigener `MultiplayerSpawner` falls nötig
+- [x] RPCs: Start / Join / Leave / Destroy / Sync-für-Late-Joiner
+- [x] Sichtbarkeit: Kampf nur für Teilnehmer sichtbar
+- [x] World-Movement pausieren/blockieren solange Peer im Fight (`is_peer_in_fight`)
+- [x] Nach Leave/End: World-Kamera / Steuerung wiederherstellen
+- [x] Manuelles Test-UI (Debug: Start/Leave Fight) zum Validieren — später durch echte Trigger ersetzen
 
 ---
 
