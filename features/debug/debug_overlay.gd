@@ -9,11 +9,11 @@ class_name DebugOverlay
 ##
 ## Features:
 ## - Autoload reference configurable via `autoload_path`
-## - Displays live network info if a NetworkManager is present
+## - Displays live network info if NetworkManagerTest is present
 ## - Toggle visibility with "ui_debug_toggle" action (default = F3)
 ## - Useful for development/testing of multiplayer sessions
 
-## NodePath to the NetworkManager autoload (adjustable in Inspector).
+## NodePath to the NetworkManagerTest autoload (adjustable in Inspector).
 @export var autoload_path: NodePath = NodePath("/root/NetworkManagerTest")
 
 ## Whether the overlay starts visible when the game launches.
@@ -25,7 +25,7 @@ class_name DebugOverlay
 @onready var lbl_title: Label = $UIRoot/PanelContainer/VBoxContainer/DebugOverlay
 @onready var lbl_network: Label = $UIRoot/PanelContainer/VBoxContainer/NetworkInfo
 
-## Cached reference to the NetworkManager autoload (if found).
+## Cached reference to the NetworkManagerTest autoload (if found).
 var _nm: Node = null
 
 ## Tracks whether the overlay is currently visible.
@@ -63,17 +63,17 @@ func _process(_delta: float) -> void:
 
 
 ## Updates the network information displayed on the overlay.
-## Retrieves data from the NetworkManager if available:
+## Retrieves data from NetworkManagerTest if available:
 ## - Peer ID
 ## - Host/Client status
 ## - List of connected peers
 ## - List of ready peers
 func _update_network() -> void:
 	if _nm == null:
-		# Retry in case NetworkManager was not ready at _ready()
+		# Retry in case NetworkManagerTest was not ready at _ready()
 		_nm = get_node_or_null(autoload_path)
 		if _nm == null:
-			lbl_network.text = "No NetworkManager found at: %s" % [autoload_path]
+			lbl_network.text = "No NetworkManagerTest found at: %s" % [autoload_path]
 			return
 
 	# Defensive reads: only query properties if they exist

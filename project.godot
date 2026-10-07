@@ -21,11 +21,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Globals="*res://autolaod/globals.gd"
-PlayerPartyState="*res://autolaod/player_party_state.gd"
-WorldState="*res://autolaod/world_state.gd"
+Globals="*res://autoload/globals.gd"
+PlayerPartyState="*res://autoload/player_party_state.gd"
+WorldState="*res://autoload/world_state.gd"
 PlayerUi="*res://scripts/ui/player_ui.gd"
-NetworkManagerTest="*res://autolaod/network_manager_test.gd"
+NetworkManagerTest="*res://autoload/network_manager_test.gd"
 
 [display]
 
@@ -41,7 +41,7 @@ folder_colors={
 "res://_dev/": "gray",
 "res://addons/": "gray",
 "res://assets/": "orange",
-"res://autolaod/": "purple",
+"res://autoload/": "purple",
 "res://features/": "blue",
 "res://resources/": "pink",
 "res://resources/tilesets/": "pink",

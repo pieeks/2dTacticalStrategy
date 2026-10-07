@@ -16,7 +16,7 @@ func _on_enter(msg: Dictionary = {}) -> void:
 
 func _on_physics_process(_delta: float) -> void:
 	# Diese Logik läuft NUR auf dem Host.
-	if not _npc.is_multiplayer_authority():
+	if not NetworkManagerTest.is_authority(_npc):
 		return
 	
 	if not is_instance_valid(_target):

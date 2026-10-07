@@ -16,18 +16,12 @@ extends Control
 ## Reference to the character list control UI.
 @onready var character_list_control: Control = $CanvasLayer/UIRoot/Panel/CharacterListControl
 
-## PackedScene for the default level (loaded in _ready()).
-var level_scene: PackedScene
-
-## File path for the test multiplayer level.
-const LEVEL_SCENE_PATH := "res://_dev/tests/test_scene_tilemap_multiplayer.tscn"
-
 
 ## Called when the node enters the scene tree.
-## Loads the level scene, disables world selection by default,
-## connects popup signals, and enables world selection if characters exist.
+## Disables world selection by default, connects popup signals,
+## and enables world selection if characters exist.
 func _ready() -> void:
-	level_scene = load(LEVEL_SCENE_PATH)
+	NetworkManagerTest.reset_session()
 	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = true
 	settings_popup.connect("popup_closed", Callable(self, "_on_back_pressed"))
 	if PlayerPartyState.available_characters.size() > 0:
@@ -60,12 +54,6 @@ func _on_settings_pressed() -> void:
 ## Called when at least one character save is available.
 func _enable_world_selection() -> void:
 	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = false
-
-
-## Called when the lobby has been joined successfully.
-## Changes the scene to the loaded level scene.
-func _on_lobby_joined() -> void:
-	get_tree().change_scene_to_packed(level_scene)
 
 
 ## Button callback: goes to the world selection screen.
