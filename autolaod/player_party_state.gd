@@ -29,10 +29,8 @@ var meta_data : Dictionary = {}
 ## Position dictionary storing current world position `{x, y}`.
 var position_data : Dictionary = {}
 
-## Party-related data (members, roles, stats).
-## NOTE: This is initialized with a default `{x, y}` which may be a bug,
-##       since party_data should probably be a dictionary with members.
-var party_data : Dictionary = {"x": 0.0, "y": 0.0}
+## Party-related data (leader_id, members, roles, stats). Filled on character creation.
+var party_data: Dictionary = {}
 
 ## Inventory data (gold, items).
 var inventory_data : Dictionary = {}
@@ -90,7 +88,7 @@ func save_to_disk() -> bool:
 ##
 ## @param pid String: The player ID whose save should be loaded.
 ## @return bool: True if load succeeded, false otherwise.
-func load_form_disk(pid: String) -> bool: 
+func load_from_disk(pid: String) -> bool: 
 	var path = base_path + pid + "/save.json"
 	if not FileAccess.file_exists(path):
 		push_error("No save found at: " + path)

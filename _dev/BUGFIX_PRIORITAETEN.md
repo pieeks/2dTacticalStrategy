@@ -18,19 +18,19 @@ Abhak-Liste für bekannte Probleme. Reihenfolge: P0 zuerst, dann P1, dann P2.
 
 ## P1 — Mittel (fragil / falsches Verhalten)
 
-- [ ] **`load_form_disk` umbenennen** → `load_from_disk` (Callers mitziehen) — `player_party_state.gd` + `world_selection.gd`
+- [x] **`load_form_disk` umbenennen** → `load_from_disk` (Callers mitziehen) — `player_party_state.gd` + `world_selection.gd`
 
-- [ ] **`party_data`-Default korrigieren** — nicht `{"x","y"}`, sondern leere Party-Struktur / `{}`
+- [x] **`party_data`-Default korrigieren** — nicht `{"x","y"}`, sondern leere Party-Struktur / `{}`
 
-- [ ] **Join-IP in der UI** — nicht hart `127.0.0.1`; Eingabe/Dialog für Host-Adresse
+- [x] **Join-IP in der UI** — nicht hart `127.0.0.1`; Eingabe/Dialog für Host-Adresse
 
-- [ ] **Network-Lifecycle Reset** — beim Verlassen der Session: Peer schließen, `_ready_peers` leeren, `is_host` zurücksetzen
+- [x] **Network-Lifecycle Reset** — beim Verlassen der Session: Peer schließen, `_ready_peers` leeren, `is_host` zurücksetzen
 
-- [ ] **Authority-Check bei Position-RPC** — `character_sync.gd` `rpc_sync_position` nur von Authority akzeptieren
+- [x] **Authority-Check bei Position-RPC** — `character_sync.gd` `rpc_sync_position` nur von Authority akzeptieren
 
-- [ ] **Position-Typ in `CharacterSave` vereinheitlichen** — immer Dictionary `{x,y}` (oder immer `Vector2`)
+- [x] **Position-Typ in `CharacterSave` vereinheitlichen** — immer Dictionary `{x,y}` (oder immer `Vector2`)
 
-- [ ] **NPC-Spawn-Pfad klären** — `levelLoadManager`/`biom_1` vs. `npc_spawner.gd`: einen produktiven Weg behalten, Rest entfernen oder klar markieren
+- [x] **NPC-Spawn-Pfad klären** — `levelLoadManager`/`biom_1` vs. `npc_spawner.gd`: einen produktiven Weg behalten, Rest entfernen oder klar markieren
 
 ## P2 — Klein (Cleanups / Naming)
 
@@ -42,7 +42,7 @@ Abhak-Liste für bekannte Probleme. Reihenfolge: P0 zuerst, dann P1, dann P2.
 
 - [ ] `match`-Duplikat `LOOP` in `npc_character.gd` `wake_up()` entfernen
 
-- [ ] `confirmation_join_dialog.gd` implementieren oder toten Code entfernen
+- [x] `confirmation_join_dialog.gd` implementieren oder toten Code entfernen
 
 - [ ] Unbenutzte `LEVEL_SCENE_PATH` / Testscene-Konstante in `main_menu.gd` aufräumen
 

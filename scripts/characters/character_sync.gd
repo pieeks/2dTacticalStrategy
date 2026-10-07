@@ -56,9 +56,11 @@ func rpc_sync_full_appearance(data: Dictionary) -> void:
 ## @param pos Vector2: The global position of the player.
 @rpc("any_peer", "unreliable_ordered")
 func rpc_sync_position(pos: Vector2) -> void:
+	var sender := multiplayer.get_remote_sender_id()
 	var actor := get_parent() # Expected to be PlayerCharacter
-	if actor:
-		actor.global_position = pos
+	if actor == null or sender != actor.get_multiplayer_authority():
+		return
+	actor.global_position = pos
 
 
 ## Synchronizes animation state across peers.
