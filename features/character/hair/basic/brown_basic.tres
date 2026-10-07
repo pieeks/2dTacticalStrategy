@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=66 format=3 uid="uid://d2pj554r04435"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://d2pj554r04435"]
 
 [ext_resource type="Texture2D" uid="uid://2jkvyxbhco1d" path="res://assets/art/character/hair/basics/brown_basic.png" id="1_i6pts"]
 
@@ -273,7 +273,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_s0ngy")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_back",
 "speed": 4.0
 }, {
@@ -290,7 +290,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3ayj5")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_back_battle",
 "speed": 4.0
 }, {
@@ -307,7 +307,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nbnod")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_front",
 "speed": 4.0
 }, {
@@ -324,7 +324,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_26qjf")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_front_battle",
 "speed": 4.0
 }, {
@@ -341,7 +341,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_c1jiv")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_left",
 "speed": 4.0
 }, {
@@ -358,7 +358,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_d4eym")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_left_battle",
 "speed": 4.0
 }, {
@@ -375,7 +375,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_pkn3o")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_right",
 "speed": 4.0
 }, {
@@ -392,7 +392,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_wnaih")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_right_battle",
 "speed": 4.0
 }, {
@@ -409,7 +409,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_wovlm")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_back",
 "speed": 4.0
 }, {
@@ -426,7 +426,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_68uby")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_back_battle",
 "speed": 4.0
 }, {
@@ -443,7 +443,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_upkha")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_front",
 "speed": 4.0
 }, {
@@ -460,7 +460,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_cwwal")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_front_battle",
 "speed": 4.0
 }, {
@@ -477,7 +477,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_o78v2")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_left",
 "speed": 4.0
 }, {
@@ -494,7 +494,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_unpn4")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_left_battle",
 "speed": 4.0
 }, {
@@ -511,7 +511,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_f276j")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_right",
 "speed": 4.0
 }, {
@@ -528,7 +528,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2hn1u")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_right_battle",
 "speed": 4.0
 }]

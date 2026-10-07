@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=34 format=3 uid="uid://eiaxaq8sp1m0"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://eiaxaq8sp1m0"]
 
 [ext_resource type="Texture2D" uid="uid://rorur4pafcwl" path="res://assets/art/character/leg/basics/blue_basic.png" id="1_eelns"]
 
@@ -145,7 +145,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_rugcl")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_back",
 "speed": 4.0
 }, {
@@ -162,7 +162,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_1nh7y")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_front",
 "speed": 4.0
 }, {
@@ -179,7 +179,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ig445")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_left",
 "speed": 4.0
 }, {
@@ -196,7 +196,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_jp1jx")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_right",
 "speed": 4.0
 }, {
@@ -213,7 +213,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_gf3lh")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_back",
 "speed": 4.0
 }, {
@@ -230,7 +230,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_on2qf")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_front",
 "speed": 4.0
 }, {
@@ -247,7 +247,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_urqoa")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_left",
 "speed": 4.0
 }, {
@@ -264,7 +264,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_5r21y")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_right",
 "speed": 4.0
 }]

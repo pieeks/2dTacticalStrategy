@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=66 format=3 uid="uid://d0mh8hgk1dc2i"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://d0mh8hgk1dc2i"]
 
 [ext_resource type="Texture2D" uid="uid://bk6rv1q7vifsm" path="res://assets/art/character/race/basic_elf_1.png" id="1_7ydvj"]
 
@@ -273,7 +273,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_tmqfu")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_back",
 "speed": 4.0
 }, {
@@ -290,7 +290,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_k3joc")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_back_battle",
 "speed": 4.0
 }, {
@@ -307,7 +307,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_sp7s1")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_front",
 "speed": 4.0
 }, {
@@ -324,7 +324,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_135ks")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_front_battle",
 "speed": 4.0
 }, {
@@ -341,7 +341,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_b0n2d")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_left",
 "speed": 4.0
 }, {
@@ -358,7 +358,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_46tjw")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_left_battle",
 "speed": 4.0
 }, {
@@ -375,7 +375,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_7acmo")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_right",
 "speed": 4.0
 }, {
@@ -392,7 +392,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_sa5jm")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_right_battle",
 "speed": 4.0
 }, {
@@ -409,7 +409,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_8vsat")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_back",
 "speed": 4.0
 }, {
@@ -426,7 +426,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_xd5bu")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_back_battle",
 "speed": 4.0
 }, {
@@ -443,7 +443,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_6cc5w")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_front",
 "speed": 4.0
 }, {
@@ -460,7 +460,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_f6tsb")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_front_battle",
 "speed": 4.0
 }, {
@@ -477,7 +477,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_g0ogd")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk_left",
 "speed": 4.0
 }, {
@@ -494,7 +494,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_kgdv4")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_left_battle",
 "speed": 4.0
 }, {
@@ -511,7 +511,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_d05ug")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_right",
 "speed": 4.0
 }, {
@@ -528,7 +528,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_8o7d1")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_right_battle",
 "speed": 4.0
 }]
