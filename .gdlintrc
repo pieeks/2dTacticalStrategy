@@ -1,0 +1,40 @@
+# Moderate gdtoolkit config — disable noisy style rules; keep CI stable.
+# Key must be `disable` (not `disabled`) — see gdtoolkit DEFAULT_CONFIG.
+
+disable:
+  - class-definitions-order
+  - max-public-methods
+  - max-returns
+  - max-file-lines
+  - max-line-length
+  - function-name
+  - class-name
+  - class-variable-name
+  - class-load-variable-name
+  - signal-name
+  - constant-name
+  - load-constant-name
+  - enum-name
+  - enum-element-name
+  - function-preload-variable-name
+  - function-argument-name
+  - function-variable-name
+  - loop-variable-name
+  - sub-class-name
+  - no-else-return
+  - no-elif-return
+  - duplicated-load
+  - expression-not-assigned
+  - trailing-whitespace
+  - mixed-tabs-and-spaces
+  - tab-characters
+  - comparison-with-itself
+
+function-arguments-number: 10
+max-consecutive-empty-lines: 3
+
+excluded_directories:
+  - .git
+  - .godot
+  - addons
+  - _dev
