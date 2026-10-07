@@ -1,38 +1,42 @@
-# Moderate gdtoolkit rules — keep CI green without a large style rewrite.
-class-definitions-order: null
-class-variable-order: null
+# Moderate gdtoolkit config — disable noisy style rules; keep CI stable.
+# Use `disabled:` (not null thresholds) to avoid gdlint TypeErrors.
+
+disabled:
+  - class-definitions-order
+  - class-variable-order
+  - max-public-methods
+  - max-returns
+  - function-arguments-variable-snake-case
+  - function-name
+  - class-name
+  - class-variable-name
+  - signal-name
+  - constant-name
+  - variable-name
+  - enum-name
+  - enum-element-name
+  - function-preload-variable-name
+  - function-argument-name
+  - loop-variable-name
+  - unused-argument
+  - no-else-return
+  - no-elif-return
+  - duplicated-load
+  - expression-not-assigned
+  - unnecessary-pass
+  - unused-variable
+  - max-file-lines
+  - max-function-arguments
+  - max-function-lines
+  - max-parameters-per-line
+  - max-nested-levels
+  - max-empty-lines
+  - max-locals
+  - max-class-method-lines
+
 max-line-length: 120
-max-public-methods: null
-max-returns: null
-function-arguments-variable-snake-case: null
-function-name: null
-class-name: null
-class-variable-name: null
-signal-name: null
-constant-name: null
-variable-name: null
-enum-name: null
-enum-element-name: null
-function-preload-variable-name: null
-function-argument-name: null
-loop-variable-name: null
-unused-argument: null
-no-else-return: null
-duplicated-load: null
-expression-not-assigned: null
-unnecessary-pass: null
-unused-variable: null
-max-file-lines: null
-max-function-arguments: null
-max-function-lines: null
-max-parameters-per-line: null
-max-nested-levels: null
 max-consecutive-empty-lines: 3
-max-empty-lines: null
-max-locals: null
-max-class-method-lines: null
-comparison-with-itself: error
-no-elif-return: null
+
 excluded_directories:
   - .git
   - .godot
