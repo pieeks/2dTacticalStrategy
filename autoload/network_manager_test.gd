@@ -1,8 +1,6 @@
-# File: network_manager.gd
 extends Node
-class_name NetworkManager
 
-## NetworkManager
+## NetworkManagerTest (Autoload)
 ##
 ## Central multiplayer manager for hosting and joining ENet lobbies.
 ## Handles lobby creation/join, peer connection/disconnection,
@@ -15,7 +13,7 @@ class_name NetworkManager
 ## - Utility for authority checks
 ##
 ## Usage:
-## - Add as an Autoload (singleton) so it is always accessible.
+## - Registered as Autoload `NetworkManagerTest` in Project Settings.
 ## - Call `create_lobby()` on host, `join_lobby(ip, port)` on client.
 ## - Connect to signals for lobby events.
 ## - Use `is_authority(node)` to determine whether a node should process input.

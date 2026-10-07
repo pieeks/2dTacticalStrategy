@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://bpkg8pno1bhbi" path="res://scripts/characters/state/node_state_machine.gd" id="3_oiye3"]
 [ext_resource type="Script" uid="uid://dq6ak12v04hdy" path="res://scripts/characters/state/walk_npc_state.gd" id="4_cpq63"]
 [ext_resource type="Script" uid="uid://bixx6ume40vog" path="res://scripts/characters/state/follow_target_npc.gd" id="6_ax4aq"]
-[ext_resource type="PackedScene" uid="uid://b7x2582e6j3r1" path="res://scenes/characters/npc_specificatioins_container.tscn" id="6_oiye3"]
+[ext_resource type="PackedScene" uid="uid://b7x2582e6j3r1" path="res://scenes/characters/npc_specifications_container.tscn" id="6_oiye3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vwdjj"]
 size = Vector2(15.887739, 14.252375)
@@ -42,7 +42,7 @@ script = ExtResource("4_cpq63")
 [node name="FollowTargetNPC" type="Node" parent="StateMachine"]
 script = ExtResource("6_ax4aq")
 
-[node name="NPCSpecificatioinsContainer" parent="." instance=ExtResource("6_oiye3")]
+[node name="NPCSpecificationsContainer" parent="." instance=ExtResource("6_oiye3")]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_ax4aq")

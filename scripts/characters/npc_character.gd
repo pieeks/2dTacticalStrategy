@@ -9,7 +9,7 @@ var active_player_bubbles: int = 0
 ## States & Aussehen
 @onready var state_machine: NodeStateMachine = $StateMachine
 @onready var appearance: CharacterAppearance = $CharacterAppearance
-@onready var specification: NpcSpecification = $NPCSpecificatioinsContainer
+@onready var specification: NpcSpecification = $NPCSpecificationsContainer
 
 ## Patrouillen-Daten
 @onready var patrol_pause_timer: Timer = $PatrolPauseTimer

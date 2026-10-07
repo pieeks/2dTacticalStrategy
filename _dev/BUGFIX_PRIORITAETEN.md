@@ -13,7 +13,7 @@ Abhak-Liste für bekannte Probleme. Reihenfolge: P0 zuerst, dann P1, dann P2.
 - [x] **Charakter-IDs nicht eindeutig** — `scripts/ui/character_creation.gd`  
   Echte GUID/UUID statt `"player_guid_1234" + Name`; leere Namen und unsichere Pfadzeichen abfangen.
 
-- [x] **Charakterliste kann crashen** — `autolaod/player_party_state.gd`  
+- [x] **Charakterliste kann crashen** — `autoload/player_party_state.gd`  
   `members[0]` absichern; `update_unix` aus korrektem Meta-Feld lesen.
 
 ## P1 — Mittel (fragil / falsches Verhalten)
@@ -34,19 +34,19 @@ Abhak-Liste für bekannte Probleme. Reihenfolge: P0 zuerst, dann P1, dann P2.
 
 ## P2 — Klein (Cleanups / Naming)
 
-- [ ] Ordner `autolaod/` → `autoload/` (Referenzen in `project.godot` + Imports anpassen)
+- [x] Ordner `autolaod/` → `autoload/` (Referenzen in `project.godot` + Imports anpassen)
 
-- [ ] Tippfehler `Specificatioins` → `Specifications` (Scene/Node/Dateien)
+- [x] Tippfehler `Specificatioins` → `Specifications` (Scene/Node/Dateien)
 
-- [ ] Naming: `class_name NetworkManager` vs. Autoload `NetworkManagerTest` angleichen
+- [x] Naming: `class_name NetworkManager` vs. Autoload `NetworkManagerTest` angleichen
 
-- [ ] `match`-Duplikat `LOOP` in `npc_character.gd` `wake_up()` entfernen
+- [x] `match`-Duplikat `LOOP` in `npc_character.gd` `wake_up()` entfernen
 
 - [x] `confirmation_join_dialog.gd` implementieren oder toten Code entfernen
 
-- [ ] Unbenutzte `LEVEL_SCENE_PATH` / Testscene-Konstante in `main_menu.gd` aufräumen
+- [x] Unbenutzte `LEVEL_SCENE_PATH` / Testscene-Konstante in `main_menu.gd` aufräumen
 
-- [ ] Steam-Dateien klar als WIP markieren oder aus dem aktiven Flow halten
+- [x] Steam-Dateien klar als WIP markieren oder aus dem aktiven Flow halten
 
 ## Empfohlene Reihenfolge
 

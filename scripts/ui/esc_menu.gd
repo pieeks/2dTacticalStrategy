@@ -95,5 +95,5 @@ func _on_save_and_quit_pressed() -> void:
 	print("Save and Quit Button pressed!")
 	get_tree().paused = false
 	_save_game()
-	NetworkManagerTest.reset_session()
+	# Reset session in main_menu._ready so Overworld teardown still has a peer.
 	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")

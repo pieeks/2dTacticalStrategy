@@ -8,7 +8,7 @@ var current_target: Array[Node]
 signal end_interaction_signal(Node2D)
 
 func _on_body_entered(body: Node2D) -> void:
-	if not actor.is_multiplayer_authority(): 
+	if not NetworkManagerTest.is_authority(actor):
 		return
 	if body == actor:
 		return
@@ -17,7 +17,7 @@ func _on_body_entered(body: Node2D) -> void:
 
 
 func _on_body_exited(body: Node2D) -> void:
-	if not actor.is_multiplayer_authority(): 
+	if not NetworkManagerTest.is_authority(actor):
 		return
 	emit_signal("end_interaction_signal", body)
 	current_target.erase(body)

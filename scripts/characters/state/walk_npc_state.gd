@@ -8,7 +8,7 @@ func _on_enter() -> void:
 
 func _on_physics_process(_delta: float) -> void:
 	# Diese Logik läuft NUR auf der "Meister-Kopie" des NPCs auf dem Host.
-	if not _npc.is_multiplayer_authority():
+	if not NetworkManagerTest.is_authority(_npc):
 		return
 	
 	if _npc.is_interacting:

@@ -78,7 +78,7 @@ Tasten können in den Control-Settings neu belegt werden.
 ```
 ├── scenes/       # UI, Charaktere, Welt / Level
 ├── scripts/      # GDScript (characters, ui, world)
-├── autolaod/     # Autoloads (Globals, Party/World State, Network)
+├── autoload/     # Autoloads (Globals, Party/World State, Network)
 ├── features/     # Spawner, Debug, Character-Parts
 ├── resources/    # Themes, Tilesets, NPC-Daten, Input-Helper
 ├── assets/       # Art, Fonts, UI
@@ -88,8 +88,9 @@ Tasten können in den Control-Settings neu belegt werden.
 
 ## Multiplayer & Addons
 
-- **Aktiv:** ENet über Autoload `NetworkManagerTest` (`autolaod/network_manager_test.gd`)
+- **Aktiv:** ENet über Autoload `NetworkManagerTest` (`autoload/network_manager_test.gd`)
 - **Vorbereitet:** GodotSteam und [steam-multiplayer-peer](addons/steam-multiplayer-peer/) (noch nicht angebunden)
+- **Steam-WIP-Skripte:** [`_dev/steam_wip/`](_dev/steam_wip/) (nicht als Autoload aktiv)
 
 Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md).
 
