@@ -95,6 +95,5 @@ func _on_save_and_quit_pressed() -> void:
 	print("Save and Quit Button pressed!")
 	get_tree().paused = false
 	_save_game()
-	if multiplayer.has_multiplayer_peer():
-		multiplayer.multiplayer_peer = null
+	NetworkManagerTest.reset_session()
 	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")

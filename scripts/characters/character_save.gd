@@ -27,12 +27,12 @@ func setup_player_from_save(peer_id: int, current_player: Node) -> void:
 			"position": PlayerPartyState.position_data,
 			"appearance": PlayerPartyState.player_data.get("appearance")
 		}
-	else: 
+	else:
 		# Remote peer: placeholder data until sync
 		save_data = {
 			"player_id": str(peer_id),
 			"name": "Remote_" + str(peer_id),
-			"position": Vector2.ZERO
+			"position": {"x": 0.0, "y": 0.0}
 		}
 	apply_save_data(save_data, current_player)
 
@@ -44,12 +44,13 @@ func apply_save_data(data: Dictionary, current_player: Node) -> void:
 	# Apply core identifiers
 	if data.has("player_id"):
 		player_id = data["player_id"]
-	if data.has("position"): 
-		var vector2 = Vector2(float(data["position"]["x"]), float(data["position"]["y"]))
-		current_player.global_position = vector2
-	if data.has("name") and data["name"] != null: 
+	if data.has("position") and typeof(data["position"]) == TYPE_DICTIONARY:
+		var pos: Dictionary = data["position"]
+		if pos.has("x") and pos.has("y"):
+			current_player.global_position = Vector2(float(pos["x"]), float(pos["y"]))
+	if data.has("name") and data["name"] != null:
 		player_name = data["name"]
-	if data.has("appearance") and data["appearance"] != null: 
+	if data.has("appearance") and data["appearance"] != null:
 		appearance = data["appearance"]
 		appearance_data = {
 			"race_path": appearance.get("race_path", ""),

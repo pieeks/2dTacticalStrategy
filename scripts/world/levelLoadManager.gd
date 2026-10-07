@@ -5,6 +5,7 @@ extends Node2D
 @export var modular_npc_scene: PackedScene
 var npc_spawn_information: Dictionary
 
+## Productive NPC spawn path: MultiplayerSpawner + biom spawn_function (not scripts/world/npc_spawner.gd).
 @onready var multiplayer_spawner: MultiplayerSpawner = $NPCSpawner
 @onready var spawn_definitions_node: Node = $NPCSpawnDefinition
 

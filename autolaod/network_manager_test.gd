@@ -48,21 +48,33 @@ var host_address: String = "127.0.0.1"
 var _ready_peers := {}
 
 
+## Clears multiplayer peer, ready peers, and host flag.
+func reset_session() -> void:
+	if multiplayer.has_multiplayer_peer():
+		multiplayer.multiplayer_peer = null
+	_ready_peers.clear()
+	is_host = false
+	network = null
+
+
 ## Creates a new ENet lobby as host.
 ## Initializes server peer, sets multiplayer peer, connects signals.
 func create_lobby() -> void:
-	if is_host:
-		network = ENetMultiplayerPeer.new()
-		var err := network.create_server(port, lobby_members_max)
-		if err != OK:
-			push_error("Failed to start ENet server")
-			return
-		multiplayer.multiplayer_peer = network
-		network.peer_connected.connect(_on_peer_connected_server)
-		network.peer_disconnected.connect(_on_peer_disconnected_server)
-		emit_signal("lobby_joined_finished")
-		# Host is immediately ready
-		_mark_ready(multiplayer.get_unique_id())
+	if multiplayer.has_multiplayer_peer():
+		reset_session()
+	is_host = true
+	network = ENetMultiplayerPeer.new()
+	var err := network.create_server(port, lobby_members_max)
+	if err != OK:
+		push_error("Failed to start ENet server")
+		reset_session()
+		return
+	multiplayer.multiplayer_peer = network
+	network.peer_connected.connect(_on_peer_connected_server)
+	network.peer_disconnected.connect(_on_peer_disconnected_server)
+	emit_signal("lobby_joined_finished")
+	# Host is immediately ready
+	_mark_ready(multiplayer.get_unique_id())
 
 
 ## Joins an existing ENet lobby as client.
@@ -71,14 +83,16 @@ func create_lobby() -> void:
 ## @param ip String: IP address of the host (default = 127.0.0.1).
 ## @param p int: Port of the host (default = 4242).
 func join_lobby(ip: String = "127.0.0.1", p: int = 4242) -> void:
-	if is_host:
-		push_error("Host cannot join as client")
-		return
+	if multiplayer.has_multiplayer_peer():
+		reset_session()
+	is_host = false
 	var cli := ENetMultiplayerPeer.new()
 	var err := cli.create_client(ip, p)
 	if err != OK:
 		push_error("Failed to join ENet server")
+		reset_session()
 		return
+	network = cli
 	multiplayer.multiplayer_peer = cli
 	multiplayer.connected_to_server.connect(_on_connected_client)
 	multiplayer.connection_failed.connect(func(): push_error("Connect failed"))
