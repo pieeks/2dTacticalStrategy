@@ -1,6 +1,6 @@
 # 2DStrategyTacticalGame
 
-2D-Multiplayer-RPG mit eigenständigen Partys und geplantem taktischem Grid-Kampf. Entwickelt mit **Godot 4.5** und **GDScript** (Viewport 640×360, Stretch `canvas_items`).
+2D-Multiplayer-RPG mit eigenständigen Partys und geplantem taktischem Grid-Kampf. Entwickelt mit **Godot 4.7** und **GDScript** (Viewport 640×360, Stretch `canvas_items`).
 
 Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplante Modi: autark, Koop und Rivalen. Details zum Design stehen unter [`_dev/`](_dev/).
 
@@ -51,13 +51,17 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Dungeons mit mehreren Ebenen
 - Steam P2P (Addons vorbereitet, noch nicht produktiv)
 
+## CI
+
+GitHub Actions auf `main`: GDScript-Lint (`gdtoolkit`) und Headless-Projektcheck mit Godot 4.7.
+
 ## Voraussetzungen
 
-- [Godot 4.5](https://godotengine.org/) (Projekt-Feature-String: `4.5`)
+- [Godot 4.7](https://godotengine.org/) (Projekt-Feature-String: `4.7`)
 
 ## Starten
 
-1. Godot 4.5 öffnen und den Projektordner importieren bzw. öffnen.
+1. Godot 4.7 öffnen und den Projektordner importieren bzw. öffnen.
 2. Mit **F5** / Play starten. Main Scene: `scenes/ui/main_menu.tscn`.
 3. Ablauf: Hauptmenü → Charakter erstellen/wählen → World Selection → Host oder Join → Overworld.
 

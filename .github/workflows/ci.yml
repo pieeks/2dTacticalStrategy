@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  gdscript-lint:
+    name: GDScript Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install gdtoolkit
+        run: pip install gdtoolkit
+
+      - name: Lint production GDScript
+        run: |
+          gdlint scripts/ autoload/ features/
+
+  godot-project-check:
+    name: Godot Headless Project Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          include-templates: false
+
+      - name: Import project
+        run: godot --headless --path . --import
+        continue-on-error: true
+
+      - name: Open project headless
+        run: godot --headless --path . --quit-after 1
