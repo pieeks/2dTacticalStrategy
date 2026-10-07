@@ -52,13 +52,15 @@ func _ready() -> void:
 	if NetworkManagerTest.is_authority(self):
 		if save:
 			save.setup_player_from_save(multiplayer.get_unique_id(), self)
-			if save.appearance.size() > 0:
-				sync.apply_and_sync_appearance(save.appearance)
+			if not save.appearance_data.is_empty():
+				sync.apply_and_sync_appearance(save.appearance_data)
 				player_name = save.player_name
 	
-	# Handle late-joiners
-	if NetworkManagerTest.has_signal("peer_connected"):
-		NetworkManagerTest.connect("peer_connected", Callable(self, "_on_new_peer_connected"))
+	# Late-join: peer_connected (forwarded to clients) + peer_ready (nodes exist / better timing)
+	if not NetworkManagerTest.peer_connected.is_connected(_on_new_peer_connected):
+		NetworkManagerTest.peer_connected.connect(_on_new_peer_connected)
+	if not NetworkManagerTest.peer_ready.is_connected(_on_new_peer_connected):
+		NetworkManagerTest.peer_ready.connect(_on_new_peer_connected)
 	
 	# Assign self as owner_actor for states (fallback)
 	if "owner_actor" in sm and sm.owner_actor == null:
@@ -71,7 +73,8 @@ func _ready() -> void:
 	if NetworkManagerTest.is_authority(self):
 		cam.enabled = true
 		cam.make_current()
-		sync.rpc("rpc_sync_full_appearance", save.appearance_data)
+		if not save.appearance_data.is_empty():
+			sync.rpc("rpc_sync_full_appearance", save.appearance_data)
 	else:
 		cam.enabled = false
 	
@@ -120,8 +123,9 @@ func _physics_process(delta: float) -> void:
 		if net_is_moving:
 			net_facing = dir_for_anim
 	
-		# Broadcast position
-		sync.rpc("rpc_sync_position", global_position)
+		# Broadcast position (skip while session is tearing down)
+		if multiplayer != null and multiplayer.has_multiplayer_peer():
+			sync.rpc("rpc_sync_position", global_position)
 	else:
 		# Puppet smoothing (interpolates remote motion)
 		_display_velocity = _display_velocity.lerp(net_input * speed, 1.0 - pow(0.001, delta))
@@ -146,9 +150,14 @@ func _input(event: InputEvent) -> void:
 
 ## Called when a new peer joins.
 ## Ensures the new peer receives this player's appearance data.
-func _on_new_peer_connected(_new_peer_id: int) -> void:
-	if NetworkManagerTest.is_authority(self):
-		sync.apply_and_sync_appearance(save.appearance_data)
+func _on_new_peer_connected(new_peer_id: int) -> void:
+	if not NetworkManagerTest.is_authority(self):
+		return
+	if save == null or save.appearance_data.is_empty():
+		return
+	if new_peer_id == multiplayer.get_unique_id():
+		return
+	sync.rpc_id(new_peer_id, "rpc_sync_full_appearance", save.appearance_data)
 
 
 # --- Animation ---

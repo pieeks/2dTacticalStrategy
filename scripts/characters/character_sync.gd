@@ -38,6 +38,10 @@ func set_appearance_node(node: CharacterAppearance) -> void:
 	appearance_node = node
 
 
+func _has_multiplayer_peer() -> bool:
+	return multiplayer != null and multiplayer.has_multiplayer_peer()
+
+
 # --- RPCs ---
 
 ## Applies a full appearance dataset on all peers, including the sender.
@@ -56,6 +60,8 @@ func rpc_sync_full_appearance(data: Dictionary) -> void:
 ## @param pos Vector2: The global position of the player.
 @rpc("any_peer", "unreliable_ordered")
 func rpc_sync_position(pos: Vector2) -> void:
+	if not _has_multiplayer_peer():
+		return
 	var sender := multiplayer.get_remote_sender_id()
 	var actor := get_parent() # Expected to be PlayerCharacter
 	if actor == null or sender != actor.get_multiplayer_authority():
@@ -76,12 +82,14 @@ func rpc_sync_animation(anim: String) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func interaction_approved(npc_data: Dictionary, npc_path: String) -> void:
 	var actor := get_parent()
+	if actor == null or actor.player_ui == null:
+		return
 	actor.player_ui.show_interaction_menu(npc_data, npc_path)
 
 
 @rpc("any_peer", "call_local", "reliable")
 func request_interaction_player(player_name: String):
-	if not multiplayer.is_server():
+	if not _has_multiplayer_peer() or not multiplayer.is_server():
 		return
 	
 	var player_node = get_tree().get_root().get_node_or_null("Overworld/Players/" + player_name)
@@ -105,10 +113,10 @@ func request_interaction_player(player_name: String):
 
 @rpc("any_peer", "call_local", "reliable")
 func end_interaction():
-	if not multiplayer.is_server():
+	if not _has_multiplayer_peer() or not multiplayer.is_server():
 		return
 	var actor := get_parent()
-	if not actor.is_interacting:
+	if actor == null or not actor.is_interacting:
 		return
 		
 	print("Host: ", self.name, " beendet Interaktion.")
@@ -125,6 +133,6 @@ func apply_and_sync_appearance(data: Dictionary) -> void:
 	if appearance_node:
 		appearance_node.apply_full_data(data)
 
-	# 2) Broadcast only if this peer has authority
-	if NetworkManagerTest.is_authority(self):
+	# 2) Broadcast only if this peer has authority and a session is active
+	if NetworkManagerTest.is_authority(self) and _has_multiplayer_peer():
 		rpc("rpc_sync_full_appearance", data)
