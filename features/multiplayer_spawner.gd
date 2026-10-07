@@ -43,8 +43,11 @@ func _ready() -> void:
 ##
 ## @param peer_id int: The peer ID of the ready client.
 func _on_peer_ready(peer_id: int) -> void:
-	if multiplayer.is_server():
-		spawn(peer_id)  # MultiplayerSpawner handles parenting & replication
+	if not multiplayer.is_server():
+		return
+	if players.has(peer_id) and is_instance_valid(players[peer_id]):
+		return
+	spawn(peer_id)  # MultiplayerSpawner handles parenting & replication
 
 
 ## Instantiates and returns a new player instance for the given peer.

@@ -15,10 +15,11 @@ Reihenfolge: Voraussetzungen → Architektur-Entscheidung → Port Kampf-Rahmen 
 
 Vor dem Kampf-Port die fragilen Stellen absichern — sonst bricht Late-Join/Fight-Sync leichter.
 
-- [ ] **Late-Join Appearance** — `peer_connected` nur auf Host; Client-Charaktere syncen Aussehen an neue Peers nicht zuverlässig (`player_character.gd` / `NetworkManagerTest`)
-- [ ] **Ready/Spawn idempotent** — `_mark_ready` / `peer_ready` darf denselben Peer nicht mehrfach spawnen (`network_manager_test.gd`, `multiplayer_spawner.gd`)
-- [ ] **Disconnect-Cleanup** — bei `server_disconnected` Session resetten und zurück zum Menü (nicht nur `print`)
-- [ ] **Signal-Connects** — bei Rejoin keine doppelten `connected_to_server`-Handler
+- [x] **Late-Join Appearance** — Host forderte `rpc_notify_peer_connected`; Client-Authorities senden Appearance per `rpc_id` an Joiner
+- [x] **Ready/Spawn idempotent** — `_mark_ready` Early-Return; Spawner skip bei `players.has(peer_id)`
+- [x] **Disconnect-Cleanup** — `server_disconnected` → `reset_session` + deferred Main Menu
+- [x] **Signal-Connects** — disconnectbare Handler; `reset_session` trennt Signale vor Rejoin
+- [x] **Host-Quit-Teardown** — Peer vor Scene-Wechsel schließen; RPC-Guards wenn kein Peer (`character_sync` / Position-Broadcast)
 - [ ] **(Optional)** RPC-Sender-Checks für Appearance/Animation nachziehen
 
 ---

@@ -29,6 +29,8 @@ signal peer_ready(peer_id: int)
 ## Emitted when a peer later joined
 signal late_joiner_detected(peer_id: int)
 
+const MAIN_MENU_SCENE := "res://scenes/ui/main_menu.tscn"
+
 ## True if this instance is running as host/server.
 var is_host: bool = false
 ## Maximum number of lobby members (host + clients).
@@ -45,9 +47,14 @@ var host_address: String = "127.0.0.1"
 ## Keys: peer_id, Value: true
 var _ready_peers := {}
 
+## One-shot message shown after returning to the main menu (e.g. host left).
+var pending_menu_message: String = ""
+
 
 ## Clears multiplayer peer, ready peers, and host flag.
+## Does not clear `pending_menu_message` (consumed by the main menu).
 func reset_session() -> void:
+	_disconnect_multiplayer_signals()
 	if multiplayer.has_multiplayer_peer():
 		multiplayer.multiplayer_peer = null
 	_ready_peers.clear()
@@ -55,11 +62,28 @@ func reset_session() -> void:
 	network = null
 
 
+## Disconnects known multiplayer/network signal handlers if connected.
+func _disconnect_multiplayer_signals() -> void:
+	if multiplayer.connected_to_server.is_connected(_on_connected_client):
+		multiplayer.connected_to_server.disconnect(_on_connected_client)
+	if multiplayer.connection_failed.is_connected(_on_connection_failed):
+		multiplayer.connection_failed.disconnect(_on_connection_failed)
+	if multiplayer.server_disconnected.is_connected(_on_server_disconnected):
+		multiplayer.server_disconnected.disconnect(_on_server_disconnected)
+	if network != null:
+		if network.peer_connected.is_connected(_on_peer_connected_server):
+			network.peer_connected.disconnect(_on_peer_connected_server)
+		if network.peer_disconnected.is_connected(_on_peer_disconnected_server):
+			network.peer_disconnected.disconnect(_on_peer_disconnected_server)
+
+
 ## Creates a new ENet lobby as host.
 ## Initializes server peer, sets multiplayer peer, connects signals.
 func create_lobby() -> void:
 	if multiplayer.has_multiplayer_peer():
 		reset_session()
+	else:
+		_disconnect_multiplayer_signals()
 	is_host = true
 	network = ENetMultiplayerPeer.new()
 	var err := network.create_server(port, lobby_members_max)
@@ -83,6 +107,8 @@ func create_lobby() -> void:
 func join_lobby(ip: String = "127.0.0.1", p: int = 4242) -> void:
 	if multiplayer.has_multiplayer_peer():
 		reset_session()
+	else:
+		_disconnect_multiplayer_signals()
 	is_host = false
 	var cli := ENetMultiplayerPeer.new()
 	var err := cli.create_client(ip, p)
@@ -93,8 +119,8 @@ func join_lobby(ip: String = "127.0.0.1", p: int = 4242) -> void:
 	network = cli
 	multiplayer.multiplayer_peer = cli
 	multiplayer.connected_to_server.connect(_on_connected_client)
-	multiplayer.connection_failed.connect(func(): push_error("Connect failed"))
-	multiplayer.server_disconnected.connect(func(): print("Disconnected"))
+	multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 
 ## Called when client connects successfully to host.
@@ -102,10 +128,39 @@ func _on_connected_client() -> void:
 	emit_signal("lobby_joined_finished")
 
 
+## Called when client fails to connect to host.
+func _on_connection_failed() -> void:
+	push_error("Connect failed")
+	reset_session()
+
+
+## Called when the server disconnects (client side).
+func _on_server_disconnected() -> void:
+	pending_menu_message = "Der Host hat das Spiel geschlossen."
+	reset_session()
+	# Deferred: avoid scene change during network callback / mid-teardown.
+	call_deferred("_go_to_main_menu")
+
+
+func _go_to_main_menu() -> void:
+	var tree := get_tree()
+	if tree == null:
+		return
+	tree.change_scene_to_file(MAIN_MENU_SCENE)
+
+
+## Returns and clears a pending main-menu info message, if any.
+func take_pending_menu_message() -> String:
+	var msg := pending_menu_message
+	pending_menu_message = ""
+	return msg
+
+
 ## Called when a peer connects to the host.
-## Broadcasts already ready peers to the new peer.
+## Broadcasts already ready peers to the new peer and notifies all clients.
 func _on_peer_connected_server(id: int) -> void:
 	emit_signal("peer_connected", id)
+	rpc_notify_peer_connected.rpc(id)
 	for pid in _ready_peers.keys():
 		rpc_id(id, "rpc_mark_ready", pid)
 	emit_signal("late_joiner_detected", id)
@@ -125,9 +180,17 @@ func get_unique_id() -> int:
 
 # ---------------- Late-Join Handshake ----------------
 
+## Notifies non-host peers that someone connected so authorities can resync.
+@rpc("authority", "reliable")
+func rpc_notify_peer_connected(peer_id: int) -> void:
+	if multiplayer.is_server():
+		return
+	emit_signal("peer_connected", peer_id)
+
+
 ## RPC called by a client after finishing level load.
 ## Host marks this peer as ready and notifies others.
-@rpc("any_peer","reliable")
+@rpc("any_peer", "reliable")
 func rpc_client_level_ready() -> void:
 	if multiplayer.is_server():
 		var pid := multiplayer.get_remote_sender_id()
@@ -148,9 +211,11 @@ func notify_server_level_ready() -> void:
 		rpc_id(1, "rpc_client_level_ready")  # 1 = host
 
 
-## Marks a peer as ready and emits the signal.
+## Marks a peer as ready and emits the signal once.
 ## @param peer_id int: The peer ID to mark.
 func _mark_ready(peer_id: int) -> void:
+	if _ready_peers.has(peer_id):
+		return
 	_ready_peers[peer_id] = true
 	emit_signal("peer_ready", peer_id)
 
