@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=34 format=3 uid="uid://dcov77l5ogi5b"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://dcov77l5ogi5b"]
 
 [ext_resource type="Texture2D" uid="uid://8hah4eskxr4c" path="res://assets/art/character/hand/elf_hand.png" id="1_v77u1"]
 
@@ -133,7 +133,7 @@ region = Rect2(192, 832, 64, 64)
 [resource]
 animations = [{
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_back",
 "speed": 4.0
 }, {
@@ -150,12 +150,12 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0f647")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_back_battle",
 "speed": 4.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_front",
 "speed": 4.0
 }, {
@@ -172,12 +172,12 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_aqrag")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_front_battle",
 "speed": 4.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_left",
 "speed": 4.0
 }, {
@@ -194,12 +194,12 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_bjpmu")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_left_battle",
 "speed": 4.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"idle_right",
 "speed": 4.0
 }, {
@@ -216,12 +216,12 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ufnv7")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle_right_battle",
 "speed": 4.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"walk_back",
 "speed": 4.0
 }, {
@@ -238,12 +238,12 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_6mubf")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_back_battle",
 "speed": 4.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"walk_front",
 "speed": 4.0
 }, {
@@ -260,12 +260,12 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_kudtc")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_front_battle",
 "speed": 4.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"walk_left",
 "speed": 4.0
 }, {
@@ -282,12 +282,12 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_xhdyd")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_left_battle",
 "speed": 4.0
 }, {
 "frames": [],
-"loop": false,
+"loop": 0,
 "name": &"walk_right",
 "speed": 4.0
 }, {
@@ -304,7 +304,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_miium")
 }],
-"loop": false,
+"loop": 0,
 "name": &"walk_right_battle",
 "speed": 4.0
 }]

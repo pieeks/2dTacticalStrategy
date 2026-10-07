@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://ch6kdk3ot3q8s"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://ch6kdk3ot3q8s"]
 
 [ext_resource type="Texture2D" uid="uid://sb2wg2o1p8ho" path="res://assets/art/character/weapon/swords/sword_1.png" id="1_33s4q"]
 
@@ -12,7 +12,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_tlwx0")
 }],
-"loop": false,
+"loop": 0,
 "name": &"silver_sword",
 "speed": 5.0
 }]
