@@ -21,7 +21,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install gdtoolkit
-        run: pip install 'gdtoolkit==4.3.4'
+        run: pip install 'gdtoolkit==4.5.0'
 
       - name: Lint production GDScript
         run: |

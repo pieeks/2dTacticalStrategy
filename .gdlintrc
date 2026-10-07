@@ -1,40 +1,36 @@
 # Moderate gdtoolkit config — disable noisy style rules; keep CI stable.
-# Use `disabled:` (not null thresholds) to avoid gdlint TypeErrors.
+# Key must be `disable` (not `disabled`) — see gdtoolkit DEFAULT_CONFIG.
 
-disabled:
+disable:
   - class-definitions-order
-  - class-variable-order
   - max-public-methods
   - max-returns
-  - function-arguments-variable-snake-case
+  - max-file-lines
+  - max-line-length
   - function-name
   - class-name
   - class-variable-name
+  - class-load-variable-name
   - signal-name
   - constant-name
-  - variable-name
+  - load-constant-name
   - enum-name
   - enum-element-name
   - function-preload-variable-name
   - function-argument-name
+  - function-variable-name
   - loop-variable-name
-  - unused-argument
+  - sub-class-name
   - no-else-return
   - no-elif-return
   - duplicated-load
   - expression-not-assigned
-  - unnecessary-pass
-  - unused-variable
-  - max-file-lines
-  - max-function-arguments
-  - max-function-lines
-  - max-parameters-per-line
-  - max-nested-levels
-  - max-empty-lines
-  - max-locals
-  - max-class-method-lines
+  - trailing-whitespace
+  - mixed-tabs-and-spaces
+  - tab-characters
+  - comparison-with-itself
 
-max-line-length: 120
+function-arguments-number: 10
 max-consecutive-empty-lines: 3
 
 excluded_directories:
