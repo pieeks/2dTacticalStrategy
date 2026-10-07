@@ -105,23 +105,30 @@ func _on_leg_right_button_pressed() -> void:
 ##
 ## Emits: `character_created`
 func _on_create_button_pressed() -> void:
+	var char_name: String = $CanvasLayer/UIRoot/NameHContainer/NameLineEdit.text.strip_edges()
+	if char_name.is_empty():
+		push_warning("Character creation aborted: name is empty.")
+		return
+
 	var appearance := {
 		"race_path": character.raceSprites[race_index].resource_path,
 		"hair_path": character.hairSprites[hair_index].resource_path,
-		"body_path": character.bodySprites[body_index].resource_path, 
+		"body_path": character.bodySprites[body_index].resource_path,
 		"leg_path": character.legSprites[leg_index].resource_path,
 	}
-	
-	# Player Data
-	PlayerPartyState.player_id = "player_guid_1234" + $CanvasLayer/UIRoot/NameHContainer/NameLineEdit.text # TODO: generate GUID
+
+	# Unique folder-safe ID (no display name in path)
+	var now_unix := int(Time.get_unix_time_from_system())
+	PlayerPartyState.player_id = "%d_%d" % [now_unix, randi()]
 	PlayerPartyState.player_data = {
-		"name": $CanvasLayer/UIRoot/NameHContainer/NameLineEdit.text, 
+		"name": char_name,
 		"appearance": appearance,
 	}
-	
+
 	# Meta Data initialize
 	PlayerPartyState.meta_data = {
-		"created_unix": Time.get_unix_time_from_system(),
+		"created_unix": now_unix,
+		"updated_unix": now_unix,
 		"game_build": "0.1.0"
 	}
 	

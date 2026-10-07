@@ -149,11 +149,16 @@ func get_available_character() -> Array:
 					if typeof(parsed) == TYPE_DICTIONARY:
 						var player = parsed.get("player", {})
 						var party = parsed.get("party", {})
+						var members: Array = party.get("members", [])
+						var level := 1
+						if not members.is_empty() and typeof(members[0]) == TYPE_DICTIONARY:
+							level = members[0].get("stats", {}).get("level", 1)
+						var meta: Dictionary = parsed.get("meta", {})
 						var entry := {
 							"id": subfolder,
 							"name": player.get("name", "Unknown"),
-							"level": party.get("members", [])[0].get("stats", {}).get("level", 1),
-							"update_unix": player.get("meta", {}).get("updated_unix", 0),
+							"level": level,
+							"update_unix": meta.get("updated_unix", meta.get("created_unix", 0)),
 							"path": save_path
 						}
 						available_characters.append(entry)

@@ -41,8 +41,8 @@ func _ready() -> void:
 	if _initialization_data:
 		_initialize_npc()
 	
-	# Lege den NPC schlafen, nachdem alles konfiguriert ist.
-	go_to_sleep()
+	# Initial sleep without touching bubble counter (stays at 0).
+	_force_sleep()
 	state_machine.owner_actor = self
 	patrol_pause_timer.timeout.connect(_on_patrol_pause_finished)
 
@@ -95,24 +95,30 @@ func wake_up():
 	set_physics_process(true)
 	multiplayer_synchronizer.set_process(true)
 	state_machine.set_physics_process(true)
-	match patrol_behavior: 
-		PatrolBehavior.LOOP, PatrolBehavior.PING_PONG, PatrolBehavior.LOOP:
+	match patrol_behavior:
+		PatrolBehavior.LOOP, PatrolBehavior.PING_PONG:
 			if not patrol_points.is_empty():
 				state_machine.transition_to("WalkNPC")
 			else:
 				state_machine.transition_to("IdleNPC")
 		PatrolBehavior.FOLLOW_PATH:
-			if is_instance_valid(path_follower): 
+			if is_instance_valid(path_follower):
 				state_machine.transition_to("WalkNPC")
 			else:
 				state_machine.transition_to("IdleNPC")
-		_: 
+		_:
 			state_machine.transition_to("IdleNPC")
 
 
 func go_to_sleep():
 	active_player_bubbles -= 1
-	if active_player_bubbles > 0 or not is_awake: return
+	if active_player_bubbles > 0 or not is_awake:
+		return
+	_force_sleep()
+
+
+## Puts the NPC to sleep without changing active_player_bubbles.
+func _force_sleep() -> void:
 	is_awake = false
 	state_machine.transition_to("IdleNPC")
 	set_physics_process(false)
@@ -216,19 +222,13 @@ func end_interaction():
 	print("Host: ", self.name, " beendet Interaktion.")
 	is_interacting = false 
 	
-	if is_awake:
-		# Hat er eine Patrouillenroute?
-		if not patrol_points.is_empty() or is_instance_valid(path_follower):
-			print("Host: ", self.name, " setzt Patrouille fort.")
-			# Ja -> Wechsle zurück in den Walk-State
-			state_machine.transition_to("WalkNPC")
-		else:
-			# Nein -> Bleibe im Idle-State (aber wach)
-			state_machine.transition_to("IdleNPC")
+	if active_player_bubbles <= 0:
+		_force_sleep()
+	elif not patrol_points.is_empty() or is_instance_valid(path_follower):
+		print("Host: ", self.name, " setzt Patrouille fort.")
+		state_machine.transition_to("WalkNPC")
 	else:
-		# Wenn der NPC eigentlich schlafen sollte (keine Spieler mehr da),
-		# sorge dafür, dass er auch wirklich schläft.
-		go_to_sleep()
+		state_machine.transition_to("IdleNPC")
 
 
 # --- Hilfsfunktionen ---

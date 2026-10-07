@@ -35,17 +35,7 @@ const DEFAULT_LEVEL = preload("res://scenes/world/levels/biom_1.tscn")
 ## - Notifies host when client finished loading
 ## - Connects to disconnect cleanup
 ## - Loads default level
-func _ready() -> void: 
-	# Ensure clean parenting target for spawns (can also be set in Inspector)
-	#if multiplayer_spawner and multiplayer_spawner.spawn_path == NodePath():
-		#if players:
-			#multiplayer_spawner.spawn_path = NodePath("../Players")
-	
-	# Client: notify host after level load to avoid race conditions
-	if not multiplayer.is_server():
-		await get_tree().process_frame
-		NetworkManagerTest.notify_server_level_ready()
-	
+func _ready() -> void:
 	# Cleanup when peers disconnect
 	if NetworkManagerTest.has_signal("peer_disconnected"):
 		NetworkManagerTest.connect("peer_disconnected", Callable(self, "_on_peer_disconnected"))
@@ -53,8 +43,13 @@ func _ready() -> void:
 	if multiplayer.is_server():
 		NetworkManagerTest.late_joiner_detected.connect(_on_later_joiner_detected)
 	
-	# Load default level
+	# Load default level before client ready-handshake
 	_load_level(DEFAULT_LEVEL)
+	
+	# Client: notify host only after level is in the tree
+	if not multiplayer.is_server():
+		await get_tree().process_frame
+		NetworkManagerTest.notify_server_level_ready()
 
 
 ## Handles peer disconnection.
