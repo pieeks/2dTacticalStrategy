@@ -78,11 +78,75 @@ func _ready() -> void:
 	else:
 		cam.enabled = false
 	
+	# Root must stay visible for remotes (invisible roots skip _physics_process
+	# and MultiplayerSpawner can replicate visible=false to late joiners).
+	visible = true
+	if appearance:
+		appearance.visible = true
+	
 	add_to_group("Players")
 	# Connect animation change signal
 	connect("animation_state_changed", Callable(self, "_on_animation_state_changed"))
 	action.end_interaction_signal.connect(end_interaction)
+	_apply_fight_world_gate()
 
+
+func _notification(what: int) -> void:
+	# If spawn/sync forces visible=false onto a puppet, undo it immediately.
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		if not is_multiplayer_authority() and not visible:
+			visible = true
+			if appearance:
+				appearance.visible = true
+
+
+func _get_fight_manager() -> Node:
+	var overworld := get_tree().get_root().get_node_or_null("Overworld")
+	if overworld == null:
+		return null
+	return overworld.get_node_or_null("FightManager")
+
+
+func _is_local_peer_in_fight() -> bool:
+	var fm := _get_fight_manager()
+	if fm == null or not fm.has_method("is_peer_in_fight"):
+		return false
+	return fm.is_peer_in_fight(get_multiplayer_authority())
+
+
+## Local authority hides only their Appearance while in a fight (battle cam).
+## Never set root `visible = false` — that breaks late-join replication/processing.
+func _apply_fight_world_gate() -> void:
+	var fm := _get_fight_manager()
+	var in_fight := false
+	if fm != null and fm.has_method("is_peer_in_fight"):
+		in_fight = fm.is_peer_in_fight(get_multiplayer_authority())
+
+	# Always keep root visible for networking / puppet processing.
+	visible = true
+
+	if not NetworkManagerTest.is_authority(self):
+		if appearance:
+			appearance.visible = true
+		return
+
+	if appearance:
+		appearance.visible = not in_fight
+	if in_fight:
+		cam.enabled = false
+		velocity = Vector2.ZERO
+	else:
+		if cam:
+			cam.enabled = true
+			cam.make_current()
+
+
+## Called by Overworld when this peer leaves a fight.
+func restore_from_fight() -> void:
+	_apply_fight_world_gate()
+	if NetworkManagerTest.is_authority(self) and cam:
+		cam.enabled = true
+		cam.make_current()
 
 
 func end_interaction(target: Node) -> void:
@@ -100,7 +164,17 @@ func end_interaction(target: Node) -> void:
 ##   and broadcasts position
 ## - Non-authority (puppets): interpolates display velocity for smooth movement
 func _physics_process(delta: float) -> void:
+	_apply_fight_world_gate()
+
 	if NetworkManagerTest.is_authority(self):
+		if _is_local_peer_in_fight():
+			velocity = Vector2.ZERO
+			net_is_moving = false
+			# Keep world pose flowing so late joiners see the correct Overworld spot.
+			if multiplayer != null and multiplayer.has_multiplayer_peer():
+				sync.rpc("rpc_sync_position", global_position)
+			return
+
 		# Update position save timer
 		save_update_timer += delta
 		if save_update_timer >= SAVE_UPDATE_INTERVAL:
@@ -134,6 +208,8 @@ func _physics_process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
 		return
+	if _is_local_peer_in_fight():
+		return
 	
 	if event.is_action_pressed("Action"):
 		var target: Node = null
@@ -148,16 +224,38 @@ func _input(event: InputEvent) -> void:
 
 # --- Networking ---
 
-## Called when a new peer joins.
-## Ensures the new peer receives this player's appearance data.
+## Called when a new peer joins / becomes ready.
+## Deferred so MultiplayerSpawner has time to create this player on the remote.
 func _on_new_peer_connected(new_peer_id: int) -> void:
 	if not NetworkManagerTest.is_authority(self):
 		return
-	if save == null or save.appearance_data.is_empty():
-		return
 	if new_peer_id == multiplayer.get_unique_id():
 		return
-	sync.rpc_id(new_peer_id, "rpc_sync_full_appearance", save.appearance_data)
+	push_state_to_peer(new_peer_id)
+
+
+## Sends appearance + reliable pose to one peer (late-join / fight snapshot).
+func push_state_to_peer(peer_id: int) -> void:
+	if not NetworkManagerTest.is_authority(self):
+		return
+	if peer_id == multiplayer.get_unique_id():
+		return
+	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+		return
+	_push_state_to_peer_deferred(peer_id)
+
+
+func _push_state_to_peer_deferred(peer_id: int) -> void:
+	# Wait so the remote has spawned this player node before targeted RPCs.
+	await get_tree().create_timer(0.15).timeout
+	if not is_instance_valid(self) or sync == null:
+		return
+	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+		return
+	if save != null and not save.appearance_data.is_empty():
+		sync.rpc_id(peer_id, "rpc_sync_full_appearance", save.appearance_data)
+	sync.rpc_id(peer_id, "rpc_sync_pose", global_position)
+	print("PlayerCharacter: resync to peer ", peer_id, " pos=", global_position)
 
 
 # --- Animation ---

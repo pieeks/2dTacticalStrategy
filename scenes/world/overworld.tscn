@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://boy8hkvgl7pf8"]
+[gd_scene load_steps=10 format=3 uid="uid://boy8hkvgl7pf8"]
 
 [ext_resource type="Script" uid="uid://bjomkmd25xl80" path="res://scripts/world/overworld.gd" id="1_espw7"]
 [ext_resource type="Script" uid="uid://6c6yc3arq10n" path="res://features/multiplayer_spawner.gd" id="1_h0wcu"]
@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://8pok4n7dm3pt" path="res://features/debug/debug_overlay.tscn" id="4_eccxn"]
 [ext_resource type="PackedScene" uid="uid://dfoplrmyisnu6" path="res://scenes/ui/esc_menu.tscn" id="5_s753n"]
 [ext_resource type="PackedScene" uid="uid://ccttboprhnvjo" path="res://_dev/tests/test_scene_player_ui.tscn" id="7_o3ojk"]
+[ext_resource type="Script" path="res://scripts/battle/fight_manager.gd" id="8_fight"]
+[ext_resource type="PackedScene" path="res://scenes/battle/fight_template.tscn" id="9_ftpl"]
 
 [node name="Overworld" type="Node2D"]
 script = ExtResource("1_espw7")
@@ -21,13 +23,19 @@ player_scene = ExtResource("2_espw7")
 
 [node name="Players" type="Node" parent="."]
 
+[node name="FightLayer" type="Node2D" parent="."]
+
+[node name="FightManager" type="Node" parent="."]
+script = ExtResource("8_fight")
+fight_scene = ExtResource("9_ftpl")
+
 [node name="UIOverlay" parent="." instance=ExtResource("3_o3ojk")]
 visible = false
 
 [node name="ESCMenu" parent="." instance=ExtResource("5_s753n")]
 layer = 3
 
-[node name="DebugOverlay" parent="." instance=ExtResource("4_eccxn")]
-layer = 2
-
 [node name="PlayerUi" parent="." instance=ExtResource("7_o3ojk")]
+
+[node name="DebugOverlay" parent="." instance=ExtResource("4_eccxn")]
+layer = 10

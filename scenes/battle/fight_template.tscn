@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/battle/fight_template.gd" id="1_fight"]
+[ext_resource type="PackedScene" path="res://scenes/battle/grid_manager.tscn" id="2_grid"]
+[ext_resource type="PackedScene" path="res://scenes/battle/battle_character.tscn" id="3_battle"]
+
+[node name="FightTemplate" type="Node2D"]
+script = ExtResource("1_fight")
+battle_character_scene = ExtResource("3_battle")
+
+[node name="GridManager" parent="." instance=ExtResource("2_grid")]
+position = Vector2(200, 120)
+
+[node name="PlayerContainer" type="Node" parent="."]
+
+[node name="NpcContainer" type="Node" parent="."]

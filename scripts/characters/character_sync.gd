@@ -60,6 +60,16 @@ func rpc_sync_full_appearance(data: Dictionary) -> void:
 ## @param pos Vector2: The global position of the player.
 @rpc("any_peer", "unreliable_ordered")
 func rpc_sync_position(pos: Vector2) -> void:
+	_apply_authority_position(pos)
+
+
+## Reliable one-shot pose for late-join / fight snapshots (must not be dropped).
+@rpc("any_peer", "reliable")
+func rpc_sync_pose(pos: Vector2) -> void:
+	_apply_authority_position(pos)
+
+
+func _apply_authority_position(pos: Vector2) -> void:
 	if not _has_multiplayer_peer():
 		return
 	var sender := multiplayer.get_remote_sender_id()
