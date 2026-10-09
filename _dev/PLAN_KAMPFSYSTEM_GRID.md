@@ -85,11 +85,12 @@ Ziel: Start / Join / Leave / Destroy + Late-Join-Sync, **ohne** Turn-Gameplay.
 
 Vorhandene Hooks nutzen statt F-Menü allein.
 
-- [ ] **Force-Fight-Area** → Host startet Fight für betroffene Peers (`force_fight_area_2d.gd` / `aggro_controller.gd`)
-- [ ] Aggro-Controller: klar trennen „verfolgen“ vs. „Kampf starten“
-- [ ] Encounter-Daten mitgeben (NPC-Typ, Party, Position) an `FightManager.start_fight…`
-- [ ] Gegner im Fight aus NPC-/Spec-Daten spawnen (auch wenn Stats noch Placeholder)
-- [ ] Overworld-NPC während Fight: despawnen / locken / unsichtbar — Regel festlegen und umsetzen
+- [x] **Force-Fight-Area** → Host startet Fight für betroffene Peers (`force_fight_area_2d.gd` / `aggro_controller.gd`)
+- [x] Aggro-Controller: klar trennen „verfolgen“ vs. „Kampf starten“
+- [x] Encounter-Daten mitgeben (NPC-Typ, Party, Position) an `FightManager.start_fight…`
+- [x] Gegner im Fight aus NPC-/Spec-Daten spawnen (auch wenn Stats noch Placeholder)
+- [x] Overworld-NPC während Fight: despawnen / locken / unsichtbar — Regel festlegen und umsetzen
+  → **Locken, sichtbar lassen** (andere Peers sehen den Gegner in der Overworld)
 - [ ] (Später) Encounter-Symbol über Gegner (Design-Doc Schritt 4)
 
 ---
