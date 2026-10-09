@@ -11,6 +11,8 @@ extends CharacterBody2D
 ## Offset relativ zur Charakter-Position (WASD-Pan).
 var _camera_pan_offset: Vector2 = Vector2.ZERO
 var _last_synced_pos: Vector2 = Vector2.INF
+## False during fight teardown so position RPCs stop before nodes are freed.
+var _network_active: bool = true
 
 
 func _ready() -> void:
@@ -29,6 +31,7 @@ func setup_for_fight(grid_manager: GridManager) -> void:
 	if grid_manager:
 		global_position = grid_manager.get_snap_global_position(global_position)
 	_camera_pan_offset = Vector2.ZERO
+	_network_active = true
 	if is_multiplayer_authority():
 		_broadcast_position(true)
 
@@ -40,8 +43,17 @@ func activate_camera() -> void:
 		_camera_pan_offset = Vector2.ZERO
 
 
+## Call on all peers before queue_free / fight destroy to avoid orphaned RPC path errors.
+func stop_network() -> void:
+	_network_active = false
+	set_physics_process(false)
+	set_process(false)
+	if is_instance_valid(cam):
+		cam.enabled = false
+
+
 func _physics_process(delta: float) -> void:
-	if not is_multiplayer_authority():
+	if not _network_active or not is_multiplayer_authority():
 		return
 	if grid_movement:
 		grid_movement.process_movement(self, delta)
@@ -49,6 +61,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _broadcast_position(force: bool) -> void:
+	if not _network_active or not is_inside_tree():
+		return
 	if not multiplayer.has_multiplayer_peer():
 		return
 	if not force and global_position.distance_squared_to(_last_synced_pos) < 0.25:
@@ -59,11 +73,13 @@ func _broadcast_position(force: bool) -> void:
 
 @rpc("authority", "call_remote", "unreliable_ordered")
 func rpc_sync_battle_position(pos: Vector2) -> void:
+	if not _network_active or not is_inside_tree():
+		return
 	global_position = pos
 
 
 func _process(delta: float) -> void:
-	if not is_multiplayer_authority():
+	if not _network_active or not is_multiplayer_authority():
 		return
 	if cam == null or not cam.is_current():
 		return
