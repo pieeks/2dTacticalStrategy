@@ -26,17 +26,9 @@ func _ready() -> void:
 		if not participants.has(owner_peer_id):
 			participants.append(owner_peer_id)
 
+	# Only toggle Fight root — never mask child.visible (breaks remotes / sync paths).
 	visible = participants.has(my_id)
-	_sync_player_container_visibility()
-
-	# Fight exists on every peer via call_local — spawn chars locally on all.
-	for p in participants:
-		_spawn_battle_character(p)
-
-
-func _sync_player_container_visibility() -> void:
-	for child in player_container.get_children():
-		child.visible = visible
+	_ensure_participant_characters()
 
 
 func set_owner_peer_id(peer_id: int) -> void:
@@ -62,9 +54,17 @@ func add_participant(peer_id: int) -> void:
 		participants.append(peer_id)
 	if peer_id == multiplayer.get_unique_id():
 		visible = true
-		_sync_player_container_visibility()
-	# call_local join — every peer spawns the new battle char locally
-	call_deferred("_spawn_battle_character", peer_id)
+	# Ensure every participant char exists locally (incl. host when client joins).
+	_ensure_participant_characters()
+	if peer_id == multiplayer.get_unique_id():
+		var my_char: Node = player_container.get_node_or_null(str(peer_id))
+		if my_char != null and my_char.has_method("activate_camera"):
+			my_char.activate_camera()
+
+
+func _ensure_participant_characters() -> void:
+	for p in participants:
+		_spawn_battle_character(p)
 
 
 func _spawn_battle_character(peer_id: int) -> void:
@@ -78,12 +78,23 @@ func _spawn_battle_character(peer_id: int) -> void:
 	var character: CharacterBody2D = battle_character_scene.instantiate()
 	character.name = str(peer_id)
 	character.set_multiplayer_authority(peer_id)
+	# Spread peers onto neighboring hex cells (deterministic from participant index).
+	var spacing: float = 40.0
+	if grid_manager is GridManager:
+		spacing = (grid_manager as GridManager).spacing
+	var idx := participants.find(peer_id)
+	if idx < 0:
+		idx = participants.size()
 	@warning_ignore("integer_division")
-	var row := peer_id / 5
-	var offset := Vector2(float(peer_id % 5) * 24.0, float(row % 5) * 24.0)
-	character.position = grid_manager.position + offset
+	var cell := Vector2i(idx % 5, idx / 5)
+	var local_cell := Vector2(float(cell.x) * spacing, float(cell.y) * spacing * 0.75)
+	if cell.y % 2 == 1:
+		local_cell.x += spacing / 2.0
+	var world_pos: Vector2 = grid_manager.to_global(local_cell) if grid_manager else local_cell
 	player_container.add_child(character)
-	_sync_player_container_visibility()
+	character.global_position = world_pos
+	if character.has_method("setup_for_fight") and grid_manager is GridManager:
+		character.setup_for_fight(grid_manager as GridManager)
 	if character.has_method("activate_camera") and peer_id == multiplayer.get_unique_id():
 		character.activate_camera()
 
@@ -147,4 +158,3 @@ func _notify_fight_manager_peer_left(peer_id: int) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func rpc_notify_fight_ending() -> void:
 	visible = false
-	_sync_player_container_visibility()
