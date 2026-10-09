@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/battle/battle_character.gd" id="1_battle"]
+[ext_resource type="Script" path="res://scripts/battle/grid_movement.gd" id="2_gridmove"]
 
 [node name="BattleCharacter" type="CharacterBody2D"]
 collision_layer = 0
@@ -14,3 +15,6 @@ polygon = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = false
 zoom = Vector2(2, 2)
+
+[node name="GridMovement" type="Node" parent="."]
+script = ExtResource("2_gridmove")

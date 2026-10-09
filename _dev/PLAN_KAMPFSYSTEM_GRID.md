@@ -70,13 +70,14 @@ Ziel: Start / Join / Leave / Destroy + Late-Join-Sync, **ohne** Turn-Gameplay.
 
 ## 3. Grid & Bewegung
 
-- [ ] **`GridManager`** aus NewGameRepo portieren (**Hex** + `AStar2D`, Entscheidung §1)
-- [ ] Pfadfindung (`AStar2D` / TileMap-Nachbarschaft)
-- [ ] Grid-Visualisierung (Debug-Zeichnung oder Tile-Highlight)
-- [ ] **Grid-Movement**: Klick → Pfad → Bewegung (Authority-lokal, Sync wie im Prototyp)
-- [ ] Battle-Char an Grid koppeln (`grid_manager`-Referenz setzen beim Spawn)
-- [ ] Kamera-Verhalten im Kampf (Pan / Follow) definieren und umsetzen
-- [ ] Movement-Modus umschaltbar (Overworld vs. Grid) — Pattern aus `MovementController` oder Integration in bestehende States
+- [x] **`GridManager`** aus NewGameRepo portieren (**Hex** + `AStar2D`, Entscheidung §1)
+- [x] Pfadfindung (`AStar2D` / TileMap-Nachbarschaft)
+- [x] Grid-Visualisierung (Debug-Zeichnung oder Tile-Highlight)
+- [x] **Grid-Movement**: Klick → Pfad → Bewegung (Authority-lokal, Sync wie im Prototyp)
+- [x] Battle-Char an Grid koppeln (`grid_manager`-Referenz setzen beim Spawn)
+- [x] Kamera-Verhalten im Kampf (Pan / Follow) definieren und umsetzen
+- [x] Movement-Modus umschaltbar (Overworld vs. Grid) — Pattern aus `MovementController` oder Integration in bestehende States
+  → erledigt durch Zwei-Node-Architektur (World-Player vs. BattleCharacter + GridMovement)
 
 ---
 

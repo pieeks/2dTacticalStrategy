@@ -71,7 +71,13 @@ func _process_join_request(requester_id: int) -> void:
 		var owner_id := 0
 		if child.has_method("get_owner_peer_id"):
 			owner_id = child.get_owner_peer_id()
-		rpc_sync_join_fight.rpc(owner_id, requester_id)
+		var participants_list: Array = []
+		if child.get("participants") != null:
+			for p in child.participants:
+				participants_list.append(int(p))
+		if not participants_list.has(requester_id):
+			participants_list.append(requester_id)
+		rpc_sync_join_fight.rpc(owner_id, requester_id, participants_list)
 		return
 
 
@@ -153,12 +159,36 @@ func rpc_request_join_fight() -> void:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func rpc_sync_join_fight(owner_peer_id: int, peer_id: int) -> void:
+func rpc_sync_join_fight(owner_peer_id: int, peer_id: int, participants_list: Array = []) -> void:
 	peers_in_fight[peer_id] = true
-	for child in fight_layer.get_children():
-		if child.has_method("get_owner_peer_id") and child.get_owner_peer_id() == owner_peer_id:
-			child.add_participant(peer_id)
+	var fight_node: Node = fight_layer.get_node_or_null("Fight_%d" % owner_peer_id)
+	if fight_node == null:
+		# Late-join race: fight not yet on this peer — create from snapshot then join.
+		if fight_scene == null:
+			push_error("FightManager: rpc_sync_join_fight - fight_scene ist null.")
 			return
+		var snapshot: Array = participants_list.duplicate()
+		if not snapshot.has(peer_id):
+			snapshot.append(peer_id)
+		if not snapshot.has(owner_peer_id) and owner_peer_id != 0:
+			snapshot.append(owner_peer_id)
+		var fight_instance: Node2D = fight_scene.instantiate()
+		fight_instance.name = "Fight_%d" % owner_peer_id
+		if fight_instance.has_method("set_owner_peer_id"):
+			fight_instance.set_owner_peer_id(owner_peer_id)
+		if fight_instance.has_method("set_participants"):
+			fight_instance.set_participants(snapshot)
+		fight_layer.add_child(fight_instance)
+		if fight_instance.has_signal("fight_ready_to_remove"):
+			fight_instance.fight_ready_to_remove.connect(_on_fight_ready_to_remove)
+		is_fight_active = true
+		for p in snapshot:
+			peers_in_fight[int(p)] = true
+		if fight_instance.has_method("add_participant"):
+			fight_instance.add_participant(peer_id)
+		return
+	if fight_node.has_method("add_participant"):
+		fight_node.add_participant(peer_id)
 
 
 @rpc("any_peer", "reliable")
