@@ -1,8 +1,8 @@
 # 2DStrategyTacticalGame
 
-2D-Multiplayer-RPG mit eigenständigen Partys und geplantem taktischem Grid-Kampf. Entwickelt mit **Godot 4.7** und **GDScript** (Viewport 640×360, Stretch `canvas_items`).
+2D-Multiplayer-RPG mit eigenständigen Partys und Hex-Grid-Kampf-Prototyp. Entwickelt mit **Godot 4.7** und **GDScript** (Viewport 640×360, Stretch `canvas_items`).
 
-Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplante Modi: autark, Koop und Rivalen. Details zum Design stehen unter [`_dev/`](_dev/).
+Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplante Modi: autark, Koop und Rivalen. Design und Kampfsystem-Plan: [`_dev/`](_dev/).
 
 ## Features
 
@@ -14,6 +14,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Peer-Signale: Connect/Disconnect, Ready-Handshake, Late-Join-Erkennung
 - `MultiplayerSpawner` für Spieler-Spawn nach Ready
 - Positions-Sync für Spieler und NPCs
+- Host-Quit-/Disconnect-Teardown und Late-Join Appearance/Pose-Sync
 
 **Charakter & Party**
 
@@ -28,9 +29,20 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Overworld lädt Level (Standard: Biom 1)
 - NPC-Spawning über Path2D oder Spawn-Areas
 - Patrol-Verhalten (Pfad folgen / Ping-Pong)
-- Aggro-, Action- und Force-Fight-Areas
+- Aggro- und Force-Fight-Areas an hostile NPCs
 - Activation-Areas am Spieler für NPC-Nähe/Interaktion
 - World-State-Autoload für Welt-Saves (Städte/Dungeons/Events vorbereitet)
+
+**Kampf (Hex-Grid-Prototyp)**
+
+- Fight-Instanzen unter Overworld-`FightLayer` (kein Scene-Wechsel)
+- Zwei Nodes: World-Player (während Fight gated) + `BattleCharacter` im Fight
+- Host-autoritativer Lifecycle: Start / Join / Leave / Destroy + Late-Join-Sync
+- Hex-`GridManager` (`AStar2D`), Klick-Pfadbewegung, WASD-Kamera-Pan
+- Force-Fight: Encounter startet Kampf; Overworld-NPC bleibt sichtbar und gelockt
+- Parallele Fights räumlich isoliert (nur Teilnehmer sehen ihren Kampf)
+- Placeholder-Gegner im Fight aus NPC-Spec-Daten
+- Noch **ohne** Turn-Order / Attack / Wait (frei bewegen auf dem Grid)
 
 **UI**
 
@@ -42,12 +54,14 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 **Debug**
 
-- Debug-Overlay (F3): Peer-ID, Host/Client, verbundene und ready Peers
+- Debug-Overlay (F3): Netzwerkinfo + Start / Join / Leave Fight
 - Dev-Testscenes unter `_dev/tests/`
+- Kampfsystem-Plan: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md)
 
 ### Geplant / in Arbeit
 
-- Taktisches Grid-Kampfsystem (Tilemap, Turn Order, Move/Attack/Wait)
+- Turn-basiertes Grid-Gameplay (Initiative, Move/Attack/Wait)
+- Encounter-Symbol über Gegner; Sieg/Niederlage/Loot-Übergang
 - Dungeons mit mehreren Ebenen
 - Steam P2P (Addons vorbereitet, noch nicht produktiv)
 
@@ -67,27 +81,31 @@ GitHub Actions auf `main`: GDScript-Lint (`gdtoolkit`) und Headless-Projektcheck
 
 Lokal joinen: `127.0.0.1:4242`.
 
+Kampf testen: Hostile NPC (z. B. Slime) berühren (Force-Fight) oder F3 → Start/Join/Leave Fight.
+
 ## Steuerung
 
-| Aktion        | Standard |
-|---------------|----------|
-| Bewegung      | WASD     |
-| Interaktion   | E        |
-| Debug-Overlay | F3       |
+| Aktion              | Standard     |
+|---------------------|--------------|
+| Bewegung (Overworld)| WASD         |
+| Interaktion         | E            |
+| Debug-Overlay       | F3           |
+| Kampf: Bewegung     | Linksklick   |
+| Kampf: Kamera-Pan   | WASD         |
 
-Tasten können in den Control-Settings neu belegt werden.
+Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid-Move).
 
 ## Projektstruktur
 
 ```
-├── scenes/       # UI, Charaktere, Welt / Level
-├── scripts/      # GDScript (characters, ui, world)
+├── scenes/       # UI, Charaktere, Welt / Level, battle/
+├── scripts/      # GDScript (battle, characters, ui, world)
 ├── autoload/     # Autoloads (Globals, Party/World State, Network)
 ├── features/     # Spawner, Debug, Character-Parts
 ├── resources/    # Themes, Tilesets, NPC-Daten, Input-Helper
 ├── assets/       # Art, Fonts, UI
 ├── addons/       # GodotSteam, steam-multiplayer-peer
-└── _dev/         # Design-Docs, Status, Testscenes
+└── _dev/         # Design-Docs, Kampfplan, Status, Testscenes
 ```
 
 ## Multiplayer & Addons
@@ -96,7 +114,7 @@ Tasten können in den Control-Settings neu belegt werden.
 - **Vorbereitet:** GodotSteam und [steam-multiplayer-peer](addons/steam-multiplayer-peer/) (noch nicht angebunden)
 - **Steam-WIP-Skripte:** [`_dev/steam_wip/`](_dev/steam_wip/) (nicht als Autoload aktiv)
 
-Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md).
+Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf-Abhakliste: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md).
 
 ## Lizenz
 
