@@ -1,7 +1,8 @@
 class_name BattleCharacter
 extends CharacterBody2D
 ## Kampf-Charakter: komplett freie Kamera (Welt-fest) + WASD-Pan.
-## Kein Auto-Follow / kein Zug-Recenter. Overworld-Kamera unberührt.
+## Kamera am lokalen Fighter (Node-Name == Peer-ID), nicht an Multiplayer-Authority.
+## Pos-Sync weiter authority-gated. Overworld-Kamera unberührt.
 
 @onready var cam: Camera2D = $Camera2D
 @onready var appearance: CharacterAppearance = $CharacterAppearance
@@ -17,11 +18,23 @@ var _pending_appearance: Dictionary = {}
 var _camera_placed: bool = false
 
 
+func _enter_tree() -> void:
+	# Reliable authority for call_local-spawned fight avatars (name = peer_id).
+	if str(name).is_valid_int():
+		set_multiplayer_authority(int(str(name)))
+
+
+func _is_local_fighter() -> bool:
+	if not multiplayer.has_multiplayer_peer():
+		return false
+	return str(name).is_valid_int() and int(str(name)) == multiplayer.get_unique_id()
+
+
 func _ready() -> void:
 	if is_instance_valid(cam):
 		# Ignore parent transform so character Move does not drag the view.
 		cam.top_level = true
-	if is_multiplayer_authority():
+	if _is_local_fighter():
 		_enable_free_camera(true)
 	else:
 		if is_instance_valid(cam):
@@ -55,6 +68,7 @@ func setup_for_fight(grid_manager: GridManager) -> void:
 	_network_active = true
 	if is_multiplayer_authority():
 		_broadcast_position(true)
+	if _is_local_fighter():
 		_place_camera_once()
 
 
@@ -63,14 +77,14 @@ func set_turn_controller(controller: Node) -> void:
 
 
 func activate_camera() -> void:
-	if not is_multiplayer_authority():
+	if not _is_local_fighter():
 		return
 	_enable_free_camera(true)
 	_place_camera_once()
 
 
 func _place_camera_once() -> void:
-	if _camera_placed or not is_multiplayer_authority() or not is_instance_valid(cam):
+	if _camera_placed or not _is_local_fighter() or not is_instance_valid(cam):
 		return
 	cam.top_level = true
 	cam.global_position = global_position
@@ -124,7 +138,7 @@ func rpc_sync_battle_position(pos: Vector2) -> void:
 
 
 func _process(delta: float) -> void:
-	if not _network_active or not is_multiplayer_authority():
+	if not _network_active or not _is_local_fighter():
 		return
 	if cam == null or not cam.is_current():
 		return

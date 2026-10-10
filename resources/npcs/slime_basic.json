@@ -1,15 +1,19 @@
 {
 	"name": "slime",
+	"group_size": 1,
 	"appearance": {
 		"race_path": "res://features/enemy/slime/slime_basic.tres"
 	},
 	"sync": {
-		"isActice": "true",
+		"isActice": "true"
 	},
 	"stats": {
 		"health": 80,
 		"minDamage": 2,
-		"maxDamage": 10
+		"maxDamage": 10,
+		"initiative": 5,
+		"move": 2,
+		"attack_range": 1
 	},
 	"loot": {
 		"minGold": 1,

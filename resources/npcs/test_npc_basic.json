@@ -1,5 +1,6 @@
 {
 	"name": "test_npc_basic",
+	"group_size": 1,
 	"appearance": {
 		"body_path": "res://features/character/body/basic/green.tres",
 		"hair_path": "res://features/character/hair/basic/blue_basic.tres",
@@ -10,13 +11,16 @@
 		"isActice": "true"
 	},
 	"stats": {
-		"health": 100.0,
-		"minDamage": 2.0,
-		"maxDamage": 10.0
+		"health": 100,
+		"minDamage": 2,
+		"maxDamage": 10,
+		"initiative": 6,
+		"move": 2,
+		"attack_range": 1
 	},
 	"loot": {
-		"minGold": 1.0,
-		"maxGold": 4.0
+		"minGold": 1,
+		"maxGold": 4
 	},
 	"is_hostile": false
 }

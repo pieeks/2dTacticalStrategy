@@ -132,11 +132,14 @@ Erst wenn Rahmen + Grid stabil laufen.
 
 ## 7. Daten & Content (minimal lebensfähig)
 
-- [ ] Battle-Stats am Charakter/NPC (HP, ATK, MOVE, Initiative) — auch wenn Placeholder
-- [ ] Encounter-Definition (welche Gegner, wie viele) — Prefab oder Dictionary
-  → `group_size` + Appearance im Encounter-Dict vorhanden (Default 1)
-- [ ] Ordner `data/` oder bestehende Specs erweitern (nicht leere `.gitkeep` wie in NewGameRepo)
-- [ ] Party-Mitglieder im Kampf (nicht nur 1 Avatar) — Scope für v1 festlegen
+- [x] Battle-Stats am Charakter/NPC (HP, ATK, MOVE, Initiative) — auch wenn Placeholder
+  → NPC: `resources/npcs/*.json` → Encounter → `make_enemy`; Player: Party `members[0].stats` + Fight-Sync `player_stats`
+- [x] Encounter-Definition (welche Gegner, wie viele) — Prefab oder Dictionary
+  → Spec-Top-Level `group_size` + Appearance/Stats im Encounter-Dict
+- [x] Ordner `data/` oder bestehende Specs erweitern (nicht leere `.gitkeep` wie in NewGameRepo)
+  → Specs unter `resources/npcs/` erweitert (kein leerer `data/`-Tree)
+- [x] Party-Mitglieder im Kampf (nicht nur 1 Avatar) — Scope für v1 festlegen
+  → **v1: 1 Kampf-Avatar pro Peer**; lokale Begleiter als Extra-Units später
 
 ---
 
@@ -161,7 +164,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 5. §4 Force-Fight-Trigger
 6. ~~§5 Turn-Order + Move/Attack/Wait~~ → erledigt (Host-AI, HUD, Sieg/Niederlage)
 7. ~~§6 Join/Verstärkung~~ → erledigt (E-Menü Ally-Join, Queue nächste Runde; Koop/PvP offen)
-8. §7–§8 Daten + Absicherung
+8. ~~§7 Daten/Content~~ → erledigt (Specs + Placeholder-Stats; Party-Multi-Unit später); §8 Absicherung offen
 
 ---
 

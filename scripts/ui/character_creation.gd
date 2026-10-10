@@ -132,7 +132,7 @@ func _on_create_button_pressed() -> void:
 		"game_build": "0.1.0"
 	}
 	
-	# Party Data initialize (leader only at start)
+	# Party Data initialize (leader only at start). Stats = fight placeholders for §7 v1.
 	PlayerPartyState.party_data = {
 		"leader_id": PlayerPartyState.player_id,
 		"members": [
@@ -140,8 +140,16 @@ func _on_create_button_pressed() -> void:
 				"id": PlayerPartyState.player_id,
 				"name": PlayerPartyState.player_data["name"],
 				"role": "leader",
-				"appearance": appearance, 
-				"stats": {},
+				"appearance": appearance,
+				"stats": {
+					"level": 1,
+					"health": 100,
+					"minDamage": 8,
+					"maxDamage": 14,
+					"initiative": 10,
+					"move": 3,
+					"attack_range": 1,
+				},
 				"equipment": {}
 			}
 		]

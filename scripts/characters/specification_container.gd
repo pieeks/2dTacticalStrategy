@@ -14,6 +14,7 @@ var npc_stats: Dictionary
 var npc_loot: Dictionary
 var npc_sync: Dictionary
 var npc_is_hostile: bool = false
+var npc_group_size: int = 1
 
 func _ready() -> void:
 	pass
@@ -87,5 +88,6 @@ func load_npc_enemy_data(type: String, count: int) -> void:
 	npc_loot = parsed.get("loot", {})
 	npc_sync = parsed.get("sync", {})
 	npc_is_hostile = parsed.get("is_hostile", false)
+	npc_group_size = maxi(1, int(parsed.get("group_size", 1)))
 	
 	set_specifical_nodes()

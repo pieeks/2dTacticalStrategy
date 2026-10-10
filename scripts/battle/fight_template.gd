@@ -25,7 +25,6 @@ var _turn_start_retries: int = 0
 
 const _FREE_DELAY_SECONDS: float = 0.15
 const _FIGHT_SLOT_SPACING: float = 5000.0
-const _PARK_OFFSET := Vector2(80000, 80000)
 const _MAX_TURN_START_RETRIES: int = 20
 
 
@@ -85,8 +84,11 @@ func _ensure_battle_hud() -> void:
 
 func _apply_local_view() -> void:
 	var am_in := participants.has(multiplayer.get_unique_id()) and not _is_ending
+	# Always keep the fight on its home slot so Host/Client share world positions.
+	# Parking non-viewers with a huge offset broke client Force-Fights: Host simulated
+	# at park coords and synced those absolutes → Client units teleported off-camera.
 	visible = am_in
-	position = _home_position if am_in else _home_position + _PARK_OFFSET
+	position = _home_position
 	if battle_hud:
 		battle_hud.visible = am_in
 	if am_in:
@@ -203,7 +205,7 @@ func _rebuild_units_from_nodes() -> void:
 			continue
 		var unit: BattleUnit = previous.get("player_%d" % p) as BattleUnit
 		if unit == null:
-			unit = BattleUnit.make_player(p)
+			unit = BattleUnit.make_player(p, _get_player_stats_for_peer(p))
 		unit.node = char_node
 		turn_controller.register_unit(unit)
 		if char_node.has_method("set_turn_controller"):
@@ -239,6 +241,21 @@ func _ensure_participant_characters() -> void:
 
 func _appearance_dict_usable(data: Dictionary) -> bool:
 	return not data.is_empty() and str(data.get("race_path", "")) != ""
+
+
+func _get_player_stats_for_peer(peer_id: int) -> Dictionary:
+	var synced: Variant = encounter.get("player_stats", {})
+	if synced is Dictionary:
+		var from_enc: Variant = (synced as Dictionary).get(str(peer_id), {})
+		if from_enc is Dictionary and not (from_enc as Dictionary).is_empty():
+			return (from_enc as Dictionary).duplicate(true)
+	if peer_id == multiplayer.get_unique_id():
+		var members: Array = PlayerPartyState.party_data.get("members", [])
+		if not members.is_empty() and members[0] is Dictionary:
+			var member_stats: Variant = (members[0] as Dictionary).get("stats", {})
+			if member_stats is Dictionary and not (member_stats as Dictionary).is_empty():
+				return (member_stats as Dictionary).duplicate(true)
+	return BattleUnit.DEFAULT_PLAYER_STATS.duplicate(true)
 
 
 func _get_player_appearance_for_peer(peer_id: int) -> Dictionary:
