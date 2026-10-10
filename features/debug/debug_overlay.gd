@@ -13,9 +13,15 @@ class_name DebugOverlay
 @onready var btn_start: Button = $UIRoot/PanelContainer/VBoxContainer/FightButtons/StartFight
 @onready var btn_join: Button = $UIRoot/PanelContainer/VBoxContainer/FightButtons/JoinFight
 @onready var btn_leave: Button = $UIRoot/PanelContainer/VBoxContainer/FightButtons/LeaveFight
+@onready var fight_select_panel: PanelContainer = $UIRoot/FightSelectPanel
+@onready var fight_select_hint: Label = $UIRoot/FightSelectPanel/VBox/Hint
+@onready var fight_list: ItemList = $UIRoot/FightSelectPanel/VBox/FightList
+@onready var btn_join_selected: Button = $UIRoot/FightSelectPanel/VBox/Buttons/JoinSelected
+@onready var btn_join_cancel: Button = $UIRoot/FightSelectPanel/VBox/Buttons/Cancel
 
 var _nm: Node = null
 var _visible_overlay := true
+var _listed_fights: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -29,18 +35,24 @@ func _ready() -> void:
 
 	_visible_overlay = start_visible
 	panel.visible = _visible_overlay
+	fight_select_panel.visible = false
 	lbl_title.text = "Debug Overlay"
 	_update_network()
 
 	btn_start.pressed.connect(_on_start_fight_pressed)
 	btn_join.pressed.connect(_on_join_fight_pressed)
 	btn_leave.pressed.connect(_on_leave_fight_pressed)
+	btn_join_selected.pressed.connect(_on_join_selected_pressed)
+	btn_join_cancel.pressed.connect(_hide_fight_select)
+	fight_list.item_activated.connect(func(_index: int) -> void: _on_join_selected_pressed())
 
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_debug_toggle"):
 		_visible_overlay = not _visible_overlay
 		panel.visible = _visible_overlay
+		if not _visible_overlay:
+			_hide_fight_select()
 	if _visible_overlay:
 		_update_network()
 
@@ -70,12 +82,66 @@ func _on_join_fight_pressed() -> void:
 	if fm == null:
 		push_warning("DebugOverlay: FightManager nicht gefunden.")
 		return
-	if fm.has_method("request_join_fight_as_local"):
-		fm.request_join_fight_as_local(0, "player")
-	elif multiplayer.is_server():
-		fm._process_join_request(multiplayer.get_unique_id(), 0, "player")
+	_show_fight_select(fm)
+
+
+func _show_fight_select(fm: Node) -> void:
+	_listed_fights.clear()
+	fight_list.clear()
+	if fm.has_method("list_active_fights"):
+		var listed: Array = fm.list_active_fights()
+		for entry in listed:
+			if entry is Dictionary:
+				_listed_fights.append(entry)
+	for fight_info in _listed_fights:
+		var owner_id: int = int(fight_info.get("owner_peer_id", 0))
+		var npc_name: String = str(fight_info.get("npc_name", ""))
+		var parts: Array = fight_info.get("participants", [])
+		var label := "Owner %d | Peers %s" % [owner_id, str(parts)]
+		if npc_name != "":
+			label += " | %s" % npc_name
+		fight_list.add_item(label)
+	if _listed_fights.is_empty():
+		fight_select_hint.text = "Keine aktiven Fights."
+		btn_join_selected.disabled = true
 	else:
-		fm.rpc_id(1, "rpc_request_join_fight", 0, "player")
+		fight_select_hint.text = "Fight wählen, dann Beitreten."
+		btn_join_selected.disabled = false
+		fight_list.select(0)
+	fight_select_panel.visible = true
+
+
+func _hide_fight_select() -> void:
+	fight_select_panel.visible = false
+
+
+func _on_join_selected_pressed() -> void:
+	var selected: PackedInt32Array = fight_list.get_selected_items()
+	if selected.is_empty() or _listed_fights.is_empty():
+		push_warning("DebugOverlay: Kein Fight ausgewählt.")
+		return
+	var idx: int = int(selected[0])
+	if idx < 0 or idx >= _listed_fights.size():
+		return
+	var fight_info: Dictionary = _listed_fights[idx]
+	var target_id: int = int(fight_info.get("owner_peer_id", 0))
+	var parts: Array = fight_info.get("participants", [])
+	if target_id == 0 and not parts.is_empty():
+		target_id = int(parts[0])
+	_hide_fight_select()
+	_request_join(target_id)
+
+
+func _request_join(target_peer_id: int) -> void:
+	var fm := _get_fight_manager()
+	if fm == null:
+		return
+	if fm.has_method("request_join_fight_as_local"):
+		fm.request_join_fight_as_local(target_peer_id, "player")
+	elif multiplayer.is_server():
+		fm._process_join_request(multiplayer.get_unique_id(), target_peer_id, "player")
+	else:
+		fm.rpc_id(1, "rpc_request_join_fight", target_peer_id, "player")
 
 
 func _on_leave_fight_pressed() -> void:

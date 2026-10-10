@@ -3,7 +3,7 @@ extends CharacterBody2D
 ## Kampf-Charakter: Kamera Follow + WASD-Pan, Position-Sync. Move-Klicks: FightTemplate.
 
 @onready var cam: Camera2D = $Camera2D
-@onready var visual: Polygon2D = $Visual
+@onready var appearance: CharacterAppearance = $CharacterAppearance
 @onready var grid_movement: Node = $GridMovement
 
 @export var free_camera_pan_speed: float = 400.0
@@ -12,6 +12,7 @@ var _camera_pan_offset: Vector2 = Vector2.ZERO
 var _last_synced_pos: Vector2 = Vector2.INF
 var _network_active: bool = true
 var turn_controller: Node = null
+var _pending_appearance: Dictionary = {}
 
 
 func _ready() -> void:
@@ -20,10 +21,24 @@ func _ready() -> void:
 		cam.make_current()
 	else:
 		cam.enabled = false
-	var peer_id := get_multiplayer_authority()
-	visual.color = Color.from_hsv(fmod(float(peer_id) * 0.17, 1.0), 0.7, 0.95)
 	if grid_movement:
 		grid_movement.input_enabled = false
+	_apply_pending_appearance()
+
+
+func apply_appearance(data: Dictionary) -> void:
+	_pending_appearance = data.duplicate(true) if not data.is_empty() else {}
+	_apply_pending_appearance()
+
+
+func _apply_pending_appearance() -> void:
+	if appearance == null:
+		appearance = get_node_or_null("CharacterAppearance") as CharacterAppearance
+	if appearance == null:
+		return
+	if not _pending_appearance.is_empty():
+		appearance.apply_full_data(_pending_appearance)
+	appearance.play("idle_front")
 
 
 func setup_for_fight(grid_manager: GridManager) -> void:

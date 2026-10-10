@@ -37,6 +37,8 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 - Fight-Instanzen unter Overworld-`FightLayer` (kein Scene-Wechsel)
 - Zwei Nodes: World-Player (während Fight gated) + `BattleCharacter` im Fight
+- Fight-Visuals: Spieler und Gegner als `CharacterAppearance` (Overworld-Look)
+- Encounter `group_size` (Default 1) für Gegner-Spawn
 - Host-autoritativer Lifecycle: Start / Join / Leave / Destroy + Late-Join-Sync
 - Hex-`GridManager` (`AStar2D`), Reachable-Highlights, WASD-Kamera-Pan
 - Turn-basiert: Initiative-Order, Move / Attack / Wait (Host validiert, Clients requesten)
@@ -45,7 +47,6 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Force-Fight: Encounter startet Kampf; Overworld-NPC bleibt sichtbar und gelockt
 - Sieg entfernt den Overworld-NPC; Niederlage/Leave unlockt ihn wieder
 - Parallele Fights räumlich isoliert (nur Teilnehmer sehen ihren Kampf)
-- Placeholder-Gegner im Fight aus NPC-Spec-Daten
 
 **UI**
 
@@ -57,7 +58,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 **Debug**
 
-- Debug-Overlay (F3): Netzwerkinfo + Start / Join / Leave Fight
+- Debug-Overlay (F3): Netzwerkinfo + Start / Join (Fight-Auswahl) / Leave Fight
 - Dev-Testscenes unter `_dev/tests/`
 - Kampfsystem-Plan: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md)
 

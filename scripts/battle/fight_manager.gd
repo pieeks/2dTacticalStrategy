@@ -45,10 +45,56 @@ func start_fight_with_encounter(peer_id: int, encounter: Dictionary) -> void:
 		return
 	print("FightManager: start_fight_with_encounter ", peer_id, " ", encounter.get("npc_type", ""))
 	peers_in_fight[peer_id] = true
-	rpc_start_fight.rpc(peer_id, encounter)
-	var npc_path := str(encounter.get("npc_path", ""))
+	var enriched: Dictionary = _enrich_encounter_appearances(encounter, [peer_id])
+	rpc_start_fight.rpc(peer_id, enriched)
+	var npc_path := str(enriched.get("npc_path", ""))
 	if npc_path != "":
 		rpc_lock_overworld_npc.rpc(npc_path)
+
+
+## Collect current worn look for a peer from Overworld / Save / PartyState.
+func _collect_player_appearance(peer_id: int) -> Dictionary:
+	var players: Node = get_tree().get_root().get_node_or_null("Overworld/Players")
+	if players != null:
+		var player: Node = players.get_node_or_null(str(peer_id))
+		if player != null:
+			var sync_node = player.get("sync")
+			if sync_node != null and sync_node.get("appearance") is Dictionary:
+				var from_sync: Dictionary = sync_node.appearance
+				if not from_sync.is_empty() and str(from_sync.get("race_path", "")) != "":
+					return from_sync.duplicate(true)
+			var save_node = player.get("save")
+			if save_node != null and not save_node.appearance_data.is_empty():
+				if str(save_node.appearance_data.get("race_path", "")) != "":
+					return save_node.appearance_data.duplicate(true)
+			var app = player.get("appearance")
+			if app != null and app.has_method("get_full_data"):
+				var from_visual: Dictionary = app.get_full_data()
+				if not from_visual.is_empty() and str(from_visual.get("race_path", "")) != "":
+					return from_visual
+	if peer_id == multiplayer.get_unique_id():
+		var party_app: Variant = PlayerPartyState.player_data.get("appearance", {})
+		if party_app is Dictionary and str(party_app.get("race_path", "")) != "":
+			return (party_app as Dictionary).duplicate(true)
+	return {}
+
+
+func _enrich_encounter_appearances(encounter: Dictionary, peer_ids: Array) -> Dictionary:
+	var enriched: Dictionary = encounter.duplicate(true)
+	var apps: Dictionary = {}
+	if enriched.get("player_appearances") is Dictionary:
+		apps = (enriched["player_appearances"] as Dictionary).duplicate(true)
+	for peer_id in peer_ids:
+		var pid := int(peer_id)
+		var key := str(pid)
+		var existing: Variant = apps.get(key, {})
+		if existing is Dictionary and str(existing.get("race_path", "")) != "":
+			continue
+		var collected := _collect_player_appearance(pid)
+		if not collected.is_empty():
+			apps[key] = collected
+	enriched["player_appearances"] = apps
+	return enriched
 
 
 func end_fight_for_peer(peer_id: int) -> void:
@@ -88,6 +134,32 @@ func _process_end_request(requester_id: int) -> void:
 		else:
 			child.request_leave_peer(requester_id)
 		return
+
+
+## Snapshot of active fights for debug / join-picker UI.
+func list_active_fights() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if not is_instance_valid(fight_layer):
+		return result
+	for child in fight_layer.get_children():
+		if not child.has_method("get_owner_peer_id"):
+			continue
+		var participants_list: Array = []
+		if child.get("participants") != null:
+			for p in child.participants:
+				participants_list.append(int(p))
+		var encounter: Dictionary = {}
+		if child.has_method("get_encounter"):
+			encounter = child.get_encounter()
+		result.append({
+			"owner_peer_id": int(child.get_owner_peer_id()),
+			"participants": participants_list,
+			"npc_name": str(encounter.get("npc_name", "")),
+			"npc_type": str(encounter.get("npc_type", "")),
+			"world_position": encounter.get("world_position", Vector2.ZERO),
+			"group_size": int(encounter.get("group_size", 1)),
+		})
+	return result
 
 
 ## Find fight instance that currently includes peer_id.
@@ -168,6 +240,9 @@ func _process_join_request(
 	var encounter: Dictionary = {}
 	if fight.has_method("get_encounter"):
 		encounter = fight.get_encounter()
+	encounter = _enrich_encounter_appearances(encounter, participants_list)
+	if fight.has_method("set_encounter"):
+		fight.set_encounter(encounter)
 	var turn_state: Dictionary = {}
 	if fight.has_method("get_turn_state"):
 		turn_state = fight.get_turn_state()
@@ -334,6 +409,7 @@ func rpc_sync_join_fight(
 		if fight_instance.has_method("add_participant"):
 			fight_instance.add_participant(peer_id)
 		return
+	_apply_encounter_to_fight(fight_node, encounter)
 	if fight_node.has_method("add_participant"):
 		fight_node.add_participant(peer_id)
 

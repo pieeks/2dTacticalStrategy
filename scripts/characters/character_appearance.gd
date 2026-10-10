@@ -168,14 +168,53 @@ func get_current_animation() -> StringName:
 	return current_animation
 
 
+## Returns the current layer paths as a dictionary (for fight spawn / sync).
+## Only includes layers that are currently visible (matches NPC Spec style).
+func get_full_data() -> Dictionary:
+	var data: Dictionary = {}
+	var race := $Race2DSprite as AnimatedSprite2D
+	var hair := $Hair2DSprite as AnimatedSprite2D
+	var body := $Body2DSprite as AnimatedSprite2D
+	var leg := $Leg2DSprite as AnimatedSprite2D
+	if race.visible and race.sprite_frames:
+		data["race_path"] = race.sprite_frames.resource_path
+	if hair.visible and hair.sprite_frames:
+		data["hair_path"] = hair.sprite_frames.resource_path
+	if body.visible and body.sprite_frames:
+		data["body_path"] = body.sprite_frames.resource_path
+	if leg.visible and leg.sprite_frames:
+		data["leg_path"] = leg.sprite_frames.resource_path
+	return data
+
+
 ## Applies a full appearance dataset from a dictionary.
-## Keys supported: race_path, hair_path, body_path, leg_path.
+## Present keys → set layer + show; missing/empty keys → hide layer (NPC Spec pattern).
 func apply_full_data(data: Dictionary) -> void:
-	if data.has("race_path"):
-		set_race(data["race_path"])
-	if data.has("hair_path"):
-		set_hair(data["hair_path"])
-	if data.has("body_path"):
-		set_body(data["body_path"])
-	if data.has("leg_path"):
-		set_leg(data["leg_path"])
+	var race := $Race2DSprite as AnimatedSprite2D
+	var hair := $Hair2DSprite as AnimatedSprite2D
+	var body := $Body2DSprite as AnimatedSprite2D
+	var leg := $Leg2DSprite as AnimatedSprite2D
+	var race_path := str(data.get("race_path", ""))
+	if data.has("race_path") and race_path != "":
+		set_race(race_path)
+		race.visible = true
+	else:
+		race.visible = false
+	var hair_path := str(data.get("hair_path", ""))
+	if data.has("hair_path") and hair_path != "":
+		set_hair(hair_path)
+		hair.visible = true
+	else:
+		hair.visible = false
+	var body_path := str(data.get("body_path", ""))
+	if data.has("body_path") and body_path != "":
+		set_body(body_path)
+		body.visible = true
+	else:
+		body.visible = false
+	var leg_path := str(data.get("leg_path", ""))
+	if data.has("leg_path") and leg_path != "":
+		set_leg(leg_path)
+		leg.visible = true
+	else:
+		leg.visible = false
