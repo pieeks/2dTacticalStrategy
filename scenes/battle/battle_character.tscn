@@ -13,7 +13,7 @@ script = ExtResource("1_battle")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = false
-zoom = Vector2(2, 2)
+zoom = Vector2(0.8, 0.8)
 
 [node name="GridMovement" type="Node" parent="."]
 script = ExtResource("2_gridmove")
