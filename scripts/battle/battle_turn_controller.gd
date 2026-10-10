@@ -11,6 +11,7 @@ var grid_manager: GridManager
 
 var units: Dictionary = {} ## unit_id -> BattleUnit
 var turn_order: Array[String] = []
+var queued_unit_ids: Array[String] = [] ## mid-fight joins waiting for next round
 var active_index: int = 0
 var phase: int = Phase.WAITING
 var attack_mode: bool = false
@@ -35,6 +36,7 @@ func clear_units() -> void:
 func reset_battle_state() -> void:
 	units.clear()
 	turn_order.clear()
+	queued_unit_ids.clear()
 	active_index = 0
 	phase = Phase.WAITING
 	attack_mode = false
@@ -42,6 +44,32 @@ func reset_battle_state() -> void:
 
 func register_unit(unit: BattleUnit) -> void:
 	units[unit.unit_id] = unit
+
+
+func queue_unit_for_next_round(unit_id: String) -> void:
+	var u := get_unit(unit_id)
+	if u == null:
+		return
+	u.joins_next_round = true
+	if not queued_unit_ids.has(unit_id):
+		queued_unit_ids.append(unit_id)
+
+
+func is_local_unit_queued() -> bool:
+	var my_id := multiplayer.get_unique_id()
+	var u: BattleUnit = units.get("player_%d" % my_id) as BattleUnit
+	return u != null and u.joins_next_round
+
+
+func _promote_queued_units() -> void:
+	if queued_unit_ids.is_empty():
+		return
+	for unit_id in queued_unit_ids:
+		var u := get_unit(unit_id)
+		if u != null:
+			u.joins_next_round = false
+	queued_unit_ids.clear()
+	build_turn_order()
 
 
 func get_unit(unit_id: String) -> BattleUnit:
@@ -65,7 +93,7 @@ func build_turn_order() -> void:
 	var entries: Array = []
 	for unit_id in units.keys():
 		var u: BattleUnit = units[unit_id]
-		if not u.is_alive():
+		if u == null or not u.is_alive() or u.joins_next_round:
 			continue
 		entries.append(u)
 	entries.sort_custom(func(a: BattleUnit, b: BattleUnit) -> bool:
@@ -158,16 +186,34 @@ func _advance_turn() -> void:
 		turn_state_changed.emit()
 		battle_ended.emit(result)
 		return
-	# Skip dead units
+	var order_size := turn_order.size()
+	if order_size == 0:
+		build_turn_order()
+		order_size = turn_order.size()
+		if order_size == 0:
+			phase = Phase.ENDED
+			_broadcast_state()
+			battle_ended.emit("victory")
+			return
+	var next_index := (active_index + 1) % order_size
+	var wrapped := next_index == 0
+	if wrapped:
+		# Full round finished — mid-fight joins enter the order now.
+		_promote_queued_units()
+		if turn_order.is_empty():
+			build_turn_order()
+		active_index = 0
+	else:
+		active_index = next_index
+	# Skip dead / still-queued units
 	var guard := 0
 	while guard < turn_order.size() + 2:
-		active_index = (active_index + 1) % maxi(turn_order.size(), 1)
 		var next_u := get_active_unit()
-		if next_u != null and next_u.is_alive():
+		if next_u != null and next_u.is_alive() and not next_u.joins_next_round:
 			break
+		active_index = (active_index + 1) % maxi(turn_order.size(), 1)
 		guard += 1
-		# Rebuild if all dead filtered
-		if guard == turn_order.size():
+		if guard >= turn_order.size():
 			build_turn_order()
 			active_index = 0
 			if turn_order.is_empty():
@@ -175,6 +221,7 @@ func _advance_turn() -> void:
 				_broadcast_state()
 				battle_ended.emit("victory")
 				return
+			break
 	_begin_active_turn()
 
 
@@ -536,6 +583,7 @@ func rpc_sync_turn_state(
 			existing.hp = synced.hp
 			existing.max_hp = synced.max_hp
 			existing.has_moved = synced.has_moved
+			existing.joins_next_round = synced.joins_next_round
 			existing.initiative = synced.initiative
 			existing.move_range = synced.move_range
 			existing.attack_range = synced.attack_range
@@ -544,6 +592,7 @@ func rpc_sync_turn_state(
 			BattleUnit.sync_position_from_dict(existing, data)
 		else:
 			units[synced.unit_id] = synced
+	_rebuild_queued_from_units()
 	_rebind_unit_nodes()
 	for data2 in unit_list:
 		if typeof(data2) != TYPE_DICTIONARY:
@@ -557,6 +606,14 @@ func rpc_sync_turn_state(
 		active_index = clampi(index, 0, maxi(turn_order.size() - 1, 0))
 	turn_state_changed.emit()
 	_refresh_local_highlights()
+
+
+func _rebuild_queued_from_units() -> void:
+	queued_unit_ids.clear()
+	for unit_id in units.keys():
+		var u: BattleUnit = units[unit_id]
+		if u != null and u.joins_next_round:
+			queued_unit_ids.append(unit_id)
 
 
 func _rebind_unit_nodes() -> void:

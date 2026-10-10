@@ -41,6 +41,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Hex-`GridManager` (`AStar2D`), Reachable-Highlights, WASD-Kamera-Pan
 - Turn-basiert: Initiative-Order, Move / Attack / Wait (Host validiert, Clients requesten)
 - Simple Enemy-AI auf dem Host; minimales Fight-HUD (aktives Unit, Attack/Wait)
+- Verstärkung: E bei kämpfendem Peer → Join-Menü; Ally-Join erst ab nächster Runde
 - Force-Fight: Encounter startet Kampf; Overworld-NPC bleibt sichtbar und gelockt
 - Sieg entfernt den Overworld-NPC; Niederlage/Leave unlockt ihn wieder
 - Parallele Fights räumlich isoliert (nur Teilnehmer sehen ihren Kampf)
@@ -83,7 +84,8 @@ GitHub Actions auf `main`: GDScript-Lint (`gdtoolkit`) und Headless-Projektcheck
 
 Lokal joinen: `127.0.0.1:4242`.
 
-Kampf testen: Hostile NPC (z. B. Slime) berühren (Force-Fight) oder F3 → Start/Join/Leave Fight.
+Kampf testen: Hostile NPC (z. B. Slime) berühren (Force-Fight) oder F3 → Start/Join/Leave Fight.  
+Zweiter Peer: an kämpfenden Spieler heran, **E** → „Spieler joinen“ (Zug ab nächster Runde).
 
 ## Steuerung
 
@@ -95,6 +97,7 @@ Kampf testen: Hostile NPC (z. B. Slime) berühren (Force-Fight) oder F3 → Star
 | Kampf: Move/Ziel    | Linksklick (nur im eigenen Zug) |
 | Kampf: Attack/Wait  | HUD-Buttons                     |
 | Kampf: Kamera-Pan   | WASD                            |
+| Fight joinen        | E nahe kämpfendem Peer          |
 
 Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid-Aktionen).
 

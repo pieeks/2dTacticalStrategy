@@ -70,10 +70,12 @@ func _on_join_fight_pressed() -> void:
 	if fm == null:
 		push_warning("DebugOverlay: FightManager nicht gefunden.")
 		return
-	if multiplayer.is_server():
-		fm._process_join_request(multiplayer.get_unique_id())
+	if fm.has_method("request_join_fight_as_local"):
+		fm.request_join_fight_as_local(0, "player")
+	elif multiplayer.is_server():
+		fm._process_join_request(multiplayer.get_unique_id(), 0, "player")
 	else:
-		fm.rpc_id(1, "rpc_request_join_fight")
+		fm.rpc_id(1, "rpc_request_join_fight", 0, "player")
 
 
 func _on_leave_fight_pressed() -> void:

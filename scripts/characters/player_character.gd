@@ -141,6 +141,8 @@ func _apply_fight_world_gate() -> void:
 	# Overworld HUD blocks battle clicks; hide it while fighting.
 	if player_ui:
 		player_ui.visible = not in_fight
+		if in_fight and player_ui.has_method("hide_fight_join_menu"):
+			player_ui.hide_fight_join_menu()
 	if in_fight:
 		cam.enabled = false
 		velocity = Vector2.ZERO
@@ -174,6 +176,23 @@ func end_interaction(target: Node) -> void:
 	elif target.is_in_group("Players") && target.is_interacting == true:
 		target.sync.end_interaction.rpc_id(1)
 	print("end interaction")
+
+
+func _try_interact_with_player(target: Node) -> void:
+	if player_ui == null:
+		return
+	var target_peer := target.get_multiplayer_authority()
+	if target_peer == multiplayer.get_unique_id():
+		return
+	var fm := _get_fight_manager()
+	if fm != null and fm.has_method("is_peer_in_fight"):
+		if fm.is_peer_in_fight(target_peer) and not _is_local_peer_in_fight():
+			if player_ui.has_method("show_fight_join_menu"):
+				player_ui.show_fight_join_menu(target_peer)
+			return
+	# Non-fight player interaction (placeholder menu).
+	if sync:
+		sync.interaction_approved.rpc_id(multiplayer.get_unique_id(), {}, "")
 
 
 # --- Physics ---
@@ -233,13 +252,11 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("Action"):
 		var target: Node = null
 		target = action.get_closest_target(self.global_position)
-		if target != null: 
+		if target != null:
 			if target.is_in_group("NPCs"):
 				target.request_interaction.rpc_id(1, self.name)
-			if target.is_in_group("Players"): 
-				print("is in Group: Players")
-				sync.interaction_approved.rpc_id(multiplayer.get_unique_id(), {}, "")
-				#target.sync.request_interaction_player.rpc_id(1, self.name)
+			elif target.is_in_group("Players"):
+				_try_interact_with_player(target)
 
 # --- Networking ---
 

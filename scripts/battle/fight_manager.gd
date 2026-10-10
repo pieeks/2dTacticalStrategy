@@ -90,33 +90,88 @@ func _process_end_request(requester_id: int) -> void:
 		return
 
 
-func _process_join_request(requester_id: int) -> void:
-	if is_peer_in_fight(requester_id):
-		return
-	if is_peer_on_fight_cooldown(requester_id):
-		return
+## Find fight instance that currently includes peer_id.
+func find_fight_for_peer(peer_id: int) -> Node:
+	for child in fight_layer.get_children():
+		if child.has_method("has_participant") and child.has_participant(peer_id):
+			return child
+	return null
+
+
+func get_fight_owner_for_peer(peer_id: int) -> int:
+	var fight := find_fight_for_peer(peer_id)
+	if fight != null and fight.has_method("get_owner_peer_id"):
+		return int(fight.get_owner_peer_id())
+	return 0
+
+
+func _find_nearest_fight_for_requester(requester_id: int) -> Node:
+	var players: Node = get_tree().get_root().get_node_or_null("Overworld/Players")
+	var requester: Node2D = null
+	if players != null:
+		requester = players.get_node_or_null(str(requester_id)) as Node2D
+	var best: Node = null
+	var best_d := INF
 	for child in fight_layer.get_children():
 		if not child.has_method("add_participant"):
 			continue
 		if child.has_method("has_participant") and child.has_participant(requester_id):
-			return
-		var owner_id := 0
-		if child.has_method("get_owner_peer_id"):
-			owner_id = child.get_owner_peer_id()
-		var participants_list: Array = []
-		if child.get("participants") != null:
-			for p in child.participants:
-				participants_list.append(int(p))
-		if not participants_list.has(requester_id):
-			participants_list.append(requester_id)
+			continue
+		var anchor := Vector2.ZERO
 		var encounter: Dictionary = {}
 		if child.has_method("get_encounter"):
 			encounter = child.get_encounter()
-		var turn_state: Dictionary = {}
-		if child.has_method("get_turn_state"):
-			turn_state = child.get_turn_state()
-		rpc_sync_join_fight.rpc(owner_id, requester_id, participants_list, encounter, turn_state)
+		if encounter.has("world_position"):
+			anchor = encounter["world_position"] as Vector2
+		elif players != null and child.has_method("get_owner_peer_id"):
+			var owner_node: Node2D = players.get_node_or_null(str(child.get_owner_peer_id())) as Node2D
+			if owner_node != null:
+				anchor = owner_node.global_position
+		var d := 0.0
+		if requester != null:
+			d = requester.global_position.distance_squared_to(anchor)
+		if d < best_d:
+			best_d = d
+			best = child
+	return best
+
+
+func _process_join_request(
+	requester_id: int, target_peer_id: int = 0, side: String = "player"
+) -> void:
+	if is_peer_in_fight(requester_id):
 		return
+	if is_peer_on_fight_cooldown(requester_id):
+		return
+	# v1: only ally / player side is accepted.
+	if side != "player" and side != "ally":
+		push_warning("FightManager: Join-Seite '%s' noch nicht unterstützt." % side)
+		return
+	var fight: Node = null
+	if target_peer_id != 0:
+		fight = find_fight_for_peer(target_peer_id)
+	if fight == null:
+		fight = _find_nearest_fight_for_requester(requester_id)
+	if fight == null:
+		return
+	if fight.has_method("has_participant") and fight.has_participant(requester_id):
+		return
+	var owner_id := 0
+	if fight.has_method("get_owner_peer_id"):
+		owner_id = fight.get_owner_peer_id()
+	var participants_list: Array = []
+	if fight.get("participants") != null:
+		for p in fight.participants:
+			participants_list.append(int(p))
+	if not participants_list.has(requester_id):
+		participants_list.append(requester_id)
+	var encounter: Dictionary = {}
+	if fight.has_method("get_encounter"):
+		encounter = fight.get_encounter()
+	var turn_state: Dictionary = {}
+	if fight.has_method("get_turn_state"):
+		turn_state = fight.get_turn_state()
+	rpc_sync_join_fight.rpc(owner_id, requester_id, participants_list, encounter, turn_state)
 
 
 func _on_fight_ready_to_remove(owner_peer_id: int) -> void:
@@ -225,11 +280,21 @@ func rpc_request_start_fight_encounter(peer_id: int, encounter: Dictionary) -> v
 
 
 @rpc("any_peer", "reliable")
-func rpc_request_join_fight() -> void:
+func rpc_request_join_fight(
+	target_peer_id: int = 0, side: String = "player"
+) -> void:
 	if not multiplayer.is_server():
 		return
 	var requester_id := multiplayer.get_remote_sender_id()
-	_process_join_request(requester_id)
+	_process_join_request(requester_id, target_peer_id, side)
+
+
+## Local/host helper used by UI and debug overlay.
+func request_join_fight_as_local(target_peer_id: int = 0, side: String = "player") -> void:
+	if multiplayer.is_server():
+		_process_join_request(multiplayer.get_unique_id(), target_peer_id, side)
+	else:
+		rpc_id(1, "rpc_request_join_fight", target_peer_id, side)
 
 
 @rpc("any_peer", "call_local", "reliable")

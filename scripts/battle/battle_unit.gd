@@ -17,6 +17,8 @@ var max_hp: int = 100
 var atk_min: int = 5
 var atk_max: int = 10
 var has_moved: bool = false
+## True when mid-fight join: unit exists but acts only from next full round.
+var joins_next_round: bool = false
 var node: Node2D
 
 
@@ -53,6 +55,7 @@ func to_sync_dict() -> Dictionary:
 		"atk_min": atk_min,
 		"atk_max": atk_max,
 		"has_moved": has_moved,
+		"joins_next_round": joins_next_round,
 		"pos_x": pos.x,
 		"pos_y": pos.y,
 	}
@@ -72,6 +75,7 @@ static func from_sync_dict(data: Dictionary) -> BattleUnit:
 	u.atk_min = int(data.get("atk_min", 5))
 	u.atk_max = int(data.get("atk_max", 10))
 	u.has_moved = bool(data.get("has_moved", false))
+	u.joins_next_round = bool(data.get("joins_next_round", false))
 	return u
 
 

@@ -115,11 +115,15 @@ Erst wenn Rahmen + Grid stabil laufen.
 
 ## 6. Multiplayer-Kampf-Features
 
-- [ ] **Join / Verstärkung**: Peer tritt laufendem Fight bei (nächste Runde / Queue laut Design)
-- [ ] Mehrere parallele Fights (nicht nur „erstes Kind im Layer“)
-- [ ] Late-Joiner der Session: aktive Fights korrekt nachziehen (`sync_active_fights_to_peer`)
+- [x] **Join / Verstärkung**: Peer tritt laufendem Fight bei (nächste Runde / Queue laut Design)
+  → E bei kämpfendem Peer → Fight-Join-Menü; Ally-Join queued bis Rundenende
+- [x] Mehrere parallele Fights (nicht nur „erstes Kind im Layer“)
+  → Join über interagierten Peer / Distanz-Fallback
+- [x] Late-Joiner der Session: aktive Fights korrekt nachziehen (`sync_active_fights_to_peer`)
+  → inkl. turn_state + `joins_next_round`
 - [ ] Koop-Start: Parteien im selben Bereich gemeinsam starten (nach Party-Regeln)
 - [ ] (Später) Rivalen / PvP-Variante
+  → UI-Stubs „Gegner joinen“ / „Neutral“ vorhanden, ohne Logik
 
 ---
 
@@ -151,7 +155,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 4. §3 Hex-Grid-Bewegung im Fight
 5. §4 Force-Fight-Trigger
 6. ~~§5 Turn-Order + Move/Attack/Wait~~ → erledigt (Host-AI, HUD, Sieg/Niederlage)
-7. §6 Join/Verstärkung
+7. ~~§6 Join/Verstärkung~~ → erledigt (E-Menü Ally-Join, Queue nächste Runde; Koop/PvP offen)
 8. §7–§8 Daten + Absicherung
 
 ---

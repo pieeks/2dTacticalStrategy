@@ -141,7 +141,8 @@ func apply_turn_state(data: Dictionary) -> void:
 
 
 func add_participant(peer_id: int) -> void:
-	if not participants.has(peer_id):
+	var was_already := participants.has(peer_id)
+	if not was_already:
 		participants.append(peer_id)
 	_apply_local_view()
 	_ensure_participant_characters()
@@ -152,7 +153,11 @@ func add_participant(peer_id: int) -> void:
 		var my_char: Node = player_container.get_node_or_null(str(peer_id))
 		if my_char != null and my_char.has_method("activate_camera"):
 			my_char.activate_camera()
-	if multiplayer.is_server() and _turns_started and turn_controller:
+	# Mid-fight join: queue until next full round (do not insert into current order).
+	if multiplayer.is_server() and _turns_started and turn_controller and not was_already:
+		turn_controller.queue_unit_for_next_round("player_%d" % peer_id)
+		turn_controller._broadcast_state()
+	elif multiplayer.is_server() and _turns_started and turn_controller:
 		turn_controller.build_turn_order()
 		turn_controller._broadcast_state()
 

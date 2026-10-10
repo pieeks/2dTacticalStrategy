@@ -158,6 +158,38 @@ visible = false
 layout_mode = 2
 text = "Leave"
 
+[node name="FightJoinMenu" type="PanelContainer" parent="."]
+visible = false
+offset_left = 220.0
+offset_top = 80.0
+offset_right = 420.0
+offset_bottom = 220.0
+
+[node name="FightJoinButtonContainer" type="VBoxContainer" parent="FightJoinMenu"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="FightJoinMenu/FightJoinButtonContainer"]
+layout_mode = 2
+text = "Kampf beitreten"
+
+[node name="JoinPlayer" type="Button" parent="FightJoinMenu/FightJoinButtonContainer"]
+layout_mode = 2
+text = "Spieler joinen"
+
+[node name="JoinEnemy" type="Button" parent="FightJoinMenu/FightJoinButtonContainer"]
+layout_mode = 2
+disabled = true
+text = "Gegner joinen"
+
+[node name="JoinNeutral" type="Button" parent="FightJoinMenu/FightJoinButtonContainer"]
+layout_mode = 2
+disabled = true
+text = "Neutral eingreifen"
+
+[node name="Cancel" type="Button" parent="FightJoinMenu/FightJoinButtonContainer"]
+layout_mode = 2
+text = "Abbrechen"
+
 [node name="Inventory" type="GridContainer" parent="."]
 visible = false
 offset_left = 24.0
