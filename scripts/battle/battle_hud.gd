@@ -136,6 +136,14 @@ func _refresh() -> void:
 		btn_wait.disabled = true
 		return
 	var phase: int = int(turn_controller.get("phase"))
+	var queued := false
+	if turn_controller.has_method("is_local_unit_queued"):
+		queued = bool(turn_controller.is_local_unit_queued())
+	if queued:
+		status_label.text = "Verstärkung in Warteschlange…\n(Zug ab nächster Runde)"
+		btn_attack.disabled = true
+		btn_wait.disabled = true
+		return
 	var active = null
 	if turn_controller.has_method("get_active_unit"):
 		active = turn_controller.get_active_unit()

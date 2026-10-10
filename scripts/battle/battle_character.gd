@@ -1,29 +1,49 @@
 class_name BattleCharacter
 extends CharacterBody2D
-## Kampf-Charakter: Kamera Follow + WASD-Pan, Position-Sync. Move-Klicks: FightTemplate.
+## Kampf-Charakter: komplett freie Kamera (Welt-fest) + WASD-Pan.
+## Kein Auto-Follow / kein Zug-Recenter. Overworld-Kamera unberührt.
 
 @onready var cam: Camera2D = $Camera2D
-@onready var visual: Polygon2D = $Visual
+@onready var appearance: CharacterAppearance = $CharacterAppearance
 @onready var grid_movement: Node = $GridMovement
 
 @export var free_camera_pan_speed: float = 400.0
 
-var _camera_pan_offset: Vector2 = Vector2.ZERO
 var _last_synced_pos: Vector2 = Vector2.INF
 var _network_active: bool = true
 var turn_controller: Node = null
+var _pending_appearance: Dictionary = {}
+## Place camera on the character only once when entering the fight.
+var _camera_placed: bool = false
 
 
 func _ready() -> void:
+	if is_instance_valid(cam):
+		# Ignore parent transform so character Move does not drag the view.
+		cam.top_level = true
 	if is_multiplayer_authority():
-		cam.enabled = true
-		cam.make_current()
+		_enable_free_camera(true)
 	else:
-		cam.enabled = false
-	var peer_id := get_multiplayer_authority()
-	visual.color = Color.from_hsv(fmod(float(peer_id) * 0.17, 1.0), 0.7, 0.95)
+		if is_instance_valid(cam):
+			cam.enabled = false
 	if grid_movement:
 		grid_movement.input_enabled = false
+	_apply_pending_appearance()
+
+
+func apply_appearance(data: Dictionary) -> void:
+	_pending_appearance = data.duplicate(true) if not data.is_empty() else {}
+	_apply_pending_appearance()
+
+
+func _apply_pending_appearance() -> void:
+	if appearance == null:
+		appearance = get_node_or_null("CharacterAppearance") as CharacterAppearance
+	if appearance == null:
+		return
+	if not _pending_appearance.is_empty():
+		appearance.apply_full_data(_pending_appearance)
+	appearance.play("idle_front")
 
 
 func setup_for_fight(grid_manager: GridManager) -> void:
@@ -32,10 +52,10 @@ func setup_for_fight(grid_manager: GridManager) -> void:
 		grid_movement.input_enabled = false
 	if grid_manager:
 		global_position = grid_manager.get_snap_global_position(global_position)
-	_camera_pan_offset = Vector2.ZERO
 	_network_active = true
 	if is_multiplayer_authority():
 		_broadcast_position(true)
+		_place_camera_once()
 
 
 func set_turn_controller(controller: Node) -> void:
@@ -43,16 +63,34 @@ func set_turn_controller(controller: Node) -> void:
 
 
 func activate_camera() -> void:
-	if is_multiplayer_authority() and is_instance_valid(cam):
-		cam.enabled = true
+	if not is_multiplayer_authority():
+		return
+	_enable_free_camera(true)
+	_place_camera_once()
+
+
+func _place_camera_once() -> void:
+	if _camera_placed or not is_multiplayer_authority() or not is_instance_valid(cam):
+		return
+	cam.top_level = true
+	cam.global_position = global_position
+	_camera_placed = true
+
+
+func _enable_free_camera(make_active: bool) -> void:
+	if not is_instance_valid(cam):
+		return
+	cam.top_level = true
+	cam.enabled = make_active
+	if make_active:
 		cam.make_current()
-		_camera_pan_offset = Vector2.ZERO
 
 
 func stop_network() -> void:
 	_network_active = false
 	set_physics_process(false)
 	set_process(false)
+	_camera_placed = false
 	if is_instance_valid(cam):
 		cam.enabled = false
 
@@ -100,5 +138,4 @@ func _process(delta: float) -> void:
 	if Input.is_action_pressed("walk_down"):
 		move.y += 1.0
 	if move != Vector2.ZERO:
-		_camera_pan_offset += move.normalized() * free_camera_pan_speed * delta
-	cam.global_position = global_position + _camera_pan_offset
+		cam.global_position += move.normalized() * free_camera_pan_speed * delta

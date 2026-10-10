@@ -115,11 +115,18 @@ Erst wenn Rahmen + Grid stabil laufen.
 
 ## 6. Multiplayer-Kampf-Features
 
-- [ ] **Join / Verstärkung**: Peer tritt laufendem Fight bei (nächste Runde / Queue laut Design)
-- [ ] Mehrere parallele Fights (nicht nur „erstes Kind im Layer“)
-- [ ] Late-Joiner der Session: aktive Fights korrekt nachziehen (`sync_active_fights_to_peer`)
+- [x] **Join / Verstärkung**: Peer tritt laufendem Fight bei (nächste Runde / Queue laut Design)
+  → E bei kämpfendem Peer → Fight-Join-Menü; Ally-Join queued bis Rundenende
+- [x] Mehrere parallele Fights (nicht nur „erstes Kind im Layer“)
+  → Join über interagierten Peer / Distanz-Fallback
+- [x] Late-Joiner der Session: aktive Fights korrekt nachziehen (`sync_active_fights_to_peer`)
+  → inkl. turn_state + `joins_next_round`
 - [ ] Koop-Start: Parteien im selben Bereich gemeinsam starten (nach Party-Regeln)
 - [ ] (Später) Rivalen / PvP-Variante
+  → UI-Stubs „Gegner joinen“ / „Neutral“ vorhanden, ohne Logik
+- [x] Fight-Visuals: Spieler + Gegner als `CharacterAppearance` (kein Polygon-Platzhalter)
+- [x] Encounter `group_size` (Default 1) + Spawn/Rebuild-Loop `Enemy_0…n`
+- [x] Debug F3: Join Fight öffnet Liste aktiver Fights zur Auswahl
 
 ---
 
@@ -127,6 +134,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 
 - [ ] Battle-Stats am Charakter/NPC (HP, ATK, MOVE, Initiative) — auch wenn Placeholder
 - [ ] Encounter-Definition (welche Gegner, wie viele) — Prefab oder Dictionary
+  → `group_size` + Appearance im Encounter-Dict vorhanden (Default 1)
 - [ ] Ordner `data/` oder bestehende Specs erweitern (nicht leere `.gitkeep` wie in NewGameRepo)
 - [ ] Party-Mitglieder im Kampf (nicht nur 1 Avatar) — Scope für v1 festlegen
 
@@ -137,7 +145,8 @@ Erst wenn Rahmen + Grid stabil laufen.
 - [ ] Disconnect eines Fight-Teilnehmers: sauber aus Participant-Liste / Fight beenden wenn Owner weg
 - [ ] RPC: Start/Join/End nur Host-seitig ausführen; Requests von Clients validieren
 - [ ] Keine doppelten Fight-Starts für denselben Peer
-- [ ] Debug-Overlay: Peer im Fight? aktive Fight-IDs?
+- [x] Debug-Overlay: Peer im Fight? aktive Fight-IDs?
+  → Join-Fight-Auswahlfenster listet Owner/Participants/NPC
 - [ ] Kurztest-Checkliste (2 Instanzen): Start → Move → Leave → Late-Join während Fight
 - [ ] README / `_dev/project_current_state_v_2.md` aktualisieren wenn Prototype spielbar
 
@@ -151,7 +160,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 4. §3 Hex-Grid-Bewegung im Fight
 5. §4 Force-Fight-Trigger
 6. ~~§5 Turn-Order + Move/Attack/Wait~~ → erledigt (Host-AI, HUD, Sieg/Niederlage)
-7. §6 Join/Verstärkung
+7. ~~§6 Join/Verstärkung~~ → erledigt (E-Menü Ally-Join, Queue nächste Runde; Koop/PvP offen)
 8. §7–§8 Daten + Absicherung
 
 ---

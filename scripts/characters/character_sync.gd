@@ -50,6 +50,7 @@ func _has_multiplayer_peer() -> bool:
 ## @param data Dictionary: Contains appearance keys (race_path, hair_path, body_path, leg_path).
 @rpc("any_peer", "reliable")
 func rpc_sync_full_appearance(data: Dictionary) -> void:
+	_store_appearance_data(data)
 	if appearance_node:
 		appearance_node.apply_full_data(data)
 
@@ -140,9 +141,23 @@ func end_interaction():
 ## @param data Dictionary: Contains appearance data with resource paths.
 func apply_and_sync_appearance(data: Dictionary) -> void:
 	# 1) Always apply locally so the local player sees changes immediately
+	_store_appearance_data(data)
 	if appearance_node:
 		appearance_node.apply_full_data(data)
 
 	# 2) Broadcast only if this peer has authority and a session is active
 	if NetworkManagerTest.is_authority(self) and _has_multiplayer_peer():
 		rpc("rpc_sync_full_appearance", data)
+
+
+func _store_appearance_data(data: Dictionary) -> void:
+	appearance = data.duplicate(true)
+	var save_node := get_parent().get_node_or_null("CharacterSave") if get_parent() else null
+	if save_node != null:
+		save_node.appearance = appearance.duplicate(true)
+		save_node.appearance_data = {
+			"race_path": appearance.get("race_path", ""),
+			"hair_path": appearance.get("hair_path", ""),
+			"body_path": appearance.get("body_path", ""),
+			"leg_path": appearance.get("leg_path", ""),
+		}

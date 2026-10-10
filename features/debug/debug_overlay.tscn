@@ -56,3 +56,49 @@ text = "Join Fight"
 [node name="LeaveFight" type="Button" parent="UIRoot/PanelContainer/VBoxContainer/FightButtons"]
 layout_mode = 2
 text = "Leave Fight"
+
+[node name="FightSelectPanel" type="PanelContainer" parent="UIRoot"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -120.0
+offset_right = 160.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="VBox" type="VBoxContainer" parent="UIRoot/FightSelectPanel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UIRoot/FightSelectPanel/VBox"]
+layout_mode = 2
+text = "Aktive Fights"
+
+[node name="Hint" type="Label" parent="UIRoot/FightSelectPanel/VBox"]
+layout_mode = 2
+autowrap_mode = 2
+text = ""
+
+[node name="FightList" type="ItemList" parent="UIRoot/FightSelectPanel/VBox"]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Buttons" type="HBoxContainer" parent="UIRoot/FightSelectPanel/VBox"]
+layout_mode = 2
+
+[node name="JoinSelected" type="Button" parent="UIRoot/FightSelectPanel/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Beitreten"
+
+[node name="Cancel" type="Button" parent="UIRoot/FightSelectPanel/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Abbrechen"

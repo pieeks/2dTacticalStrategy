@@ -139,6 +139,8 @@ func _build_encounter() -> Dictionary:
 		"npc_name": name,
 		"stats": {},
 		"world_position": global_position,
+		"group_size": 1,
+		"appearance": {},
 	}
 	if is_instance_valid(specification):
 		enc["npc_type"] = specification.npc_type
@@ -147,6 +149,11 @@ func _build_encounter() -> Dictionary:
 		else:
 			enc["npc_name"] = str(name)
 		enc["stats"] = specification.npc_stats.duplicate(true)
+	# Prefer Spec-JSON appearance (only defined layers) — not live sprites with hidden defaults.
+	if is_instance_valid(specification) and not specification.npc_appearance.is_empty():
+		enc["appearance"] = specification.npc_appearance.duplicate(true)
+	elif is_instance_valid(appearance) and appearance.has_method("get_full_data"):
+		enc["appearance"] = appearance.get_full_data()
 	return enc
 
 

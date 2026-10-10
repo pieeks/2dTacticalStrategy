@@ -5,6 +5,7 @@ signal fight_ready_to_remove(owner_peer_id: int)
 
 const BattleTurnControllerScript = preload("res://scripts/battle/battle_turn_controller.gd")
 const BattleHudScene = preload("res://scenes/battle/battle_hud.tscn")
+const CharacterAppearanceScene = preload("res://scenes/characters/character_appearance.tscn")
 
 @onready var grid_manager: Node2D = $GridManager
 @onready var player_container: Node = $PlayerContainer
@@ -41,7 +42,7 @@ func _ready() -> void:
 	_setup_turn_controller()
 	_apply_local_view()
 	_ensure_participant_characters()
-	_spawn_battle_enemy()
+	_spawn_battle_enemies()
 	_rebuild_units_from_nodes()
 	if participants.has(my_id):
 		_ensure_battle_hud()
@@ -141,18 +142,23 @@ func apply_turn_state(data: Dictionary) -> void:
 
 
 func add_participant(peer_id: int) -> void:
-	if not participants.has(peer_id):
+	var was_already := participants.has(peer_id)
+	if not was_already:
 		participants.append(peer_id)
 	_apply_local_view()
 	_ensure_participant_characters()
-	_spawn_battle_enemy()
+	_spawn_battle_enemies()
 	_rebuild_units_from_nodes()
 	if peer_id == multiplayer.get_unique_id():
 		_ensure_battle_hud()
 		var my_char: Node = player_container.get_node_or_null(str(peer_id))
 		if my_char != null and my_char.has_method("activate_camera"):
 			my_char.activate_camera()
-	if multiplayer.is_server() and _turns_started and turn_controller:
+	# Mid-fight join: queue until next full round (do not insert into current order).
+	if multiplayer.is_server() and _turns_started and turn_controller and not was_already:
+		turn_controller.queue_unit_for_next_round("player_%d" % peer_id)
+		turn_controller._broadcast_state()
+	elif multiplayer.is_server() and _turns_started and turn_controller:
 		turn_controller.build_turn_order()
 		turn_controller._broadcast_state()
 
@@ -202,11 +208,17 @@ func _rebuild_units_from_nodes() -> void:
 		turn_controller.register_unit(unit)
 		if char_node.has_method("set_turn_controller"):
 			char_node.set_turn_controller(turn_controller)
-	var enemy_node: Node2D = npc_container.get_node_or_null("Enemy_0") as Node2D
-	if enemy_node != null:
-		var enemy: BattleUnit = previous.get("enemy_0") as BattleUnit
+	for child in npc_container.get_children():
+		if not str(child.name).begins_with("Enemy_"):
+			continue
+		var suffix := str(child.name).get_slice("_", 1)
+		if not suffix.is_valid_int():
+			continue
+		var enemy_idx := int(suffix)
+		var enemy_node: Node2D = child as Node2D
+		var enemy: BattleUnit = previous.get("enemy_%d" % enemy_idx) as BattleUnit
 		if enemy == null:
-			enemy = BattleUnit.make_enemy(0, encounter)
+			enemy = BattleUnit.make_enemy(enemy_idx, encounter)
 		enemy.node = enemy_node
 		turn_controller.register_unit(enemy)
 		_refresh_enemy_label(enemy)
@@ -223,6 +235,57 @@ func _refresh_enemy_label(enemy: BattleUnit) -> void:
 func _ensure_participant_characters() -> void:
 	for p in participants:
 		_spawn_battle_character(p)
+
+
+func _appearance_dict_usable(data: Dictionary) -> bool:
+	return not data.is_empty() and str(data.get("race_path", "")) != ""
+
+
+func _get_player_appearance_for_peer(peer_id: int) -> Dictionary:
+	# 1) Host-synced snapshot in encounter (works on all peers, no Overworld timing).
+	var synced: Variant = encounter.get("player_appearances", {})
+	if synced is Dictionary:
+		var from_enc: Variant = (synced as Dictionary).get(str(peer_id), {})
+		if from_enc is Dictionary and _appearance_dict_usable(from_enc):
+			return (from_enc as Dictionary).duplicate(true)
+	# 2) Live Overworld player node.
+	return _get_overworld_player_appearance(peer_id)
+
+
+func _get_overworld_player_appearance(peer_id: int) -> Dictionary:
+	var overworld: Node = get_parent().get_parent() if get_parent() else null
+	if overworld == null:
+		return {}
+	var players: Node = overworld.get_node_or_null("Players")
+	if players == null:
+		return {}
+	var player: Node = players.get_node_or_null(str(peer_id))
+	if player == null:
+		# Local authority fallback when node not found yet.
+		if peer_id == multiplayer.get_unique_id():
+			var local_app: Variant = PlayerPartyState.player_data.get("appearance", {})
+			if local_app is Dictionary and _appearance_dict_usable(local_app):
+				return (local_app as Dictionary).duplicate(true)
+		return {}
+	var sync_node = player.get("sync")
+	if sync_node != null and sync_node.get("appearance") is Dictionary:
+		var from_sync: Dictionary = sync_node.appearance
+		if _appearance_dict_usable(from_sync):
+			return from_sync.duplicate(true)
+	var save_node = player.get("save")
+	if save_node != null and not save_node.appearance_data.is_empty():
+		if _appearance_dict_usable(save_node.appearance_data):
+			return save_node.appearance_data.duplicate(true)
+	var app = player.get("appearance")
+	if app != null and app.has_method("get_full_data"):
+		var from_visual: Dictionary = app.get_full_data()
+		if _appearance_dict_usable(from_visual):
+			return from_visual
+	if peer_id == multiplayer.get_unique_id():
+		var party_app: Variant = PlayerPartyState.player_data.get("appearance", {})
+		if party_app is Dictionary and _appearance_dict_usable(party_app):
+			return (party_app as Dictionary).duplicate(true)
+	return {}
 
 
 func _spawn_battle_character(peer_id: int) -> void:
@@ -250,6 +313,8 @@ func _spawn_battle_character(peer_id: int) -> void:
 	var world_pos: Vector2 = grid_manager.to_global(local_cell) if grid_manager else local_cell
 	player_container.add_child(character)
 	character.global_position = world_pos
+	if character.has_method("apply_appearance"):
+		character.apply_appearance(_get_player_appearance_for_peer(peer_id))
 	if character.has_method("setup_for_fight") and grid_manager is GridManager:
 		character.setup_for_fight(grid_manager as GridManager)
 	if character.has_method("set_turn_controller") and turn_controller:
@@ -258,28 +323,14 @@ func _spawn_battle_character(peer_id: int) -> void:
 		character.activate_camera()
 
 
-func _spawn_battle_enemy() -> void:
-	if encounter.is_empty():
-		return
+func _spawn_battle_enemies() -> void:
 	if not is_instance_valid(npc_container):
 		return
-	if npc_container.get_node_or_null("Enemy_0") != null:
-		return
-	var enemy := Node2D.new()
-	enemy.name = "Enemy_0"
-	enemy.set_meta("npc_type", str(encounter.get("npc_type", "")))
-	enemy.set_meta("npc_name", str(encounter.get("npc_name", "Enemy")))
-	enemy.set_meta("stats", encounter.get("stats", {}))
-	var visual := Polygon2D.new()
-	visual.color = Color(0.85, 0.25, 0.3, 1.0)
-	visual.polygon = PackedVector2Array([-10, -10, 10, -10, 10, 10, -10, 10])
-	enemy.add_child(visual)
-	var label := Label.new()
-	label.text = str(encounter.get("npc_name", "Enemy"))
-	label.position = Vector2(-20, -24)
-	label.add_theme_font_size_override("font_size", 10)
-	enemy.add_child(label)
-	npc_container.add_child(enemy)
+	# Default 1; Debug-Start ohne Encounter spawnt einen Platzhalter mit Scene-Default-Look.
+	var group_size: int = maxi(1, int(encounter.get("group_size", 1)))
+	var appearance_data: Dictionary = {}
+	if encounter.has("appearance") and encounter["appearance"] is Dictionary:
+		appearance_data = (encounter["appearance"] as Dictionary).duplicate(true)
 	var spacing: float = 40.0
 	var grid_w := 9
 	var grid_h := 3
@@ -288,17 +339,42 @@ func _spawn_battle_enemy() -> void:
 		grid_w = maxi((grid_manager as GridManager).width - 1, 0)
 		@warning_ignore("integer_division")
 		grid_h = maxi((grid_manager as GridManager).height / 2, 0)
-	var local_cell := Vector2(float(grid_w) * spacing, float(grid_h) * spacing * 0.75)
-	if grid_h % 2 == 1:
-		local_cell.x += spacing / 2.0
-	if grid_manager:
-		enemy.global_position = grid_manager.to_global(local_cell)
-		if grid_manager is GridManager:
-			enemy.global_position = (grid_manager as GridManager).get_snap_global_position(
-				enemy.global_position
-			)
-	else:
-		enemy.position = local_cell
+	for i in range(group_size):
+		var enemy_name := "Enemy_%d" % i
+		if npc_container.get_node_or_null(enemy_name) != null:
+			continue
+		var enemy := Node2D.new()
+		enemy.name = enemy_name
+		enemy.set_meta("npc_type", str(encounter.get("npc_type", "")))
+		enemy.set_meta("npc_name", str(encounter.get("npc_name", "Enemy")))
+		enemy.set_meta("stats", encounter.get("stats", {}))
+		var app: Node2D = CharacterAppearanceScene.instantiate()
+		enemy.add_child(app)
+		if not appearance_data.is_empty() and app.has_method("apply_full_data"):
+			app.call_deferred("apply_full_data", appearance_data)
+		if app.has_method("play"):
+			app.call_deferred("play", "idle_front")
+		var label := Label.new()
+		label.text = str(encounter.get("npc_name", "Enemy"))
+		label.position = Vector2(-24, -36)
+		label.add_theme_font_size_override("font_size", 10)
+		enemy.add_child(label)
+		npc_container.add_child(enemy)
+		# Offset along columns so group_size > 1 does not stack.
+		var cell_x := grid_w - (i % 3)
+		@warning_ignore("integer_division")
+		var cell_y := grid_h + (i / 3)
+		var local_cell := Vector2(float(cell_x) * spacing, float(cell_y) * spacing * 0.75)
+		if cell_y % 2 == 1:
+			local_cell.x += spacing / 2.0
+		if grid_manager:
+			enemy.global_position = grid_manager.to_global(local_cell)
+			if grid_manager is GridManager:
+				enemy.global_position = (grid_manager as GridManager).get_snap_global_position(
+					enemy.global_position
+				)
+		else:
+			enemy.position = local_cell
 
 
 func _on_battle_ended(result: String) -> void:
