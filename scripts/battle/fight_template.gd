@@ -1,8 +1,10 @@
 extends Node2D
-## Einzelner Kampf: Teilnehmer, Battle-Characters, Encounter-Gegner, Sichtbarkeit nur für Teilnehmer.
-## Parallel fights are spatially isolated so non-participants never share a camera view.
+## Einzelner Kampf: Participants, Units, Turn-Controller, HUD.
 
 signal fight_ready_to_remove(owner_peer_id: int)
+
+const BattleTurnControllerScript = preload("res://scripts/battle/battle_turn_controller.gd")
+const BattleHudScene = preload("res://scenes/battle/battle_hud.tscn")
 
 @onready var grid_manager: Node2D = $GridManager
 @onready var player_container: Node = $PlayerContainer
@@ -15,11 +17,15 @@ var participants: Array[int] = []
 var encounter: Dictionary = {}
 var _is_ending: bool = false
 var _home_position: Vector2 = Vector2.ZERO
+var turn_controller: Node = null
+var battle_hud: CanvasLayer = null
+var _turns_started: bool = false
+var _turn_start_retries: int = 0
 
 const _FREE_DELAY_SECONDS: float = 0.15
-## World offset between parallel Fight instances (keeps cameras from overlapping).
 const _FIGHT_SLOT_SPACING: float = 5000.0
 const _PARK_OFFSET := Vector2(80000, 80000)
+const _MAX_TURN_START_RETRIES: int = 20
 
 
 func _ready() -> void:
@@ -32,9 +38,14 @@ func _ready() -> void:
 			participants.append(owner_peer_id)
 
 	_home_position = _compute_home_position(owner_peer_id)
+	_setup_turn_controller()
 	_apply_local_view()
 	_ensure_participant_characters()
 	_spawn_battle_enemy()
+	_rebuild_units_from_nodes()
+	if participants.has(my_id):
+		_ensure_battle_hud()
+	call_deferred("_try_start_turns")
 
 
 func _compute_home_position(owner_id: int) -> Vector2:
@@ -43,11 +54,51 @@ func _compute_home_position(owner_id: int) -> Vector2:
 	return Vector2(float(slot % 8) * _FIGHT_SLOT_SPACING, float(slot / 8) * _FIGHT_SLOT_SPACING)
 
 
-## Participants see this fight at its slot; everyone else parks it far off-camera.
+func _setup_turn_controller() -> void:
+	turn_controller = BattleTurnControllerScript.new()
+	turn_controller.name = "BattleTurnController"
+	add_child(turn_controller)
+	turn_controller.set_multiplayer_authority(1)
+	if grid_manager is GridManager:
+		turn_controller.setup(self, grid_manager as GridManager)
+	if turn_controller.has_signal("battle_ended"):
+		turn_controller.battle_ended.connect(_on_battle_ended)
+
+
+func _ensure_battle_hud() -> void:
+	if battle_hud != null:
+		return
+	battle_hud = BattleHudScene.instantiate()
+	# Parent under Overworld so CanvasLayer stacks above PlayerUi / DebugOverlay.
+	var overworld: Node = get_parent().get_parent() if get_parent() else null
+	if overworld != null:
+		overworld.add_child(battle_hud)
+	else:
+		add_child(battle_hud)
+	if battle_hud.has_method("bind_controller"):
+		battle_hud.bind_controller(turn_controller)
+	if battle_hud.has_method("bind_fight"):
+		battle_hud.bind_fight(self)
+	_suppress_overworld_ui(true)
+
+
 func _apply_local_view() -> void:
 	var am_in := participants.has(multiplayer.get_unique_id()) and not _is_ending
 	visible = am_in
 	position = _home_position if am_in else _home_position + _PARK_OFFSET
+	if battle_hud:
+		battle_hud.visible = am_in
+	if am_in:
+		_suppress_overworld_ui(true)
+
+
+func _suppress_overworld_ui(hide_ui: bool) -> void:
+	var overworld: Node = get_parent().get_parent() if get_parent() else null
+	if overworld == null:
+		return
+	var pui: CanvasLayer = overworld.get_node_or_null("PlayerUi") as CanvasLayer
+	if pui != null and participants.has(multiplayer.get_unique_id()):
+		pui.visible = not hide_ui
 
 
 func set_owner_peer_id(peer_id: int) -> void:
@@ -76,16 +127,97 @@ func has_participant(peer_id: int) -> bool:
 	return participants.has(peer_id)
 
 
+func get_turn_state() -> Dictionary:
+	if turn_controller != null and turn_controller.has_method("export_state_for_late_join"):
+		return turn_controller.export_state_for_late_join()
+	return {}
+
+
+func apply_turn_state(data: Dictionary) -> void:
+	if turn_controller != null and turn_controller.has_method("apply_late_join_state"):
+		turn_controller.apply_late_join_state(data)
+	if not data.is_empty():
+		_turns_started = true
+
+
 func add_participant(peer_id: int) -> void:
 	if not participants.has(peer_id):
 		participants.append(peer_id)
 	_apply_local_view()
 	_ensure_participant_characters()
 	_spawn_battle_enemy()
+	_rebuild_units_from_nodes()
 	if peer_id == multiplayer.get_unique_id():
+		_ensure_battle_hud()
 		var my_char: Node = player_container.get_node_or_null(str(peer_id))
 		if my_char != null and my_char.has_method("activate_camera"):
 			my_char.activate_camera()
+	if multiplayer.is_server() and _turns_started and turn_controller:
+		turn_controller.build_turn_order()
+		turn_controller._broadcast_state()
+
+
+func _try_start_turns() -> void:
+	if _turns_started or _is_ending:
+		return
+	if not multiplayer.is_server():
+		return
+	if turn_controller == null:
+		return
+	_rebuild_units_from_nodes()
+	if turn_controller.units.is_empty():
+		_turn_start_retries += 1
+		if _turn_start_retries <= _MAX_TURN_START_RETRIES:
+			# Characters/enemy may not be ready on the first deferred frame.
+			get_tree().create_timer(0.05, true, false, true).timeout.connect(
+				_try_start_turns, CONNECT_ONE_SHOT
+			)
+		else:
+			push_warning("FightTemplate: Turn-Start fehlgeschlagen — keine Units.")
+		return
+	_turns_started = true
+	print(
+		"FightTemplate: starte Turns mit ",
+		turn_controller.units.size(),
+		" Units, participants=",
+		participants
+	)
+	turn_controller.start_battle()
+
+
+func _rebuild_units_from_nodes() -> void:
+	if turn_controller == null:
+		return
+	var previous: Dictionary = turn_controller.units.duplicate()
+	# Preserve phase/order while refreshing node links (clear_units must not reset turn).
+	turn_controller.clear_units()
+	for p in participants:
+		var char_node: Node2D = player_container.get_node_or_null(str(p)) as Node2D
+		if char_node == null:
+			continue
+		var unit: BattleUnit = previous.get("player_%d" % p) as BattleUnit
+		if unit == null:
+			unit = BattleUnit.make_player(p)
+		unit.node = char_node
+		turn_controller.register_unit(unit)
+		if char_node.has_method("set_turn_controller"):
+			char_node.set_turn_controller(turn_controller)
+	var enemy_node: Node2D = npc_container.get_node_or_null("Enemy_0") as Node2D
+	if enemy_node != null:
+		var enemy: BattleUnit = previous.get("enemy_0") as BattleUnit
+		if enemy == null:
+			enemy = BattleUnit.make_enemy(0, encounter)
+		enemy.node = enemy_node
+		turn_controller.register_unit(enemy)
+		_refresh_enemy_label(enemy)
+
+
+func _refresh_enemy_label(enemy: BattleUnit) -> void:
+	if enemy == null or enemy.node == null:
+		return
+	for child in enemy.node.get_children():
+		if child is Label:
+			(child as Label).text = "%s (%d)" % [enemy.display_name, enemy.hp]
 
 
 func _ensure_participant_characters() -> void:
@@ -120,6 +252,8 @@ func _spawn_battle_character(peer_id: int) -> void:
 	character.global_position = world_pos
 	if character.has_method("setup_for_fight") and grid_manager is GridManager:
 		character.setup_for_fight(grid_manager as GridManager)
+	if character.has_method("set_turn_controller") and turn_controller:
+		character.set_turn_controller(turn_controller)
 	if character.has_method("activate_camera") and peer_id == multiplayer.get_unique_id():
 		character.activate_camera()
 
@@ -165,6 +299,24 @@ func _spawn_battle_enemy() -> void:
 			)
 	else:
 		enemy.position = local_cell
+
+
+func _on_battle_ended(result: String) -> void:
+	if not multiplayer.is_server():
+		return
+	print("FightTemplate: battle ended with ", result)
+	if result == "victory":
+		var npc_path := str(encounter.get("npc_path", ""))
+		if npc_path != "":
+			var fm := _get_fight_manager()
+			if fm != null and fm.has_method("rpc_remove_overworld_npc"):
+				fm.rpc_remove_overworld_npc.rpc(npc_path)
+	request_end_fight()
+
+
+func _get_fight_manager() -> Node:
+	var overworld: Node = get_parent().get_parent()
+	return overworld.get_node_or_null("FightManager")
 
 
 func request_end_fight() -> void:
@@ -220,13 +372,19 @@ func rpc_remove_battle_character(peer_id: int) -> void:
 		if char_node.has_method("stop_network"):
 			char_node.stop_network()
 		char_node.queue_free()
-	# Leaving peer should no longer see this fight.
+	if turn_controller:
+		turn_controller.units.erase("player_%d" % peer_id)
+		if multiplayer.is_server() and int(turn_controller.phase) != 3:
+			turn_controller.build_turn_order()
+			if turn_controller.turn_order.is_empty():
+				request_end_fight()
+			else:
+				turn_controller._broadcast_state()
 	_apply_local_view()
 
 
 func _notify_fight_manager_peer_left(peer_id: int) -> void:
-	var overworld: Node = get_parent().get_parent()
-	var fm: Node = overworld.get_node_or_null("FightManager")
+	var fm := _get_fight_manager()
 	if fm != null and fm.has_method("notify_peer_left_fight"):
 		fm.notify_peer_left_fight(peer_id)
 
@@ -235,6 +393,10 @@ func _notify_fight_manager_peer_left(peer_id: int) -> void:
 func rpc_notify_fight_ending() -> void:
 	_is_ending = true
 	_stop_all_battle_networks()
+	if battle_hud != null and is_instance_valid(battle_hud):
+		battle_hud.queue_free()
+		battle_hud = null
+	_suppress_overworld_ui(false)
 	_apply_local_view()
 
 

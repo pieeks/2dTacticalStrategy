@@ -1,6 +1,6 @@
 class_name BattleCharacter
 extends CharacterBody2D
-## Kampf-Charakter: Hex-Klickbewegung, Kamera Follow + WASD-Pan, Position per RPC.
+## Kampf-Charakter: Kamera Follow + WASD-Pan, Position-Sync. Move-Klicks: FightTemplate.
 
 @onready var cam: Camera2D = $Camera2D
 @onready var visual: Polygon2D = $Visual
@@ -8,11 +8,10 @@ extends CharacterBody2D
 
 @export var free_camera_pan_speed: float = 400.0
 
-## Offset relativ zur Charakter-Position (WASD-Pan).
 var _camera_pan_offset: Vector2 = Vector2.ZERO
 var _last_synced_pos: Vector2 = Vector2.INF
-## False during fight teardown so position RPCs stop before nodes are freed.
 var _network_active: bool = true
+var turn_controller: Node = null
 
 
 func _ready() -> void:
@@ -23,17 +22,24 @@ func _ready() -> void:
 		cam.enabled = false
 	var peer_id := get_multiplayer_authority()
 	visual.color = Color.from_hsv(fmod(float(peer_id) * 0.17, 1.0), 0.7, 0.95)
+	if grid_movement:
+		grid_movement.input_enabled = false
 
 
 func setup_for_fight(grid_manager: GridManager) -> void:
 	if grid_movement:
 		grid_movement.grid_manager = grid_manager
+		grid_movement.input_enabled = false
 	if grid_manager:
 		global_position = grid_manager.get_snap_global_position(global_position)
 	_camera_pan_offset = Vector2.ZERO
 	_network_active = true
 	if is_multiplayer_authority():
 		_broadcast_position(true)
+
+
+func set_turn_controller(controller: Node) -> void:
+	turn_controller = controller
 
 
 func activate_camera() -> void:
@@ -43,7 +49,6 @@ func activate_camera() -> void:
 		_camera_pan_offset = Vector2.ZERO
 
 
-## Call on all peers before queue_free / fight destroy to avoid orphaned RPC path errors.
 func stop_network() -> void:
 	_network_active = false
 	set_physics_process(false)
@@ -52,12 +57,14 @@ func stop_network() -> void:
 		cam.enabled = false
 
 
-func _physics_process(delta: float) -> void:
-	if not _network_active or not is_multiplayer_authority():
+func _physics_process(_delta: float) -> void:
+	if not _network_active:
 		return
-	if grid_movement:
-		grid_movement.process_movement(self, delta)
-	_broadcast_position(false)
+	# Path animation must run on all peers; only authority broadcasts.
+	if grid_movement and grid_movement.is_moving:
+		grid_movement.process_movement(self, _delta)
+	if is_multiplayer_authority():
+		_broadcast_position(false)
 
 
 func _broadcast_position(force: bool) -> void:

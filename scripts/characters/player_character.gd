@@ -28,6 +28,8 @@ extends CharacterController
 
 var is_interacting: bool = false
 var player_ui: CanvasLayer
+## True briefly after spawn so standing in a ForceFightArea does not auto-start combat.
+var spawn_force_fight_suppressed: bool = true
 
 ## Timer for periodically saving and broadcasting position updates.
 var save_update_timer := 0.0
@@ -84,11 +86,15 @@ func _ready() -> void:
 	if appearance:
 		appearance.visible = true
 	
+	# Suppress Force-Fight before joining Players (body_entered can fire immediately).
+	spawn_force_fight_suppressed = true
 	add_to_group("Players")
 	# Connect animation change signal
 	connect("animation_state_changed", Callable(self, "_on_animation_state_changed"))
 	action.end_interaction_signal.connect(end_interaction)
 	_apply_fight_world_gate()
+	if NetworkManagerTest.is_authority(self):
+		call_deferred("_finish_spawn_force_fight_suppress")
 
 
 func _notification(what: int) -> void:
@@ -132,6 +138,9 @@ func _apply_fight_world_gate() -> void:
 
 	if appearance:
 		appearance.visible = not in_fight
+	# Overworld HUD blocks battle clicks; hide it while fighting.
+	if player_ui:
+		player_ui.visible = not in_fight
 	if in_fight:
 		cam.enabled = false
 		velocity = Vector2.ZERO
@@ -139,6 +148,16 @@ func _apply_fight_world_gate() -> void:
 		if cam:
 			cam.enabled = true
 			cam.make_current()
+
+
+## Snapshot overlapping ForceFight areas so spawn-inside does not start a fight.
+func _finish_spawn_force_fight_suppress() -> void:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	for npc in get_tree().get_nodes_in_group("NPCs"):
+		if npc.has_method("suppress_force_fight_for_player"):
+			npc.suppress_force_fight_for_player(self)
+	spawn_force_fight_suppressed = false
 
 
 ## Called by Overworld when this peer leaves a fight.

@@ -15,6 +15,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="Map" type="TextureRect" parent="HUD"]
 layout_mode = 1
@@ -175,6 +176,7 @@ offset_right = 380.0
 offset_bottom = 87.0
 grow_vertical = 0
 scale = Vector2(0.38698363, 0.39251733)
+mouse_filter = 2
 item_count = 2
 item_0/text = "Test"
 item_1/text = "Test1"

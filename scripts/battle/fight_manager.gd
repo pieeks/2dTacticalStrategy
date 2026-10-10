@@ -68,8 +68,11 @@ func sync_active_fights_to_peer(peer_id: int) -> void:
 			var encounter: Dictionary = {}
 			if child.has_method("get_encounter"):
 				encounter = child.get_encounter()
+			var turn_state: Dictionary = {}
+			if child.has_method("get_turn_state"):
+				turn_state = child.get_turn_state()
 			rpc_create_existing_fight.rpc_id(
-				peer_id, child.get_owner_peer_id(), participants_list, encounter
+				peer_id, child.get_owner_peer_id(), participants_list, encounter, turn_state
 			)
 
 
@@ -109,7 +112,10 @@ func _process_join_request(requester_id: int) -> void:
 		var encounter: Dictionary = {}
 		if child.has_method("get_encounter"):
 			encounter = child.get_encounter()
-		rpc_sync_join_fight.rpc(owner_id, requester_id, participants_list, encounter)
+		var turn_state: Dictionary = {}
+		if child.has_method("get_turn_state"):
+			turn_state = child.get_turn_state()
+		rpc_sync_join_fight.rpc(owner_id, requester_id, participants_list, encounter, turn_state)
 		return
 
 
@@ -169,7 +175,10 @@ func rpc_start_fight(owner_peer_id: int, encounter: Dictionary = {}) -> void:
 
 @rpc("any_peer", "reliable")
 func rpc_create_existing_fight(
-	owner_peer_id: int, participants_list: Array, encounter: Dictionary = {}
+	owner_peer_id: int,
+	participants_list: Array,
+	encounter: Dictionary = {},
+	turn_state: Dictionary = {}
 ) -> void:
 	if fight_scene == null:
 		push_error("FightManager: rpc_create_existing_fight - fight_scene ist null.")
@@ -186,6 +195,8 @@ func rpc_create_existing_fight(
 	fight_layer.add_child(fight_instance)
 	if fight_instance.has_signal("fight_ready_to_remove"):
 		fight_instance.fight_ready_to_remove.connect(_on_fight_ready_to_remove)
+	if not turn_state.is_empty() and fight_instance.has_method("apply_turn_state"):
+		fight_instance.apply_turn_state(turn_state)
 	is_fight_active = true
 	for p in participants_list:
 		peers_in_fight[int(p)] = true
@@ -223,7 +234,11 @@ func rpc_request_join_fight() -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_sync_join_fight(
-	owner_peer_id: int, peer_id: int, participants_list: Array = [], encounter: Dictionary = {}
+	owner_peer_id: int,
+	peer_id: int,
+	participants_list: Array = [],
+	encounter: Dictionary = {},
+	turn_state: Dictionary = {}
 ) -> void:
 	peers_in_fight[peer_id] = true
 	var fight_node: Node = fight_layer.get_node_or_null("Fight_%d" % owner_peer_id)
@@ -246,6 +261,8 @@ func rpc_sync_join_fight(
 		fight_layer.add_child(fight_instance)
 		if fight_instance.has_signal("fight_ready_to_remove"):
 			fight_instance.fight_ready_to_remove.connect(_on_fight_ready_to_remove)
+		if not turn_state.is_empty() and fight_instance.has_method("apply_turn_state"):
+			fight_instance.apply_turn_state(turn_state)
 		is_fight_active = true
 		for p in snapshot:
 			peers_in_fight[int(p)] = true
@@ -292,6 +309,17 @@ func rpc_lock_overworld_npc(npc_path: String) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func rpc_unlock_overworld_npc(npc_path: String) -> void:
 	_unlock_npc_by_path(npc_path)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func rpc_remove_overworld_npc(npc_path: String) -> void:
+	var npc := get_tree().root.get_node_or_null(npc_path)
+	if npc == null:
+		return
+	# Do not exit_fight_lock (that resumes patrol) — stop quietly, then free.
+	if npc.has_method("prepare_for_removal"):
+		npc.prepare_for_removal()
+	npc.queue_free()
 
 
 func _lock_npc_by_path(npc_path: String) -> void:

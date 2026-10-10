@@ -38,11 +38,13 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Fight-Instanzen unter Overworld-`FightLayer` (kein Scene-Wechsel)
 - Zwei Nodes: World-Player (während Fight gated) + `BattleCharacter` im Fight
 - Host-autoritativer Lifecycle: Start / Join / Leave / Destroy + Late-Join-Sync
-- Hex-`GridManager` (`AStar2D`), Klick-Pfadbewegung, WASD-Kamera-Pan
+- Hex-`GridManager` (`AStar2D`), Reachable-Highlights, WASD-Kamera-Pan
+- Turn-basiert: Initiative-Order, Move / Attack / Wait (Host validiert, Clients requesten)
+- Simple Enemy-AI auf dem Host; minimales Fight-HUD (aktives Unit, Attack/Wait)
 - Force-Fight: Encounter startet Kampf; Overworld-NPC bleibt sichtbar und gelockt
+- Sieg entfernt den Overworld-NPC; Niederlage/Leave unlockt ihn wieder
 - Parallele Fights räumlich isoliert (nur Teilnehmer sehen ihren Kampf)
 - Placeholder-Gegner im Fight aus NPC-Spec-Daten
-- Noch **ohne** Turn-Order / Attack / Wait (frei bewegen auf dem Grid)
 
 **UI**
 
@@ -60,8 +62,8 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 ### Geplant / in Arbeit
 
-- Turn-basiertes Grid-Gameplay (Initiative, Move/Attack/Wait)
-- Encounter-Symbol über Gegner; Sieg/Niederlage/Loot-Übergang
+- Encounter-Symbol über Gegner; Loot-UI
+- Verstärkung / Party-Multi-Unit im Fight
 - Dungeons mit mehreren Ebenen
 - Steam P2P (Addons vorbereitet, noch nicht produktiv)
 
@@ -90,10 +92,11 @@ Kampf testen: Hostile NPC (z. B. Slime) berühren (Force-Fight) oder F3 → Star
 | Bewegung (Overworld)| WASD         |
 | Interaktion         | E            |
 | Debug-Overlay       | F3           |
-| Kampf: Bewegung     | Linksklick   |
-| Kampf: Kamera-Pan   | WASD         |
+| Kampf: Move/Ziel    | Linksklick (nur im eigenen Zug) |
+| Kampf: Attack/Wait  | HUD-Buttons                     |
+| Kampf: Kamera-Pan   | WASD                            |
 
-Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid-Move).
+Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid-Aktionen).
 
 ## Projektstruktur
 

@@ -99,15 +99,17 @@ Vorhandene Hooks nutzen statt F-Menü allein.
 
 Erst wenn Rahmen + Grid stabil laufen.
 
-- [ ] **BattleInstance-Datenmodell**: ID, Participants, TurnOrder, State (`_dev/rpg_multiplayer_design_v_2.md`)
-- [ ] Initiative / Turn-Order berechnen (Host-autoritativ)
-- [ ] Turn-State-Machine: Waiting → ActiveUnit → Resolve → Next
-- [ ] Aktion **Move**: Reichweite, begehbare Kacheln, Pfad, Commit
-- [ ] Aktion **Attack**: Reichweite, Zielwahl, Schaden (erst simpel)
-- [ ] Aktion **Wait** / Ende Zug
-- [ ] UI: aktives Unit, erlaubte Aktionen, Tile-Highlights
-- [ ] Sync: Clients sehen nur Host-bestätigte Zustände (keine lokalen „Cheat“-Züge)
-- [ ] Kampfende: Sieg/Niederlage/Flucht → Rewards-Placeholder → zurück Overworld
+- [x] **BattleInstance-Datenmodell**: ID, Participants, TurnOrder, State (`_dev/rpg_multiplayer_design_v_2.md`)
+  → `BattleUnit` + `BattleTurnController` im FightTemplate
+- [x] Initiative / Turn-Order berechnen (Host-autoritativ)
+- [x] Turn-State-Machine: Waiting → ActiveUnit → Resolve → Next
+- [x] Aktion **Move**: Reichweite, begehbare Kacheln, Pfad, Commit
+- [x] Aktion **Attack**: Reichweite, Zielwahl, Schaden (erst simpel)
+- [x] Aktion **Wait** / Ende Zug
+- [x] UI: aktives Unit, erlaubte Aktionen, Tile-Highlights
+- [x] Sync: Clients sehen nur Host-bestätigte Zustände (keine lokalen „Cheat“-Züge)
+- [x] Kampfende: Sieg/Niederlage/Flucht → Rewards-Placeholder → zurück Overworld
+  → Sieg entfernt Overworld-NPC; Niederlage/Leave unlockt; Loot = Print/TODO
 
 ---
 
@@ -148,7 +150,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 3. §2 Kampf-Rahmen + manuelles Debug-Start
 4. §3 Hex-Grid-Bewegung im Fight
 5. §4 Force-Fight-Trigger
-6. §5 Turn-Order + Move/Attack/Wait
+6. ~~§5 Turn-Order + Move/Attack/Wait~~ → erledigt (Host-AI, HUD, Sieg/Niederlage)
 7. §6 Join/Verstärkung
 8. §7–§8 Daten + Absicherung
 
