@@ -91,6 +91,10 @@ func start_battle_with(player: Node2D) -> void:
 	if not is_instance_valid(player) or not player.is_in_group("Players"):
 		return
 	var peer_id := player.get_multiplayer_authority()
+	# Spawn-overlap: treat as suppress until the peer leaves the area.
+	if player.get("spawn_force_fight_suppressed") == true:
+		_force_fight_suppressed_peers[peer_id] = true
+		return
 	if _force_fight_suppressed_peers.get(peer_id, false):
 		return
 	var fm := _get_fight_manager()
@@ -111,6 +115,21 @@ func start_battle_with(player: Node2D) -> void:
 			fm.start_fight_for_peer(peer_id)
 	else:
 		fm.rpc_id(1, "rpc_request_start_fight_encounter", peer_id, encounter)
+
+
+## After player spawn: if already overlapping, require leave before Force-Fight.
+func suppress_force_fight_for_player(player: Node2D) -> void:
+	if not is_instance_valid(player) or not player.is_in_group("Players"):
+		return
+	var force: Area2D = get_node_or_null("ForceFightArea2D") as Area2D
+	if force == null and is_instance_valid(force_fight_area):
+		force = force_fight_area
+	if force == null or not force.monitoring:
+		return
+	if not force.get_overlapping_bodies().has(player):
+		return
+	_force_fight_suppressed_peers[player.get_multiplayer_authority()] = true
+	_ensure_force_fight_exit_connected()
 
 
 func _build_encounter() -> Dictionary:
@@ -148,6 +167,8 @@ func enter_fight_lock() -> void:
 	visible = true
 	if is_instance_valid(appearance):
 		appearance.visible = true
+	if patrol_pause_timer != null and is_instance_valid(patrol_pause_timer) and patrol_pause_timer.is_inside_tree():
+		patrol_pause_timer.stop()
 	_ensure_force_fight_exit_connected()
 	_set_combat_areas_monitoring(false)
 	var aggro_ctrl: Node = get_node_or_null("AggroController")
@@ -261,6 +282,8 @@ func wake_up():
 	set_physics_process(true)
 	multiplayer_synchronizer.set_process(true)
 	state_machine.set_physics_process(true)
+	# Players already standing in ForceFight when this NPC wakes must leave first.
+	call_deferred("_suppress_overlapping_force_fight_peers_keep_existing")
 	match patrol_behavior:
 		PatrolBehavior.LOOP, PatrolBehavior.PING_PONG:
 			if not patrol_points.is_empty():
@@ -274,6 +297,18 @@ func wake_up():
 				state_machine.transition_to("IdleNPC")
 		_:
 			state_machine.transition_to("IdleNPC")
+
+
+func _suppress_overlapping_force_fight_peers_keep_existing() -> void:
+	var force: Area2D = get_node_or_null("ForceFightArea2D") as Area2D
+	if force == null and is_instance_valid(force_fight_area):
+		force = force_fight_area
+	if force == null or not force.monitoring:
+		return
+	_ensure_force_fight_exit_connected()
+	for body in force.get_overlapping_bodies():
+		if body is Node2D and body.is_in_group("Players"):
+			_force_fight_suppressed_peers[body.get_multiplayer_authority()] = true
 
 
 func go_to_sleep():
@@ -296,15 +331,40 @@ func _force_sleep() -> void:
 
 func start_patrol_pause():
 	# Nur der Host soll den Pausen-Timer starten.
-	if is_multiplayer_authority():
-		patrol_pause_timer.start(pause_time)
+	if not is_multiplayer_authority():
+		return
+	if not is_inside_tree() or _fight_locked:
+		return
+	if patrol_pause_timer == null or not is_instance_valid(patrol_pause_timer):
+		return
+	if not patrol_pause_timer.is_inside_tree():
+		return
+	patrol_pause_timer.start(pause_time)
 
 
 func _on_patrol_pause_finished():
+	if not is_inside_tree() or _fight_locked:
+		return
+	if state_machine == null or not is_instance_valid(state_machine):
+		return
 	if state_machine.current_node_state_name == "FollowTargetNPC":
 		return
 	update_next_patrol_index()
 	state_machine.transition_to("WalkNPC")
+
+
+## Stop AI/patrol before queue_free (victory remove) — do not resume Walk.
+func prepare_for_removal() -> void:
+	_fight_locked = true
+	if patrol_pause_timer != null and is_instance_valid(patrol_pause_timer):
+		if patrol_pause_timer.is_inside_tree():
+			patrol_pause_timer.stop()
+	set_physics_process(false)
+	if multiplayer_synchronizer:
+		multiplayer_synchronizer.set_process(false)
+	if state_machine:
+		state_machine.set_physics_process(false)
+		state_machine.transition_to("IdleNPC")
 
 
 func update_next_patrol_index():
