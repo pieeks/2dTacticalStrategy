@@ -45,7 +45,7 @@ func start_fight_with_encounter(peer_id: int, encounter: Dictionary) -> void:
 		return
 	print("FightManager: start_fight_with_encounter ", peer_id, " ", encounter.get("npc_type", ""))
 	peers_in_fight[peer_id] = true
-	var enriched: Dictionary = _enrich_encounter_appearances(encounter, [peer_id])
+	var enriched: Dictionary = _enrich_encounter_player_data(encounter, [peer_id])
 	rpc_start_fight.rpc(peer_id, enriched)
 	var npc_path := str(enriched.get("npc_path", ""))
 	if npc_path != "":
@@ -79,21 +79,41 @@ func _collect_player_appearance(peer_id: int) -> Dictionary:
 	return {}
 
 
-func _enrich_encounter_appearances(encounter: Dictionary, peer_ids: Array) -> Dictionary:
+## Combat stats for a peer (party leader placeholder for v1).
+func _collect_player_stats(peer_id: int) -> Dictionary:
+	if peer_id == multiplayer.get_unique_id():
+		var members: Array = PlayerPartyState.party_data.get("members", [])
+		if not members.is_empty() and members[0] is Dictionary:
+			var member_stats: Variant = (members[0] as Dictionary).get("stats", {})
+			if member_stats is Dictionary and not (member_stats as Dictionary).is_empty():
+				return (member_stats as Dictionary).duplicate(true)
+		# Fallback: sane placeholder even for old saves with empty stats.
+		return BattleUnit.DEFAULT_PLAYER_STATS.duplicate(true)
+	# Remote: host cannot read their PartyState; use defaults until richer sync exists.
+	return BattleUnit.DEFAULT_PLAYER_STATS.duplicate(true)
+
+
+func _enrich_encounter_player_data(encounter: Dictionary, peer_ids: Array) -> Dictionary:
 	var enriched: Dictionary = encounter.duplicate(true)
 	var apps: Dictionary = {}
 	if enriched.get("player_appearances") is Dictionary:
 		apps = (enriched["player_appearances"] as Dictionary).duplicate(true)
+	var stats_map: Dictionary = {}
+	if enriched.get("player_stats") is Dictionary:
+		stats_map = (enriched["player_stats"] as Dictionary).duplicate(true)
 	for peer_id in peer_ids:
 		var pid := int(peer_id)
 		var key := str(pid)
-		var existing: Variant = apps.get(key, {})
-		if existing is Dictionary and str(existing.get("race_path", "")) != "":
-			continue
-		var collected := _collect_player_appearance(pid)
-		if not collected.is_empty():
-			apps[key] = collected
+		var existing_app: Variant = apps.get(key, {})
+		if not (existing_app is Dictionary and str(existing_app.get("race_path", "")) != ""):
+			var collected_app := _collect_player_appearance(pid)
+			if not collected_app.is_empty():
+				apps[key] = collected_app
+		var existing_stats: Variant = stats_map.get(key, {})
+		if not (existing_stats is Dictionary and not (existing_stats as Dictionary).is_empty()):
+			stats_map[key] = _collect_player_stats(pid)
 	enriched["player_appearances"] = apps
+	enriched["player_stats"] = stats_map
 	return enriched
 
 
@@ -177,6 +197,21 @@ func get_fight_owner_for_peer(peer_id: int) -> int:
 	return 0
 
 
+## Owner peer of the fight that locked this Overworld NPC (encounter.npc_path).
+func get_fight_owner_for_npc_path(npc_path: String) -> int:
+	if npc_path == "" or not is_instance_valid(fight_layer):
+		return 0
+	for child in fight_layer.get_children():
+		if not child.has_method("get_encounter"):
+			continue
+		var encounter: Dictionary = child.get_encounter()
+		if str(encounter.get("npc_path", "")) != npc_path:
+			continue
+		if child.has_method("get_owner_peer_id"):
+			return int(child.get_owner_peer_id())
+	return 0
+
+
 func _find_nearest_fight_for_requester(requester_id: int) -> Node:
 	var players: Node = get_tree().get_root().get_node_or_null("Overworld/Players")
 	var requester: Node2D = null
@@ -240,7 +275,7 @@ func _process_join_request(
 	var encounter: Dictionary = {}
 	if fight.has_method("get_encounter"):
 		encounter = fight.get_encounter()
-	encounter = _enrich_encounter_appearances(encounter, participants_list)
+	encounter = _enrich_encounter_player_data(encounter, participants_list)
 	if fight.has_method("set_encounter"):
 		fight.set_encounter(encounter)
 	var turn_state: Dictionary = {}
@@ -295,6 +330,8 @@ func rpc_start_fight(owner_peer_id: int, encounter: Dictionary = {}) -> void:
 	fight_instance.name = "Fight_%d" % owner_peer_id
 	if fight_instance.has_method("set_owner_peer_id"):
 		fight_instance.set_owner_peer_id(owner_peer_id)
+	if fight_instance.has_method("set_participants"):
+		fight_instance.set_participants([owner_peer_id])
 	_apply_encounter_to_fight(fight_instance, encounter)
 	fight_layer.add_child(fight_instance)
 	if fight_instance.has_signal("fight_ready_to_remove"):

@@ -5,6 +5,25 @@ extends RefCounted
 const SIDE_PLAYER := "player"
 const SIDE_ENEMY := "enemy"
 
+## Placeholder defaults when Save/Spec omit a field.
+const DEFAULT_PLAYER_STATS := {
+	"health": 100,
+	"minDamage": 8,
+	"maxDamage": 14,
+	"initiative": 10,
+	"move": 3,
+	"attack_range": 1,
+	"level": 1,
+}
+const DEFAULT_ENEMY_STATS := {
+	"health": 80,
+	"minDamage": 2,
+	"maxDamage": 10,
+	"initiative": 5,
+	"move": 2,
+	"attack_range": 1,
+}
+
 var unit_id: String = ""
 var display_name: String = ""
 var side: String = SIDE_PLAYER
@@ -87,19 +106,23 @@ static func sync_position_from_dict(u: BattleUnit, data: Dictionary) -> void:
 	u.node.global_position = Vector2(float(data.get("pos_x", 0.0)), float(data.get("pos_y", 0.0)))
 
 
-static func make_player(peer_id: int) -> BattleUnit:
+static func _apply_combat_stats(u: BattleUnit, stats: Dictionary, defaults: Dictionary) -> void:
+	u.hp = int(stats.get("health", defaults.get("health", 100)))
+	u.max_hp = u.hp
+	u.atk_min = int(stats.get("minDamage", defaults.get("minDamage", 5)))
+	u.atk_max = int(stats.get("maxDamage", defaults.get("maxDamage", 10)))
+	u.initiative = int(stats.get("initiative", defaults.get("initiative", 10)))
+	u.move_range = int(stats.get("move", defaults.get("move", 3)))
+	u.attack_range = int(stats.get("attack_range", defaults.get("attack_range", 1)))
+
+
+static func make_player(peer_id: int, stats: Dictionary = {}) -> BattleUnit:
 	var u := BattleUnit.new()
 	u.unit_id = "player_%d" % peer_id
 	u.display_name = "Player %d" % peer_id
 	u.side = SIDE_PLAYER
 	u.owner_peer_id = peer_id
-	u.initiative = 10
-	u.move_range = 3
-	u.attack_range = 1
-	u.hp = 100
-	u.max_hp = 100
-	u.atk_min = 8
-	u.atk_max = 14
+	_apply_combat_stats(u, stats, DEFAULT_PLAYER_STATS)
 	return u
 
 
@@ -109,12 +132,8 @@ static func make_enemy(index: int, encounter: Dictionary) -> BattleUnit:
 	u.display_name = str(encounter.get("npc_name", "Enemy"))
 	u.side = SIDE_ENEMY
 	u.owner_peer_id = 0
-	u.initiative = 5
-	u.move_range = 2
-	u.attack_range = 1
-	var stats: Dictionary = encounter.get("stats", {})
-	u.hp = int(stats.get("health", 80))
-	u.max_hp = u.hp
-	u.atk_min = int(stats.get("minDamage", 2))
-	u.atk_max = int(stats.get("maxDamage", 10))
+	var stats: Dictionary = {}
+	if encounter.get("stats") is Dictionary:
+		stats = encounter["stats"] as Dictionary
+	_apply_combat_stats(u, stats, DEFAULT_ENEMY_STATS)
 	return u

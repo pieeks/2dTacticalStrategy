@@ -195,6 +195,29 @@ func _try_interact_with_player(target: Node) -> void:
 		sync.interaction_approved.rpc_id(multiplayer.get_unique_id(), {}, "")
 
 
+## E on a fight-locked Overworld NPC → same Join menu as interacting with the fighter.
+func _try_interact_with_fight_locked_npc(npc: Node) -> bool:
+	if player_ui == null or not player_ui.has_method("show_fight_join_menu"):
+		return false
+	if _is_local_peer_in_fight():
+		return false
+	var locked := false
+	if npc.has_method("is_fight_locked"):
+		locked = bool(npc.is_fight_locked())
+	elif npc.get("_fight_locked") == true:
+		locked = true
+	if not locked:
+		return false
+	var fm := _get_fight_manager()
+	if fm == null or not fm.has_method("get_fight_owner_for_npc_path"):
+		return false
+	var owner_id: int = int(fm.get_fight_owner_for_npc_path(str(npc.get_path())))
+	if owner_id == 0 or owner_id == multiplayer.get_unique_id():
+		return false
+	player_ui.show_fight_join_menu(owner_id)
+	return true
+
+
 # --- Physics ---
 
 ## Called every physics frame.
@@ -254,6 +277,8 @@ func _input(event: InputEvent) -> void:
 		target = action.get_closest_target(self.global_position)
 		if target != null:
 			if target.is_in_group("NPCs"):
+				if _try_interact_with_fight_locked_npc(target):
+					return
 				target.request_interaction.rpc_id(1, self.name)
 			elif target.is_in_group("Players"):
 				_try_interact_with_player(target)
