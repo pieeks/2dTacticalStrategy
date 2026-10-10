@@ -197,6 +197,21 @@ func get_fight_owner_for_peer(peer_id: int) -> int:
 	return 0
 
 
+## Owner peer of the fight that locked this Overworld NPC (encounter.npc_path).
+func get_fight_owner_for_npc_path(npc_path: String) -> int:
+	if npc_path == "" or not is_instance_valid(fight_layer):
+		return 0
+	for child in fight_layer.get_children():
+		if not child.has_method("get_encounter"):
+			continue
+		var encounter: Dictionary = child.get_encounter()
+		if str(encounter.get("npc_path", "")) != npc_path:
+			continue
+		if child.has_method("get_owner_peer_id"):
+			return int(child.get_owner_peer_id())
+	return 0
+
+
 func _find_nearest_fight_for_requester(requester_id: int) -> Node:
 	var players: Node = get_tree().get_root().get_node_or_null("Overworld/Players")
 	var requester: Node2D = null

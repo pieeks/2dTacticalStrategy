@@ -165,6 +165,10 @@ func _get_fight_manager() -> Node:
 	return overworld.get_node_or_null("FightManager")
 
 
+func is_fight_locked() -> bool:
+	return _fight_locked
+
+
 ## Keep NPC visible in Overworld but freeze chase/patrol/areas during a fight.
 func enter_fight_lock() -> void:
 	if _fight_locked:
@@ -424,6 +428,9 @@ func play_animation_rpc(anim: String) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func request_interaction(player_name: String):
 	if not multiplayer.is_server():
+		return
+	# Fight-locked NPCs are joined via FightJoinMenu (client-local), not Talk/Leave.
+	if _fight_locked:
 		return
 	
 	var player_node = get_tree().get_root().get_node_or_null("Overworld/Players/" + player_name)
