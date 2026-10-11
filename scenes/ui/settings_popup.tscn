@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://ca0m0d0f41cfi"]
+[gd_scene load_steps=9 format=3 uid="uid://ca0m0d0f41cfi"]
 
 [ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://resources/themes/default_theme.tres" id="1_d402b"]
 [ext_resource type="Script" uid="uid://mdubw1dkn0ul" path="res://scripts/ui/settings_popup.gd" id="1_yjfti"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://cpvsh4w4w0hks" path="res://scripts/ui/audio_settings_popup.gd" id="3_1bpm1"]
 [ext_resource type="Script" uid="uid://bnva65ig66nbn" path="res://scripts/ui/video_settings_popup.gd" id="4_h7ats"]
 [ext_resource type="Script" uid="uid://205mp8k6f18p" path="res://scripts/ui/control_settings_popup.gd" id="5_kqam1"]
+[ext_resource type="Script" path="res://scripts/ui/general_settings_popup.gd" id="6_general"]
 
 [node name="SettingsPopup" type="Control"]
 custom_minimum_size = Vector2(640, 360)
@@ -56,15 +57,20 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -28.0
-offset_top = -56.0
-offset_right = 28.0
-offset_bottom = 56.0
+offset_left = -40.0
+offset_top = -70.0
+offset_right = 40.0
+offset_bottom = 70.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme = ExtResource("1_d402b")
+
+[node name="GeneralSettings" type="Button" parent="UIRoot/Panel/SettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjfti")
+text = "General"
 
 [node name="AudioSettings" type="Button" parent="UIRoot/Panel/SettingsButtonContainer"]
 layout_mode = 2
@@ -85,6 +91,52 @@ text = "Controls"
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Back"
+
+[node name="GeneralSettingsPopup" type="Control" parent="UIRoot/Panel"]
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_general")
+
+[node name="GeneralSettingsButtonContainer" type="VBoxContainer" parent="UIRoot/Panel/GeneralSettingsPopup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -50.0
+offset_right = 70.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Name" type="Label" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjfti")
+text = "General"
+
+[node name="LanguageLabel" type="Label" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjfti")
+text = "Language"
+
+[node name="LanguageDropDown" type="OptionButton" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjfti")
+
+[node name="BackToSettingsPopup" type="Button" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjfti")
+text = "Back to Settings"
 
 [node name="AudioSettingsPopup" type="Control" parent="UIRoot/Panel"]
 visible = false
@@ -286,10 +338,12 @@ metadata/action_name = "walk_right"
 layout_mode = 2
 text = "Back to Settings"
 
+[connection signal="pressed" from="UIRoot/Panel/SettingsButtonContainer/GeneralSettings" to="." method="_on_general_settings_pressed"]
 [connection signal="pressed" from="UIRoot/Panel/SettingsButtonContainer/AudioSettings" to="." method="_on_audio_settings_pressed"]
 [connection signal="pressed" from="UIRoot/Panel/SettingsButtonContainer/VideoSettings" to="." method="_on_video_settings_pressed"]
 [connection signal="pressed" from="UIRoot/Panel/SettingsButtonContainer/Controls" to="." method="_on_controls_pressed"]
 [connection signal="pressed" from="UIRoot/Panel/SettingsButtonContainer/Back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_pressed"]
 [connection signal="value_changed" from="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSlider" to="UIRoot/Panel/AudioSettingsPopup" method="_on_volume_slider_value_changed"]
 [connection signal="pressed" from="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_pressed"]
 [connection signal="item_selected" from="UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDown" to="UIRoot/Panel/VideoSettingsPopup" method="_on_resolution_drop_down_item_selected"]

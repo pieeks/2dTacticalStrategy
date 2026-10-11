@@ -139,7 +139,7 @@ func _on_connection_failed() -> void:
 
 ## Called when the server disconnects (client side).
 func _on_server_disconnected() -> void:
-	pending_menu_message = "Der Host hat das Spiel geschlossen."
+	pending_menu_message = "ui.net.host_closed"
 	# try_autosave runs inside reset_session.
 	reset_session()
 	# Deferred: avoid scene change during network callback / mid-teardown.

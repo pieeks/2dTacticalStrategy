@@ -1,0 +1,42 @@
+---
+description: Godot 4.7 coding standards — modular design, API limits, English comments
+alwaysApply: true
+---
+
+# Godot Coding Standards
+
+## Design
+
+- Prefer **modular, clean** solutions: small focused scripts, clear ownership, minimal coupling.
+- Reuse existing Autoloads / managers (`FightManager`, `PlayerPartyState`, `LocaleManager`, …) instead of duplicating logic.
+- Avoid over-engineering: no extra abstractions, helpers, or files unless they clearly reduce complexity.
+- Match surrounding style (naming, signals, RPC patterns, folder layout).
+
+## Godot 4.7 only
+
+- Use only APIs, nodes, and GDScript features that exist in **Godot 4.7**.
+- Do **not** use deprecated 3.x patterns or APIs removed/renamed before 4.7.
+- Prefer engine builtins (`TranslationServer`, `MultiplayerAPI`, `AStar2D`, …) over custom reinventions when they fit.
+
+## Comments (English, short)
+
+- Document public `func`s / methods with a **short English** doc comment (`## …`) stating purpose, not narrating obvious code.
+- Comment non-obvious invariants, multiplayer authority, or sync edge cases — not every line.
+
+```gdscript
+## Persist party state if a character is loaded. Returns true on write.
+func try_autosave(reason: String = "") -> bool:
+	# …
+```
+
+## Localization (always keep language switch working)
+
+- Every **player-visible** string (menus, settings, HUD, dialogs, join UI, net messages shown to the player, …) must live in [`localization/translations.csv`](localization/translations.csv) with `en` + `de`, and be shown via `tr("key")` (or format with `tr("key") % […]`).
+- Prefix keys by area: `ui.*`, `battle.*`, `net.*`.
+- On locale change, refresh dynamic UI (reconnect to `LocaleManager.language_changed` / re-apply texts) so the switch stays instant without restart.
+- **Exception — debug only:** F3 debug overlay, developer logs, and other intentional debug tooling may stay hard-coded English and skip CSV/`tr()`.
+
+## Do not
+
+- Ship new player-visible copy as hard-coded literals in scripts or scenes.
+- Add speculative features or drive-by refactors outside the requested change.

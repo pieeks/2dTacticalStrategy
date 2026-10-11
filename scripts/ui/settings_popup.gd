@@ -1,52 +1,86 @@
 extends Control
 
+const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 ## SettingsPopup
 ##
-## Manages the in-game settings menu and its submenus (audio, video, controls).
-## Handles showing and hiding the different panels and emits a signal when closed.
-##
-## Features:
-## - Opens audio, video, or controls submenus
-## - Provides back navigation to the main settings panel
-## - Emits `popup_closed` when the entire settings menu is closed
-##
-## Usage:
-## - Attach this script to the root node of the SettingsPopup scene
-## - Connect `popup_closed` in the parent (e.g. pause menu) to restore its UI
+## Manages the in-game settings menu and its submenus
+## (general, audio, video, controls).
 
-## Emitted when the settings popup is closed.
 signal popup_closed
 
 
-## Button callback: shows audio settings, hides main settings buttons.
-func _on_audio_settings_pressed() -> void:
-	$UIRoot/Panel/SettingsButtonContainer.visible = false
-	$UIRoot/Panel/AudioSettingsPopup.visible = true
+func _ready() -> void:
+	_apply_static_texts()
+	var lm := _LocaleAccess.get_lm(self)
+	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
+		lm.language_changed.connect(_on_language_changed)
 
 
-## Button callback: shows video settings, hides main settings buttons.
-func _on_video_settings_pressed() -> void:
-	$UIRoot/Panel/SettingsButtonContainer.visible = false
-	$UIRoot/Panel/VideoSettingsPopup.visible = true
+func _on_language_changed(_locale: String) -> void:
+	_apply_static_texts()
 
 
-## Button callback: shows control settings, hides main settings buttons.
-func _on_controls_pressed() -> void:
-	$UIRoot/Panel/SettingsButtonContainer.visible = false
-	$UIRoot/Panel/ControlSettingsPopup.visible = true
+func _apply_static_texts() -> void:
+	$UIRoot/Name.text = tr("ui.settings.title")
+	$UIRoot/Panel/SettingsButtonContainer/GeneralSettings.text = tr("ui.settings.general")
+	$UIRoot/Panel/SettingsButtonContainer/AudioSettings.text = tr("ui.settings.audio")
+	$UIRoot/Panel/SettingsButtonContainer/VideoSettings.text = tr("ui.settings.video")
+	$UIRoot/Panel/SettingsButtonContainer/Controls.text = tr("ui.settings.controls")
+	$UIRoot/Panel/SettingsButtonContainer/Back.text = tr("ui.settings.back")
+	$UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer/Name.text = tr("ui.settings.general_title")
+	$UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer/LanguageLabel.text = tr("ui.settings.language")
+	$UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer/BackToSettingsPopup.text = tr("ui.settings.back_to_settings")
+	$UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/Name.text = tr("ui.settings.audio_title")
+	$UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSliderName.text = tr("ui.settings.volume")
+	$UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/BackToSettingsPopup.text = tr("ui.settings.back_to_settings")
+	$UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/Label.text = tr("ui.settings.video_title")
+	$UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDownName.text = tr("ui.settings.resolution")
+	$UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/Fullscreen.text = tr("ui.settings.fullscreen")
+	$UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/BackToSettingsPopup.text = tr("ui.settings.back_to_settings")
+	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/Name.text = tr("ui.settings.controls_title")
+	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveUPContainer/MoveUpName.text = tr("ui.settings.move_up")
+	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer/MoveDownName.text = tr("ui.settings.move_down")
+	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer/MoveLeftName.text = tr("ui.settings.move_left")
+	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer/MoveRightName.text = tr("ui.settings.move_right")
+	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/BackToSettings.text = tr("ui.settings.back_to_settings")
 
 
-## Button callback: returns to main settings panel,
-## hides all submenu panels.
-func _on_back_to_settings_pressed() -> void:
-	$UIRoot/Panel/SettingsButtonContainer.visible = true
+func _hide_all_submenus() -> void:
+	$UIRoot/Panel/GeneralSettingsPopup.visible = false
 	$UIRoot/Panel/AudioSettingsPopup.visible = false
 	$UIRoot/Panel/VideoSettingsPopup.visible = false
 	$UIRoot/Panel/ControlSettingsPopup.visible = false
 
 
-## Button callback: closes the entire settings popup
-## and notifies parent nodes via `popup_closed` signal.
+func _on_general_settings_pressed() -> void:
+	$UIRoot/Panel/SettingsButtonContainer.visible = false
+	_hide_all_submenus()
+	$UIRoot/Panel/GeneralSettingsPopup.visible = true
+
+
+func _on_audio_settings_pressed() -> void:
+	$UIRoot/Panel/SettingsButtonContainer.visible = false
+	_hide_all_submenus()
+	$UIRoot/Panel/AudioSettingsPopup.visible = true
+
+
+func _on_video_settings_pressed() -> void:
+	$UIRoot/Panel/SettingsButtonContainer.visible = false
+	_hide_all_submenus()
+	$UIRoot/Panel/VideoSettingsPopup.visible = true
+
+
+func _on_controls_pressed() -> void:
+	$UIRoot/Panel/SettingsButtonContainer.visible = false
+	_hide_all_submenus()
+	$UIRoot/Panel/ControlSettingsPopup.visible = true
+
+
+func _on_back_to_settings_pressed() -> void:
+	$UIRoot/Panel/SettingsButtonContainer.visible = true
+	_hide_all_submenus()
+
+
 func _on_back_pressed() -> void:
 	visible = false
 	emit_signal("popup_closed")

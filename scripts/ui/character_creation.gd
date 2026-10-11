@@ -13,6 +13,7 @@
 
 extends Control
 
+const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 ## Reference to the CharacterAppearance node used for preview.
 @onready var character: CharacterAppearance = $CanvasLayer/UIRoot/CharacterPreview/CharacterAppearance
 
@@ -27,12 +28,26 @@ signal character_created
 
 
 ## Called when the node enters the scene tree.
-## Prints debug information about loaded hair options.
 func _ready() -> void:
-	pass
-	# Dev/debug output
-	#var hairs = character.hairSprites
-	#print("Haare geladen: ", hairs.size())
+	_apply_static_texts()
+	var lm := _LocaleAccess.get_lm(self)
+	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
+		lm.language_changed.connect(_on_language_changed)
+
+
+func _on_language_changed(_locale: String) -> void:
+	_apply_static_texts()
+
+
+func _apply_static_texts() -> void:
+	$CanvasLayer/UIRoot/Label.text = tr("ui.character_creation.title")
+	$CanvasLayer/UIRoot/VBoxContainer/RaceHContainer/Label.text = tr("ui.character_creation.race")
+	$CanvasLayer/UIRoot/VBoxContainer/HairHContainer/Label.text = tr("ui.character_creation.hair")
+	$CanvasLayer/UIRoot/VBoxContainer/BodyHContainer/Label.text = tr("ui.character_creation.body")
+	$CanvasLayer/UIRoot/VBoxContainer/LegHContainer/Label.text = tr("ui.character_creation.leg")
+	$CanvasLayer/UIRoot/NameHContainer/Label.text = tr("ui.character_creation.name")
+	$CanvasLayer/UIRoot/CreateButton.text = tr("ui.character_creation.create")
+	$CanvasLayer/UIRoot/BackToMenu.text = tr("ui.character_creation.back")
 
 
 # --- Race selection ---

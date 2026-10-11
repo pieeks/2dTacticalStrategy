@@ -1,4 +1,5 @@
 extends CanvasLayer
+const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 ## Fight HUD: turn status, Attack/Wait, and fullscreen click-catch for grid Move.
 
 @onready var root: Control = $Root
@@ -32,6 +33,13 @@ func _ready() -> void:
 		root.gui_input.connect(_on_root_gui_input)
 	btn_attack.pressed.connect(_on_attack_pressed)
 	btn_wait.pressed.connect(_on_wait_pressed)
+	var lm := _LocaleAccess.get_lm(self)
+	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
+		lm.language_changed.connect(_on_language_changed)
+	_refresh()
+
+
+func _on_language_changed(_locale: String) -> void:
 	_refresh()
 
 
@@ -75,16 +83,16 @@ func _on_root_gui_input(event: InputEvent) -> void:
 		my_turn = bool(turn_controller.is_local_players_turn())
 	if not my_turn:
 		root.accept_event()
-		_flash_status("Nicht dein Zug")
+		_flash_status(tr("battle.hud.not_your_turn"))
 		return
 	var handled := false
 	if turn_controller.has_method("handle_world_click"):
 		handled = bool(turn_controller.handle_world_click(world_pos))
 	root.accept_event()
 	if handled:
-		_flash_status("Move…")
+		_flash_status(tr("battle.hud.move_flash"))
 	else:
-		_flash_status("Kein gültiges Ziel (grüne Felder)")
+		_flash_status(tr("battle.hud.invalid_target"))
 
 
 func _pointer_over_panel() -> bool:
@@ -130,8 +138,10 @@ func _on_wait_pressed() -> void:
 
 
 func _refresh() -> void:
+	btn_wait.text = tr("battle.hud.wait")
 	if turn_controller == null:
-		status_label.text = "Kampf…"
+		status_label.text = tr("battle.hud.fighting")
+		btn_attack.text = tr("battle.hud.attack")
 		btn_attack.disabled = true
 		btn_wait.disabled = true
 		return
@@ -140,7 +150,8 @@ func _refresh() -> void:
 	if turn_controller.has_method("is_local_unit_queued"):
 		queued = bool(turn_controller.is_local_unit_queued())
 	if queued:
-		status_label.text = "Verstärkung in Warteschlange…\n(Zug ab nächster Runde)"
+		status_label.text = tr("battle.hud.queued")
+		btn_attack.text = tr("battle.hud.attack")
 		btn_attack.disabled = true
 		btn_wait.disabled = true
 		return
@@ -151,7 +162,8 @@ func _refresh() -> void:
 	if turn_controller.has_method("is_local_players_turn"):
 		my_turn = turn_controller.is_local_players_turn()
 	if phase == 3: # ENDED
-		status_label.text = "Kampf beendet"
+		status_label.text = tr("battle.hud.ended")
+		btn_attack.text = tr("battle.hud.attack")
 		btn_attack.disabled = true
 		btn_wait.disabled = true
 		return
@@ -166,17 +178,18 @@ func _refresh() -> void:
 		var unit_n := 0
 		if turn_controller.get("units") != null:
 			unit_n = (turn_controller.units as Dictionary).size()
-		status_label.text = "Warten… (%s, units=%d, order=%d)" % [pname, unit_n, order_n]
+		status_label.text = tr("battle.hud.waiting") % [pname, unit_n, order_n]
+		btn_attack.text = tr("battle.hud.attack")
 		btn_attack.disabled = true
 		btn_wait.disabled = true
 		return
 	var name_str := str(active.display_name)
 	var hp_str := "%d/%d" % [active.hp, active.max_hp]
 	if my_turn:
-		var mode := "Attack-Modus" if bool(turn_controller.get("attack_mode")) else "Bewegen — grüne Felder klicken"
-		status_label.text = "Dein Zug: %s (%s)\n%s" % [name_str, hp_str, mode]
+		var mode := tr("battle.hud.mode_attack") if bool(turn_controller.get("attack_mode")) else tr("battle.hud.mode_move")
+		status_label.text = tr("battle.hud.your_turn") % [name_str, hp_str, mode]
 	else:
-		status_label.text = "Zug: %s (%s)" % [name_str, hp_str]
+		status_label.text = tr("battle.hud.their_turn") % [name_str, hp_str]
 	btn_attack.disabled = not my_turn
 	btn_wait.disabled = not my_turn
-	btn_attack.text = "Attack (an)" if bool(turn_controller.get("attack_mode")) else "Attack"
+	btn_attack.text = tr("battle.hud.attack_on") if bool(turn_controller.get("attack_mode")) else tr("battle.hud.attack")

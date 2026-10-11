@@ -55,8 +55,9 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 **UI**
 
 - Hauptmenü → Charakter → World Selection → Host/Join → Overworld
-- Settings: Audio (Lautstärke), Video (Auflösung, Vollbild), Controls (Rebinding)
+- Settings: General (Sprache DE/EN, sofortiger Wechsel), Audio, Video, Controls
 - ESC-Menü: Fortsetzen, Optionen, Quit (speichert automatisch)
+- i18n über `LocaleManager` + `localization/translations.csv` (Menü + Kampf-UI; Debug bleibt EN)
 - Interaktionsmenü bei NPCs (`PlayerUi`)
 - UI-Skalierung für unterschiedliche Fenstergrößen
 
