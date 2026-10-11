@@ -13,6 +13,8 @@ const DEFAULT_LEVEL = preload("res://scenes/world/levels/biom_1.tscn")
 
 
 func _ready() -> void:
+	PlayerPartyState.enable_autosave(true)
+
 	if NetworkManagerTest.has_signal("peer_disconnected"):
 		NetworkManagerTest.peer_disconnected.connect(_on_peer_disconnected)
 
@@ -55,8 +57,11 @@ func is_peer_in_fight(peer_id: int) -> bool:
 
 
 func _on_peer_disconnected(peer_id: int) -> void:
-	if multiplayer.is_server() and is_peer_in_fight(peer_id):
-		fight_manager.end_fight_for_peer(peer_id)
+	if multiplayer.is_server():
+		if is_peer_in_fight(peer_id):
+			fight_manager.end_fight_for_peer(peer_id)
+		if fight_manager != null and fight_manager.has_method("clear_peer_fight_tracking"):
+			fight_manager.clear_peer_fight_tracking(peer_id)
 	if multiplayer_spawner:
 		multiplayer_spawner.remove_player(peer_id)
 

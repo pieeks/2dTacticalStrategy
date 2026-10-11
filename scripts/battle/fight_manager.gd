@@ -28,6 +28,24 @@ func _arm_fight_leave_cooldown(peer_id: int) -> void:
 	_peer_fight_cooldown_until[peer_id] = Time.get_ticks_msec() + FIGHT_LEAVE_COOLDOWN_MS
 
 
+## Drop all fight tracking for a peer (disconnect). Keeps leave-cooldown out of the dict.
+func clear_peer_fight_tracking(peer_id: int) -> void:
+	peers_in_fight.erase(peer_id)
+	_peer_fight_cooldown_until.erase(peer_id)
+
+
+## Only Host may push fight state. call_local on Host → sender 0; remote → sender 1.
+func _accept_host_broadcast() -> bool:
+	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+		return false
+	var sender := multiplayer.get_remote_sender_id()
+	if sender == 1:
+		return true
+	if sender == 0:
+		return multiplayer.is_server()
+	return false
+
+
 func notify_peer_left_fight(peer_id: int) -> void:
 	rpc_end_fight_for_peer.rpc(peer_id)
 
@@ -150,8 +168,10 @@ func _process_end_request(requester_id: int) -> void:
 			continue
 		var owner_id: int = child.get_owner_peer_id() if child.has_method("get_owner_peer_id") else 0
 		if requester_id == owner_id:
+			print("FightManager: owner end fight peer=", requester_id)
 			child.request_end_fight()
 		else:
+			print("FightManager: peer leave fight peer=", requester_id, " owner=", owner_id)
 			child.request_leave_peer(requester_id)
 		return
 
@@ -321,6 +341,8 @@ func _apply_encounter_to_fight(fight_instance: Node, encounter: Dictionary) -> v
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_start_fight(owner_peer_id: int, encounter: Dictionary = {}) -> void:
+	if not _accept_host_broadcast():
+		return
 	if fight_scene == null:
 		push_error("FightManager: fight_scene ist nicht gesetzt.")
 		return
@@ -347,6 +369,8 @@ func rpc_create_existing_fight(
 	encounter: Dictionary = {},
 	turn_state: Dictionary = {}
 ) -> void:
+	if not _accept_host_broadcast():
+		return
 	if fight_scene == null:
 		push_error("FightManager: rpc_create_existing_fight - fight_scene ist null.")
 		return
@@ -377,6 +401,8 @@ func rpc_request_start_fight() -> void:
 	if not multiplayer.is_server():
 		return
 	var requester_id := multiplayer.get_remote_sender_id()
+	if requester_id <= 0:
+		return
 	start_fight_for_peer(requester_id)
 
 
@@ -385,6 +411,8 @@ func rpc_request_start_fight_encounter(peer_id: int, encounter: Dictionary) -> v
 	if not multiplayer.is_server():
 		return
 	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id <= 0:
+		return
 	# Client may only request a fight for themselves.
 	if sender_id != peer_id:
 		return
@@ -398,6 +426,8 @@ func rpc_request_join_fight(
 	if not multiplayer.is_server():
 		return
 	var requester_id := multiplayer.get_remote_sender_id()
+	if requester_id <= 0:
+		return
 	_process_join_request(requester_id, target_peer_id, side)
 
 
@@ -417,6 +447,8 @@ func rpc_sync_join_fight(
 	encounter: Dictionary = {},
 	turn_state: Dictionary = {}
 ) -> void:
+	if not _accept_host_broadcast():
+		return
 	peers_in_fight[peer_id] = true
 	var fight_node: Node = fight_layer.get_node_or_null("Fight_%d" % owner_peer_id)
 	if fight_node == null:
@@ -456,12 +488,16 @@ func rpc_request_end_fight_for_peer() -> void:
 	if not multiplayer.is_server():
 		return
 	var requester_id := multiplayer.get_remote_sender_id()
+	if requester_id <= 0:
+		return
 	end_fight_for_peer(requester_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_end_fight_for_peer(peer_id: int) -> void:
-	peers_in_fight[peer_id] = false
+	if not _accept_host_broadcast():
+		return
+	peers_in_fight.erase(peer_id)
 	_arm_fight_leave_cooldown(peer_id)
 	if fight_layer.get_child_count() == 0:
 		is_fight_active = false
@@ -470,6 +506,8 @@ func rpc_end_fight_for_peer(peer_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_destroy_fight_instance(owner_peer_id: int) -> void:
+	if not _accept_host_broadcast():
+		return
 	if multiplayer.is_server():
 		return
 	var fight_node: Node = fight_layer.get_node_or_null("Fight_%d" % owner_peer_id)
@@ -481,16 +519,22 @@ func rpc_destroy_fight_instance(owner_peer_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_lock_overworld_npc(npc_path: String) -> void:
+	if not _accept_host_broadcast():
+		return
 	_lock_npc_by_path(npc_path)
 
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_unlock_overworld_npc(npc_path: String) -> void:
+	if not _accept_host_broadcast():
+		return
 	_unlock_npc_by_path(npc_path)
 
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_remove_overworld_npc(npc_path: String) -> void:
+	if not _accept_host_broadcast():
+		return
 	var npc := get_tree().root.get_node_or_null(npc_path)
 	if npc == null:
 		return

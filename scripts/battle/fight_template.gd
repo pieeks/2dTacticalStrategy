@@ -457,8 +457,21 @@ func request_leave_peer(peer_id: int) -> void:
 		request_end_fight()
 
 
+func _accept_host_broadcast() -> bool:
+	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+		return false
+	var sender := multiplayer.get_remote_sender_id()
+	if sender == 1:
+		return true
+	if sender == 0:
+		return multiplayer.is_server()
+	return false
+
+
 @rpc("any_peer", "call_local", "reliable")
 func rpc_remove_battle_character(peer_id: int) -> void:
+	if not _accept_host_broadcast():
+		return
 	participants.erase(peer_id)
 	var char_node: Node = player_container.get_node_or_null(str(peer_id))
 	if char_node != null:
@@ -484,6 +497,8 @@ func _notify_fight_manager_peer_left(peer_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func rpc_notify_fight_ending() -> void:
+	if not _accept_host_broadcast():
+		return
 	_is_ending = true
 	_stop_all_battle_networks()
 	if battle_hud != null and is_instance_valid(battle_hud):

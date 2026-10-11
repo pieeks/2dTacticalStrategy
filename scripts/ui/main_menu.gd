@@ -21,6 +21,7 @@ extends Control
 ## Disables world selection by default, connects popup signals,
 ## and enables world selection if characters exist.
 func _ready() -> void:
+	PlayerPartyState.enable_autosave(false)
 	NetworkManagerTest.reset_session()
 	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = true
 	settings_popup.connect("popup_closed", Callable(self, "_on_back_pressed"))
@@ -45,8 +46,10 @@ func _show_pending_network_message() -> void:
 	dialog.popup_centered()
 
 
-## Button callback: quits the game application.
+## Button callback: quits the game application (autosave if a character is loaded).
 func _on_quit_game_pressed() -> void:
+	if PlayerPartyState != null and PlayerPartyState.has_method("try_autosave"):
+		PlayerPartyState.try_autosave("app_quit")
 	get_tree().quit()
 
 
