@@ -25,6 +25,10 @@ var _listed_fights: Array[Dictionary] = []
 
 
 func _ready() -> void:
+	# Above BattleHud (layer 100) so F3 buttons stay clickable in fights.
+	# UIRoot uses MOUSE_FILTER_IGNORE so empty space still reaches the fight HUD.
+	layer = 128
+
 	if not InputMap.has_action("ui_debug_toggle"):
 		InputMap.add_action("ui_debug_toggle")
 		var ev := InputEventKey.new()

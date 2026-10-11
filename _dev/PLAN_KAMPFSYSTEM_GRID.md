@@ -159,13 +159,13 @@ Erst wenn Rahmen + Grid stabil laufen.
 
 ### Kurztest-Checkliste (2 Instanzen)
 
-- [ ] Host F3 Start Fight → Move → Leave
-- [ ] Client Force-Fight (Slime) → Host Join (E auf Peer oder locked NPC)
-- [ ] Non-Owner Disconnect mid-fight → Fight läuft für Owner weiter
-- [ ] Owner Disconnect → Fight weg für alle Participants
-- [ ] Late-Join Session während laufendem Fight (`sync_active_fights_to_peer`)
-- [ ] Leave → sofort Force-Fight erneut (Cooldown ~1.5s greift / danach OK)
-- [ ] Doppel-Start blockiert solange Peer schon `in_fight`
+- [x] Host F3 Start Fight → Move → Leave
+- [x] Client Force-Fight (Slime) → Host Join (E auf Peer oder locked NPC)
+- [x] Non-Owner Disconnect mid-fight → Fight läuft für Owner weiter
+- [x] Owner Disconnect → Fight weg für alle Participants
+- [x] Late-Join Session während laufendem Fight (`sync_active_fights_to_peer`)
+- [x] Leave → sofort Force-Fight erneut (Cooldown ~1.5s greift / danach OK)
+- [x] Doppel-Start blockiert solange Peer schon `in_fight`
 
 ---
 
