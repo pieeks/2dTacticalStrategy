@@ -61,9 +61,17 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Interaktionsmenü bei NPCs (`PlayerUi`)
 - UI-Skalierung für unterschiedliche Fenstergrößen
 
+**Quests (v1)**
+
+- `QuestManager` + JSON unter `resources/quests/`; Persistenz in `PlayerPartyState.quest_data`
+- Demo-Quest `q_intro_slime` an `test_npc_basic` (Talk | Quest | Leave; Accept-/Turn-in-Panel)
+- Ziele: kill / talk / reach; Quest-Log im PlayerUi; Rewards (Gold)
+- Group-Sync Stub; F3-Cheats (EN): Accept / Ready / Turn-in / Force Complete
+- Plan: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md)
+
 **Debug**
 
-- Debug-Overlay (F3): Netzwerkinfo inkl. aktiver Fight-Owners + Start / Join / Leave
+- Debug-Overlay (F3): Netzwerkinfo inkl. aktiver Fight-Owners + Start / Join / Leave + Quest-Cheats
 - Dev-Testscenes unter `_dev/tests/`
 - Kampfsystem-Plan: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md)
 
@@ -71,6 +79,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 - Encounter-Symbol über Gegner; Loot-UI
 - Verstärkung / Party-Multi-Unit im Fight
+- Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)
 - Dungeons mit mehreren Ebenen
 - Steam P2P (Addons vorbereitet, noch nicht produktiv)
 
@@ -114,10 +123,11 @@ Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid
 ├── scripts/      # GDScript (battle, characters, ui, world)
 ├── autoload/     # Autoloads (Globals, Party/World State, Network)
 ├── features/     # Spawner, Debug, Character-Parts
-├── resources/    # Themes, Tilesets, NPC-Daten, Input-Helper
+├── resources/    # Themes, Tilesets, NPC-/Quest-Daten, Input-Helper
 ├── assets/       # Art, Fonts, UI
+├── localization/ # translations.csv (DE/EN)
 ├── addons/       # GodotSteam, steam-multiplayer-peer
-└── _dev/         # Design-Docs, Kampfplan, Status, Testscenes
+└── _dev/         # Design-Docs, Kampf-/Quest-Plan, Status, Testscenes
 ```
 
 ## Multiplayer & Addons
@@ -126,7 +136,7 @@ Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid
 - **Vorbereitet:** GodotSteam und [steam-multiplayer-peer](addons/steam-multiplayer-peer/) (noch nicht angebunden)
 - **Steam-WIP-Skripte:** [`_dev/steam_wip/`](_dev/steam_wip/) (nicht als Autoload aktiv)
 
-Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf-Abhakliste: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md).
+Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md), Quests: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md).
 
 ## Lizenz
 

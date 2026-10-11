@@ -15,6 +15,7 @@ var npc_loot: Dictionary
 var npc_sync: Dictionary
 var npc_is_hostile: bool = false
 var npc_group_size: int = 1
+var npc_quests: Dictionary = {}
 
 func _ready() -> void:
 	pass
@@ -89,5 +90,22 @@ func load_npc_enemy_data(type: String, count: int) -> void:
 	npc_sync = parsed.get("sync", {})
 	npc_is_hostile = parsed.get("is_hostile", false)
 	npc_group_size = maxi(1, int(parsed.get("group_size", 1)))
+	var quests_raw = parsed.get("quests", {})
+	npc_quests = quests_raw if typeof(quests_raw) == TYPE_DICTIONARY else {}
 	
 	set_specifical_nodes()
+	_publish_npc_data_to_owner()
+
+
+## Fill parent NPCCharacter.npc_data for interaction / quests.
+func _publish_npc_data_to_owner() -> void:
+	var owner_npc := get_parent()
+	if owner_npc == null:
+		return
+	if "npc_data" in owner_npc:
+		owner_npc.npc_data = {
+			"name": npc_name,
+			"npc_type": npc_type,
+			"quests": npc_quests.duplicate(true),
+			"is_hostile": npc_is_hostile,
+		}

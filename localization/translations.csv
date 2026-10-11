@@ -67,3 +67,13 @@ battle.hud.mode_move,Move — click green tiles,Bewegen — grüne Felder klicke
 battle.hud.not_your_turn,Not your turn,Nicht dein Zug
 battle.hud.move_flash,Move…,Bewegen…
 battle.hud.invalid_target,No valid target (green tiles),Kein gültiges Ziel (grüne Felder)
+quest.accept,Accept,Annehmen
+quest.decline,Decline,Ablehnen
+quest.turn_in,Turn in,Abgeben
+quest.cancel,Cancel,Abbrechen
+quest.objective_label,Objective:,Ziel:
+quest.reward_label,Reward:,Belohnung:
+quest.reward_gold,%d Gold,%d Gold
+quest.q_intro_slime.title,Slime Problem,Schleim-Problem
+quest.q_intro_slime.desc,A slime is causing trouble nearby. Defeat it and return.,In der Nähe treibt ein Schleim Unwesen. Besiege ihn und kehre zurück.
+quest.q_intro_slime.obj.kill,Defeat 1 slime,Besiege 1 Schleim

@@ -1,6 +1,6 @@
 # Project Current State (v2)
 
-Stand: Hex-Kampf-Prototyp spielbar (Host + Client), Stand nach PLAN §1–§8.
+Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in, F3-Cheats).
 
 ## Bereits vorhanden
 
@@ -22,19 +22,21 @@ Stand: Hex-Kampf-Prototyp spielbar (Host + Client), Stand nach PLAN §1–§8.
   - Free-Cam im Fight (Zoom 0.8); Overworld-Kamera unverändert
   - Absicherung: Request-RPCs Server-only; Broadcasts Host-Sender-Guard; Disconnect-Cleanup
 - **UI**: Charaktererstellung, World Selection, Settings, ESC (Quit + Autosave), PlayerUi
-- **Persistenz**: `PlayerPartyState` Autosave (45 s Intervall + Quit / WM_CLOSE / Session-Ende)
+- **Persistenz**: `PlayerPartyState` Autosave (45 s Intervall + Quit / WM_CLOSE / Session-Ende); inkl. `quest_data`
+- **Quests (v1)**: `QuestManager`, Demo `q_intro_slime` an `test_npc_basic`, Accept/Turn-in-UI, Quest-Log, kill/talk/reach, F3-Cheats; Group-Sync Stub
 
 ## Bewusst später / offen
 
 - Encounter-Symbol über Gegner; Loot-UI
 - Party-Multi-Unit (v1 = 1 Avatar pro Peer)
+- Story-/Klassen-Quests + Biom-Gates; Gruppen-Progress-Sync
 - Koop-Start / PvP-Join-Seiten
 - Dungeons mit mehreren Ebenen
 - Steam P2P produktiv
 
 ## Nächste sinnvolle Schritte
 
-1. Kurztest-Checkliste in `PLAN_KAMPFSYSTEM_GRID.md` §8 manuell durchspielen
+1. Kurztest-Checkliste in `PLAN_QUESTSYSTEM.md` manuell durchspielen
 2. Polish: Encounter-Symbole, Loot-Placeholder
 3. Small Scope Overworld/Dungeon erweitern
 4. Steamworks-Migration wenn Scope stabil
@@ -42,4 +44,5 @@ Stand: Hex-Kampf-Prototyp spielbar (Host + Client), Stand nach PLAN §1–§8.
 ## Verweise
 
 - Kampfsystem-Plan: [`PLAN_KAMPFSYSTEM_GRID.md`](PLAN_KAMPFSYSTEM_GRID.md)
+- Quest-Plan: [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md)
 - README (aktueller Feature-Überblick)

@@ -44,9 +44,7 @@ offset_bottom = 146.0
 grow_horizontal = 0
 grow_vertical = 2
 scale = Vector2(0.55443496, 0.7161465)
-item_count = 2
-item_0/text = "Test"
-item_1/text = "Test1"
+item_count = 0
 
 [node name="GeneralMenu" type="Button" parent="HUD"]
 layout_mode = 0
@@ -213,4 +211,6 @@ item_count = 2
 item_0/text = "Test"
 item_1/text = "Test1"
 
+[connection signal="pressed" from="InteractionMenu/InteractionButtonContainer/Talk" to="." method="_on_talk_pressed"]
+[connection signal="pressed" from="InteractionMenu/InteractionButtonContainer/Quest" to="." method="_on_quest_pressed"]
 [connection signal="pressed" from="InteractionMenu/InteractionButtonContainer/Leave" to="." method="_on_leave_pressed"]

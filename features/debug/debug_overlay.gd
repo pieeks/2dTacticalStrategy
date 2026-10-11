@@ -1,18 +1,26 @@
 extends CanvasLayer
 class_name DebugOverlay
 
-## DebugOverlay — network info + fight debug buttons (F3 toggle).
+## DebugOverlay — network info + fight/quest debug menus (F3 toggle).
+
+enum Page { MAIN, FIGHT, QUESTS }
 
 @export var autoload_path: NodePath = NodePath("/root/NetworkManagerTest")
 @export var start_visible: bool = false
 
 @onready var panel: PanelContainer = $UIRoot/PanelContainer
-@onready var vbox: VBoxContainer = $UIRoot/PanelContainer/VBoxContainer
-@onready var lbl_title: Label = $UIRoot/PanelContainer/VBoxContainer/DebugOverlay
-@onready var lbl_network: Label = $UIRoot/PanelContainer/VBoxContainer/NetworkInfo
-@onready var btn_start: Button = $UIRoot/PanelContainer/VBoxContainer/FightButtons/StartFight
-@onready var btn_join: Button = $UIRoot/PanelContainer/VBoxContainer/FightButtons/JoinFight
-@onready var btn_leave: Button = $UIRoot/PanelContainer/VBoxContainer/FightButtons/LeaveFight
+@onready var lbl_title: Label = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/DebugOverlay
+@onready var lbl_network: Label = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/NetworkInfo
+@onready var main_menu: VBoxContainer = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/MainMenu
+@onready var fight_page: VBoxContainer = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage
+@onready var quest_page: VBoxContainer = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/QuestPage
+@onready var btn_menu_fight: Button = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/MainMenu/Fight
+@onready var btn_menu_quests: Button = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/MainMenu/Quests
+@onready var btn_fight_back: Button = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage/Back
+@onready var btn_quest_back: Button = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/QuestPage/Back
+@onready var btn_start: Button = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage/FightButtons/StartFight
+@onready var btn_join: Button = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage/FightButtons/JoinFight
+@onready var btn_leave: Button = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage/FightButtons/LeaveFight
 @onready var fight_select_panel: PanelContainer = $UIRoot/FightSelectPanel
 @onready var fight_select_hint: Label = $UIRoot/FightSelectPanel/VBox/Hint
 @onready var fight_list: ItemList = $UIRoot/FightSelectPanel/VBox/FightList
@@ -21,7 +29,16 @@ class_name DebugOverlay
 
 var _nm: Node = null
 var _visible_overlay := true
+var _page: Page = Page.MAIN
 var _listed_fights: Array[Dictionary] = []
+
+## Quest cheat list widgets (built at runtime).
+var _quest_available_list: ItemList
+var _quest_completed_list: ItemList
+var _quest_all_list: ItemList
+var _listed_available: Array[String] = []
+var _listed_completed: Array[String] = []
+var _listed_all: Array[String] = []
 
 
 func _ready() -> void:
@@ -40,8 +57,13 @@ func _ready() -> void:
 	_visible_overlay = start_visible
 	panel.visible = _visible_overlay
 	fight_select_panel.visible = false
-	lbl_title.text = "Debug Overlay"
+	_show_page(Page.MAIN)
 	_update_network()
+
+	btn_menu_fight.pressed.connect(func() -> void: _show_page(Page.FIGHT))
+	btn_menu_quests.pressed.connect(func() -> void: _show_page(Page.QUESTS))
+	btn_fight_back.pressed.connect(func() -> void: _show_page(Page.MAIN))
+	btn_quest_back.pressed.connect(func() -> void: _show_page(Page.MAIN))
 
 	btn_start.pressed.connect(_on_start_fight_pressed)
 	btn_join.pressed.connect(_on_join_fight_pressed)
@@ -49,6 +71,11 @@ func _ready() -> void:
 	btn_join_selected.pressed.connect(_on_join_selected_pressed)
 	btn_join_cancel.pressed.connect(_hide_fight_select)
 	fight_list.item_activated.connect(func(_index: int) -> void: _on_join_selected_pressed())
+	_setup_quest_cheat_buttons()
+	var qm := _qm()
+	if qm != null and qm.has_signal("quests_changed") and not qm.quests_changed.is_connected(_refresh_quest_lists):
+		qm.quests_changed.connect(_refresh_quest_lists)
+	_refresh_quest_lists()
 
 
 func _process(_delta: float) -> void:
@@ -57,8 +84,27 @@ func _process(_delta: float) -> void:
 		panel.visible = _visible_overlay
 		if not _visible_overlay:
 			_hide_fight_select()
+		else:
+			_show_page(Page.MAIN)
+			_refresh_quest_lists()
 	if _visible_overlay:
 		_update_network()
+
+
+func _show_page(page: Page) -> void:
+	_page = page
+	main_menu.visible = page == Page.MAIN
+	fight_page.visible = page == Page.FIGHT
+	quest_page.visible = page == Page.QUESTS
+	match page:
+		Page.MAIN:
+			lbl_title.text = "Debug Overlay"
+		Page.FIGHT:
+			lbl_title.text = "Debug — Fight"
+			_hide_fight_select()
+		Page.QUESTS:
+			lbl_title.text = "Debug — Quests"
+			_refresh_quest_lists()
 
 
 func _get_fight_manager() -> Node:
@@ -66,6 +112,219 @@ func _get_fight_manager() -> Node:
 	if overworld == null:
 		return null
 	return overworld.get_node_or_null("FightManager")
+
+
+func _qm() -> Node:
+	return get_tree().root.get_node_or_null("QuestManager")
+
+
+## English-only quest debug controls (no CSV).
+func _setup_quest_cheat_buttons() -> void:
+	var box := VBoxContainer.new()
+	box.name = "QuestCheats"
+	quest_page.add_child(box)
+
+	var lbl := Label.new()
+	lbl.text = "Quest Cheats"
+	box.add_child(lbl)
+
+	var lbl_all := Label.new()
+	lbl_all.text = "All Quests"
+	box.add_child(lbl_all)
+	_quest_all_list = _make_quest_list(box, 56)
+	_quest_all_list.item_selected.connect(_on_all_quest_selected)
+
+	var lbl_avail := Label.new()
+	lbl_avail.text = "Available (Accept)"
+	box.add_child(lbl_avail)
+	_quest_available_list = _make_quest_list(box, 48)
+	_add_cheat_button(box, "Accept Selected", _on_cheat_accept)
+
+	var lbl_done := Label.new()
+	lbl_done.text = "Completed (Reset)"
+	box.add_child(lbl_done)
+	_quest_completed_list = _make_quest_list(box, 48)
+	_add_cheat_button(box, "Uncomplete Selected", _on_cheat_uncomplete)
+
+	_add_cheat_button(box, "Complete Objectives", _on_cheat_ready)
+	_add_cheat_button(box, "Turn In Selected", _on_cheat_turn_in)
+	_add_cheat_button(box, "Force Complete Selected", _on_cheat_force)
+
+
+func _make_quest_list(parent: Node, min_height: float) -> ItemList:
+	var list := ItemList.new()
+	list.custom_minimum_size = Vector2(0, min_height)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.select_mode = ItemList.SELECT_SINGLE
+	parent.add_child(list)
+	return list
+
+
+func _add_cheat_button(parent: Node, text: String, cb: Callable) -> void:
+	var btn := Button.new()
+	btn.text = text
+	btn.pressed.connect(cb)
+	parent.add_child(btn)
+
+
+func _refresh_quest_lists() -> void:
+	if _quest_all_list == null:
+		return
+	var qm := _qm()
+	var selected_all := _selected_id_from(_quest_all_list, _listed_all)
+	var selected_avail := _selected_id_from(_quest_available_list, _listed_available)
+	var selected_done := _selected_id_from(_quest_completed_list, _listed_completed)
+
+	_listed_all.clear()
+	_listed_available.clear()
+	_listed_completed.clear()
+	_quest_all_list.clear()
+	_quest_available_list.clear()
+	_quest_completed_list.clear()
+
+	if qm == null or not qm.has_method("get_all_quest_ids"):
+		_quest_all_list.add_item("(no QuestManager)")
+		return
+
+	var ids: Array = qm.get_all_quest_ids()
+	for raw_id in ids:
+		var quest_id := str(raw_id)
+		var status := str(qm.get_status(quest_id)) if qm.has_method("get_status") else "?"
+		_listed_all.append(quest_id)
+		_quest_all_list.add_item("%s [%s]" % [quest_id, status])
+		if qm.can_accept(quest_id):
+			_listed_available.append(quest_id)
+			_quest_available_list.add_item(quest_id)
+		if status == "completed":
+			_listed_completed.append(quest_id)
+			_quest_completed_list.add_item(quest_id)
+
+	_reselect_id(_quest_all_list, _listed_all, selected_all)
+	_reselect_id(_quest_available_list, _listed_available, selected_avail)
+	_reselect_id(_quest_completed_list, _listed_completed, selected_done)
+
+
+func _selected_id_from(list: ItemList, ids: Array[String]) -> String:
+	if list == null:
+		return ""
+	var selected: PackedInt32Array = list.get_selected_items()
+	if selected.is_empty():
+		return ""
+	var idx := int(selected[0])
+	if idx < 0 or idx >= ids.size():
+		return ""
+	return ids[idx]
+
+
+func _reselect_id(list: ItemList, ids: Array[String], quest_id: String) -> void:
+	if quest_id.is_empty() or list == null:
+		return
+	var idx := ids.find(quest_id)
+	if idx >= 0:
+		list.select(idx)
+
+
+## Prefer Available list, else All list selection.
+func _selected_action_quest_id() -> String:
+	var from_avail := _selected_id_from(_quest_available_list, _listed_available)
+	if not from_avail.is_empty():
+		return from_avail
+	return _selected_id_from(_quest_all_list, _listed_all)
+
+
+func _on_all_quest_selected(index: int) -> void:
+	if index < 0 or index >= _listed_all.size():
+		return
+	var quest_id := _listed_all[index]
+	var avail_idx := _listed_available.find(quest_id)
+	if avail_idx >= 0 and _quest_available_list != null:
+		_quest_available_list.select(avail_idx)
+	var done_idx := _listed_completed.find(quest_id)
+	if done_idx >= 0 and _quest_completed_list != null:
+		_quest_completed_list.select(done_idx)
+
+
+func _on_cheat_accept() -> void:
+	var qm := _qm()
+	if qm == null:
+		return
+	var quest_id := _selected_action_quest_id()
+	if quest_id.is_empty():
+		push_warning("DebugOverlay: no quest selected for Accept.")
+		return
+	if qm.accept(quest_id):
+		print("DebugOverlay: accept ", quest_id)
+	else:
+		push_warning("DebugOverlay: cannot accept %s" % quest_id)
+	_refresh_quest_lists()
+
+
+func _on_cheat_ready() -> void:
+	var qm := _qm()
+	if qm == null:
+		return
+	var quest_id := _selected_id_from(_quest_all_list, _listed_all)
+	if quest_id.is_empty():
+		quest_id = _selected_action_quest_id()
+	if quest_id.is_empty():
+		push_warning("DebugOverlay: no quest selected for Complete Objectives.")
+		return
+	if qm.debug_complete_objectives(quest_id):
+		print("DebugOverlay: ready ", quest_id)
+	else:
+		push_warning("DebugOverlay: cannot ready %s" % quest_id)
+	_refresh_quest_lists()
+
+
+func _on_cheat_turn_in() -> void:
+	var qm := _qm()
+	if qm == null:
+		return
+	var quest_id := _selected_id_from(_quest_all_list, _listed_all)
+	if quest_id.is_empty():
+		quest_id = _selected_action_quest_id()
+	if quest_id.is_empty():
+		push_warning("DebugOverlay: no quest selected for Turn In.")
+		return
+	if qm.turn_in(quest_id):
+		print("DebugOverlay: turn_in ", quest_id)
+	else:
+		push_warning("DebugOverlay: cannot turn in %s" % quest_id)
+	_refresh_quest_lists()
+
+
+func _on_cheat_force() -> void:
+	var qm := _qm()
+	if qm == null:
+		return
+	var quest_id := _selected_action_quest_id()
+	if quest_id.is_empty():
+		quest_id = _selected_id_from(_quest_all_list, _listed_all)
+	if quest_id.is_empty():
+		push_warning("DebugOverlay: no quest selected for Force Complete.")
+		return
+	if qm.debug_force_complete(quest_id):
+		print("DebugOverlay: force complete ", quest_id)
+	else:
+		push_warning("DebugOverlay: cannot force complete %s" % quest_id)
+	_refresh_quest_lists()
+
+
+func _on_cheat_uncomplete() -> void:
+	var qm := _qm()
+	if qm == null:
+		return
+	var quest_id := _selected_id_from(_quest_completed_list, _listed_completed)
+	if quest_id.is_empty():
+		quest_id = _selected_id_from(_quest_all_list, _listed_all)
+	if quest_id.is_empty():
+		push_warning("DebugOverlay: no completed quest selected to reset.")
+		return
+	if qm.has_method("debug_uncomplete") and qm.debug_uncomplete(quest_id):
+		print("DebugOverlay: uncomplete ", quest_id)
+	else:
+		push_warning("DebugOverlay: cannot uncomplete %s" % quest_id)
+	_refresh_quest_lists()
 
 
 func _on_start_fight_pressed() -> void:

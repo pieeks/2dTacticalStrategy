@@ -35,6 +35,9 @@ var party_data: Dictionary = {}
 ## Inventory data (gold, items).
 var inventory_data : Dictionary = {}
 
+## Quest runtime: { "active": { id: entry }, "completed": [ids] }.
+var quest_data : Dictionary = { "active": {}, "completed": [] }
+
 ## Base folder for all savegames (inside user://).
 var base_path : String = "user://saveGames/"
 
@@ -120,6 +123,8 @@ func _sync_position_from_overworld_player() -> void:
 ##
 ## @return bool: True if save succeeded, false otherwise.
 func save_to_disk() -> bool: 
+	_normalize_inventory()
+	_normalize_quest_data()
 	var save_data := {
 		"save_version": 1.0,
 		"player_id": player_id,
@@ -127,7 +132,8 @@ func save_to_disk() -> bool:
 		"position" : position_data,
 		"player": player_data,
 		"party": party_data,
-		"inventory": inventory_data
+		"inventory": inventory_data,
+		"quests": quest_data
 	}
 	var path := base_path + player_id + "/save.json"
 	if not DirAccess.dir_exists_absolute(base_path + player_id):
@@ -174,10 +180,33 @@ func load_from_disk(pid: String) -> bool:
 	position_data = parsed.get("position", {})
 	party_data = parsed.get("party", {})
 	inventory_data = parsed.get("inventory", {})
+	quest_data = parsed.get("quests", { "active": {}, "completed": [] })
 	player_id = pid
+	_normalize_inventory()
+	_normalize_quest_data()
 	
 	print("Save loaded: ", player_id)
 	return true
+
+
+## Ensure inventory has gold/items keys.
+func _normalize_inventory() -> void:
+	if typeof(inventory_data) != TYPE_DICTIONARY:
+		inventory_data = {}
+	if not inventory_data.has("gold"):
+		inventory_data["gold"] = 0
+	if not inventory_data.has("items") or typeof(inventory_data["items"]) != TYPE_ARRAY:
+		inventory_data["items"] = []
+
+
+## Ensure quest_data shape is valid.
+func _normalize_quest_data() -> void:
+	if typeof(quest_data) != TYPE_DICTIONARY:
+		quest_data = {}
+	if not quest_data.has("active") or typeof(quest_data["active"]) != TYPE_DICTIONARY:
+		quest_data["active"] = {}
+	if not quest_data.has("completed") or typeof(quest_data["completed"]) != TYPE_ARRAY:
+		quest_data["completed"] = []
 
 
 ## Scans save folder for available characters.
