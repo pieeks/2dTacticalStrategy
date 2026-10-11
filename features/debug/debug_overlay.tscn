@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="2_kybr7"]
 
 [node name="CanvasLayer" type="CanvasLayer"]
-layer = 10
+layer = 128
 script = ExtResource("1_tasbd")
 
 [node name="UIRoot" type="Control" parent="."]

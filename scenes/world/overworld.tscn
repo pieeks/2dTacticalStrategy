@@ -38,4 +38,4 @@ layer = 3
 [node name="PlayerUi" parent="." instance=ExtResource("7_o3ojk")]
 
 [node name="DebugOverlay" parent="." instance=ExtResource("4_eccxn")]
-layer = 10
+layer = 128
