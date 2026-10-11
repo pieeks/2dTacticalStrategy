@@ -45,12 +45,74 @@ var selected_character_id : String = ""
 ## Each entry is a dictionary containing id, name, level, update_unix, and path.
 var available_characters : Array = []
 
+const AUTOSAVE_INTERVAL_SEC := 45.0
+
+var _autosave_enabled: bool = false
+var _autosave_accum: float = 0.0
+
 
 ## Called when the singleton is initialized.
 ## Prints debug info and refreshes available characters.
 func _ready() -> void:
 	print("PlayerPartyState available!")
 	get_available_character()
+	# Intercept window close so we can autosave first.
+	var tree := get_tree()
+	if tree != null:
+		tree.set_auto_accept_quit(false)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		try_autosave("wm_close")
+		var tree := get_tree()
+		if tree != null:
+			tree.quit()
+
+
+func _process(delta: float) -> void:
+	if not _autosave_enabled:
+		return
+	if player_id == "":
+		return
+	_autosave_accum += delta
+	if _autosave_accum < AUTOSAVE_INTERVAL_SEC:
+		return
+	_autosave_accum = 0.0
+	try_autosave("interval")
+
+
+## Enable/disable periodic autosave (Overworld on, Main Menu off).
+func enable_autosave(enabled: bool) -> void:
+	_autosave_enabled = enabled
+	_autosave_accum = 0.0
+
+
+## Persist current party state if a character is loaded. Returns true on write.
+func try_autosave(reason: String = "") -> bool:
+	if player_id == "":
+		return false
+	_sync_position_from_overworld_player()
+	meta_data["updated_unix"] = int(Time.get_unix_time_from_system())
+	var ok := save_to_disk()
+	if ok:
+		print("PlayerPartyState: autosave ok reason=", reason if reason != "" else "manual")
+	return ok
+
+
+func _sync_position_from_overworld_player() -> void:
+	var tree := get_tree()
+	if tree == null or tree.root == null:
+		return
+	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+		return
+	var players: Node = tree.root.get_node_or_null("Overworld/Players")
+	if players == null:
+		return
+	var local_id := multiplayer.get_unique_id()
+	var player: Node2D = players.get_node_or_null(str(local_id)) as Node2D
+	if player != null:
+		update_position(player.global_position)
 
 
 ## Saves the current state to disk as JSON.

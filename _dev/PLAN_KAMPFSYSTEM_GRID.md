@@ -145,13 +145,27 @@ Erst wenn Rahmen + Grid stabil laufen.
 
 ## 8. Polish & Absicherung
 
-- [ ] Disconnect eines Fight-Teilnehmers: sauber aus Participant-Liste / Fight beenden wenn Owner weg
-- [ ] RPC: Start/Join/End nur Host-seitig ausführen; Requests von Clients validieren
-- [ ] Keine doppelten Fight-Starts für denselben Peer
+- [x] Disconnect eines Fight-Teilnehmers: sauber aus Participant-Liste / Fight beenden wenn Owner weg
+  → Non-Owner Leave; Owner End; Disconnect → `clear_peer_fight_tracking`
+- [x] RPC: Start/Join/End nur Host-seitig ausführen; Requests von Clients validieren
+  → Request-RPCs: `is_server` + `sender > 0`; Broadcasts: `_accept_host_broadcast`
+- [x] Keine doppelten Fight-Starts für denselben Peer
+  → `is_peer_in_fight` + Leave-Cooldown + `Fight_%d`-Guard
 - [x] Debug-Overlay: Peer im Fight? aktive Fight-IDs?
-  → Join-Fight-Auswahlfenster listet Owner/Participants/NPC
-- [ ] Kurztest-Checkliste (2 Instanzen): Start → Move → Leave → Late-Join während Fight
-- [ ] README / `_dev/project_current_state_v_2.md` aktualisieren wenn Prototype spielbar
+  → Join-Liste + Statuszeile `Fights: [owners…]`
+- [x] Kurztest-Checkliste (2 Instanzen): Start → Move → Leave → Late-Join während Fight
+  → siehe unten
+- [x] README / `_dev/project_current_state_v_2.md` aktualisieren wenn Prototype spielbar
+
+### Kurztest-Checkliste (2 Instanzen)
+
+- [ ] Host F3 Start Fight → Move → Leave
+- [ ] Client Force-Fight (Slime) → Host Join (E auf Peer oder locked NPC)
+- [ ] Non-Owner Disconnect mid-fight → Fight läuft für Owner weiter
+- [ ] Owner Disconnect → Fight weg für alle Participants
+- [ ] Late-Join Session während laufendem Fight (`sync_active_fights_to_peer`)
+- [ ] Leave → sofort Force-Fight erneut (Cooldown ~1.5s greift / danach OK)
+- [ ] Doppel-Start blockiert solange Peer schon `in_fight`
 
 ---
 
@@ -164,7 +178,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 5. §4 Force-Fight-Trigger
 6. ~~§5 Turn-Order + Move/Attack/Wait~~ → erledigt (Host-AI, HUD, Sieg/Niederlage)
 7. ~~§6 Join/Verstärkung~~ → erledigt (E-Menü Ally-Join, Queue nächste Runde; Koop/PvP offen)
-8. ~~§7 Daten/Content~~ → erledigt (Specs + Placeholder-Stats; Party-Multi-Unit später); §8 Absicherung offen
+8. ~~§7 Daten/Content~~ → erledigt; ~~§8 Absicherung~~ → erledigt (Disconnect/RPC-Guards/Checkliste)
 
 ---
 
@@ -179,7 +193,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 
 ## Definition of Done (erster spielbarer Kampf)
 
-- [ ] Host und Client können über Force-Fight (oder Debug) in denselben Fight
-- [ ] Beide sehen dasselbe Grid und können im eigenen Zug bewegen (oder v1: nur bewegen ohne Turns, klar als Zwischenziel markiert)
-- [ ] Leave/End bringt beide zurück in die Overworld ohne kaputte Peer-State
-- [ ] Late-Joiner der Session crasht nicht und sieht laufende Fights korrekt (oder bewusst: Fights erst nach Ready)
+- [x] Host und Client können über Force-Fight (oder Debug) in denselben Fight
+- [x] Beide sehen dasselbe Grid und können im eigenen Zug bewegen (Turn-basiert)
+- [x] Leave/End bringt beide zurück in die Overworld ohne kaputte Peer-State
+- [x] Late-Joiner der Session crasht nicht und sieht laufende Fights korrekt

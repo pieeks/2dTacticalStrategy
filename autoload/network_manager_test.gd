@@ -54,6 +54,9 @@ var pending_menu_message: String = ""
 ## Clears multiplayer peer, ready peers, and host flag.
 ## Does not clear `pending_menu_message` (consumed by the main menu).
 func reset_session() -> void:
+	# Persist local character before tearing down the session.
+	if PlayerPartyState != null and PlayerPartyState.has_method("try_autosave"):
+		PlayerPartyState.try_autosave("session_end")
 	_disconnect_multiplayer_signals()
 	if multiplayer.has_multiplayer_peer():
 		multiplayer.multiplayer_peer = null
@@ -137,6 +140,7 @@ func _on_connection_failed() -> void:
 ## Called when the server disconnects (client side).
 func _on_server_disconnected() -> void:
 	pending_menu_message = "Der Host hat das Spiel geschlossen."
+	# try_autosave runs inside reset_session.
 	reset_session()
 	# Deferred: avoid scene change during network callback / mid-teardown.
 	call_deferred("_go_to_main_menu")

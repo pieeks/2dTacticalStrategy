@@ -179,9 +179,14 @@ func _update_network() -> void:
 		ready_list = _nm._ready_peers.keys()
 
 	var fm := _get_fight_manager()
+	var fight_owners: Array = []
 	if fm and fm.has_method("is_peer_in_fight"):
 		in_fight = fm.is_peer_in_fight(peer_id)
+	if fm and fm.has_method("list_active_fights"):
+		for entry in fm.list_active_fights():
+			if entry is Dictionary:
+				fight_owners.append(int(entry.get("owner_peer_id", 0)))
 
-	lbl_network.text = "Peer ID: %s\nIs Host: %s\nConnected: %s\nReady: %s\nIn Fight: %s" % [
-		peer_id, is_host, peers, ready_list, in_fight
+	lbl_network.text = "Peer ID: %s\nIs Host: %s\nConnected: %s\nReady: %s\nIn Fight: %s\nFights: %s" % [
+		peer_id, is_host, peers, ready_list, in_fight, fight_owners
 	]

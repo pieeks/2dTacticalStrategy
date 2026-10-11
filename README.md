@@ -22,6 +22,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Charaktererstellung: Rasse, Haare, Körper, Beine (modulares Appearance)
 - Charakterliste: gespeicherte Charaktere auswählen
 - Party-State-Autoload mit Speichern/Laden (`user://saveGames/`)
+- Autosave: alle 45 s in der Overworld sowie beim Beenden (ESC Quit, Fenster schließen, Session-Ende)
 - Appearance wird aus Save-Daten auf den Character angewendet
 
 **Welt & NPCs**
@@ -42,7 +43,8 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Spieler-Kampfstats aus Party-Placeholder (`members[0].stats`), Sync über Encounter `player_stats`
 - v1: ein Kampf-Avatar pro Peer (keine lokalen Party-Begleiter-Units)
 - Host-autoritativer Lifecycle: Start / Join / Leave / Destroy + Late-Join-Sync
-- Hex-`GridManager` (`AStar2D`), Reachable-Highlights, WASD-Kamera-Pan
+- Absicherung: Client-Requests nur Host; Broadcast-RPCs Host-Sender-Guard; Disconnect räumt Fight-State
+- Hex-`GridManager` (`AStar2D`), Reachable-Highlights, freie Fight-Kamera (WASD-Pan)
 - Turn-basiert: Initiative-Order, Move / Attack / Wait (Host validiert, Clients requesten)
 - Simple Enemy-AI auf dem Host; minimales Fight-HUD (aktives Unit, Attack/Wait)
 - Verstärkung: E bei kämpfendem Peer → Join-Menü; Ally-Join erst ab nächster Runde
@@ -54,13 +56,13 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 - Hauptmenü → Charakter → World Selection → Host/Join → Overworld
 - Settings: Audio (Lautstärke), Video (Auflösung, Vollbild), Controls (Rebinding)
-- ESC-Menü: Fortsetzen, Optionen, Speichern & Beenden
+- ESC-Menü: Fortsetzen, Optionen, Quit (speichert automatisch)
 - Interaktionsmenü bei NPCs (`PlayerUi`)
 - UI-Skalierung für unterschiedliche Fenstergrößen
 
 **Debug**
 
-- Debug-Overlay (F3): Netzwerkinfo + Start / Join (Fight-Auswahl) / Leave Fight
+- Debug-Overlay (F3): Netzwerkinfo inkl. aktiver Fight-Owners + Start / Join / Leave
 - Dev-Testscenes unter `_dev/tests/`
 - Kampfsystem-Plan: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md)
 
