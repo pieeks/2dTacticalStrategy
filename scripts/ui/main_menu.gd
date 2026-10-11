@@ -1,5 +1,6 @@
 extends Control
 
+const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 ## Main Menu UI
 ##
 ## This script manages the main menu of the game, including:
@@ -27,18 +28,34 @@ func _ready() -> void:
 	settings_popup.connect("popup_closed", Callable(self, "_on_back_pressed"))
 	if PlayerPartyState.available_characters.size() > 0:
 		_enable_world_selection()
+	_apply_static_texts()
+	var lm := _LocaleAccess.get_lm(self)
+	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
+		lm.language_changed.connect(_on_language_changed)
 	_show_pending_network_message()
+
+
+func _on_language_changed(_locale: String) -> void:
+	_apply_static_texts()
+
+
+func _apply_static_texts() -> void:
+	$CanvasLayer/UIRoot/Label.text = tr("ui.main_menu.title")
+	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.text = tr("ui.main_menu.world_selection")
+	$CanvasLayer/UIRoot/Panel/ButtonContainer/CreateCharacter.text = tr("ui.main_menu.new_character")
+	$CanvasLayer/UIRoot/Panel/ButtonContainer/Settings.text = tr("ui.main_menu.settings")
+	$"CanvasLayer/UIRoot/Panel/ButtonContainer/Quit Game".text = tr("ui.main_menu.quit_game")
 
 
 ## Shows a one-shot info dialog if NetworkManager left a message (e.g. host quit).
 func _show_pending_network_message() -> void:
-	var msg := NetworkManagerTest.take_pending_menu_message()
-	if msg.is_empty():
+	var msg_key := NetworkManagerTest.take_pending_menu_message()
+	if msg_key.is_empty():
 		return
 	var dialog := AcceptDialog.new()
-	dialog.title = "Verbindung getrennt"
-	dialog.dialog_text = msg
-	dialog.ok_button_text = "OK"
+	dialog.title = tr("ui.net.disconnected_title")
+	dialog.dialog_text = tr(msg_key)
+	dialog.ok_button_text = tr("ui.net.ok")
 	add_child(dialog)
 	dialog.confirmed.connect(dialog.queue_free)
 	dialog.canceled.connect(dialog.queue_free)

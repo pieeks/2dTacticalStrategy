@@ -22,10 +22,16 @@ config/icon="res://icon.svg"
 [autoload]
 
 Globals="*res://autoload/globals.gd"
+LocaleManager="*res://autoload/locale_manager.gd"
 PlayerPartyState="*res://autoload/player_party_state.gd"
 WorldState="*res://autoload/world_state.gd"
 PlayerUi="*res://scripts/ui/player_ui.gd"
 NetworkManagerTest="*res://autoload/network_manager_test.gd"
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://localization/translations.en.translation", "res://localization/translations.de.translation")
+locale/fallback="en"
 
 [display]
 

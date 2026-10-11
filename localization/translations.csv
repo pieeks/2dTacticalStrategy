@@ -1,0 +1,69 @@
+keys,en,de
+ui.main_menu.title,Main Menu,Hauptmenü
+ui.main_menu.world_selection,World Selection,Weltauswahl
+ui.main_menu.new_character,New Character,Neuer Charakter
+ui.main_menu.settings,Settings,Einstellungen
+ui.main_menu.quit_game,Quit Game,Spiel beenden
+ui.world_selection.title,World selection,Weltauswahl
+ui.world_selection.start,Start World,Welt starten
+ui.world_selection.join,Join World,Welt beitreten
+ui.world_selection.back,Back to Menu,Zurück zum Menü
+ui.join.title,Join World,Welt beitreten
+ui.join.ok,Join,Beitreten
+ui.join.host_ip,Host IP address,Host-IP-Adresse
+ui.character_creation.title,Character Creation,Charaktererstellung
+ui.character_creation.race,Race,Rasse
+ui.character_creation.hair,Hair,Frisur
+ui.character_creation.body,Body,Körper
+ui.character_creation.leg,Leg,Beine
+ui.character_creation.name,Name:,Name:
+ui.character_creation.create,Create Character,Charakter erstellen
+ui.character_creation.back,Back to Menu,Zurück zum Menü
+ui.settings.title,Settings,Einstellungen
+ui.settings.general,General,Allgemein
+ui.settings.audio,Audio,Audio
+ui.settings.video,Video,Video
+ui.settings.controls,Controls,Steuerung
+ui.settings.back,Back,Zurück
+ui.settings.back_to_settings,Back to Settings,Zurück zu Einstellungen
+ui.settings.general_title,General,Allgemein
+ui.settings.language,Language,Sprache
+ui.settings.audio_title,Audio Settings,Audio-Einstellungen
+ui.settings.volume,Volume:,Lautstärke:
+ui.settings.video_title,Video Settings,Video-Einstellungen
+ui.settings.resolution,Resolution,Auflösung
+ui.settings.fullscreen,Fullscreen,Vollbild
+ui.settings.controls_title,Control Settings,Steuerung
+ui.settings.move_up,Move Up,Nach oben
+ui.settings.move_down,Move Down,Nach unten
+ui.settings.move_left,Move Left,Nach links
+ui.settings.move_right,Move Right,Nach rechts
+ui.esc.resume,Resume,Fortsetzen
+ui.esc.options,Options,Optionen
+ui.esc.quit,Quit,Beenden
+ui.net.disconnected_title,Disconnected,Verbindung getrennt
+ui.net.ok,OK,OK
+ui.net.host_closed,The host closed the game.,Der Host hat das Spiel geschlossen.
+ui.interact.talk,Talk,Reden
+ui.interact.trade,Trade,Handeln
+ui.interact.quest,Quest,Quest
+ui.interact.leave,Leave,Verlassen
+battle.join.title,Join fight,Kampf beitreten
+battle.join.player,Join player,Spieler joinen
+battle.join.enemy,Join enemy,Gegner joinen
+battle.join.neutral,Join neutral,Neutral eingreifen
+battle.join.cancel,Cancel,Abbrechen
+battle.hud.attack,Attack,Angriff
+battle.hud.attack_on,Attack (on),Angriff (an)
+battle.hud.wait,Wait,Warten
+battle.hud.fighting,Fight…,Kampf…
+battle.hud.queued,"Queued as reinforcement...\n(Turn from next round)","Verstärkung in Warteschlange...\n(Zug ab nächster Runde)"
+battle.hud.ended,Fight ended,Kampf beendet
+battle.hud.waiting,Waiting… (%s; units=%d; order=%d),Warten… (%s; units=%d; order=%d)
+battle.hud.your_turn,"Your turn: %s (%s)\n%s","Dein Zug: %s (%s)\n%s"
+battle.hud.their_turn,Turn: %s (%s),Zug: %s (%s)
+battle.hud.mode_attack,Attack mode,Angriffsmodus
+battle.hud.mode_move,Move — click green tiles,Bewegen — grüne Felder klicken
+battle.hud.not_your_turn,Not your turn,Nicht dein Zug
+battle.hud.move_flash,Move…,Bewegen…
+battle.hud.invalid_target,No valid target (green tiles),Kein gültiges Ziel (grüne Felder)

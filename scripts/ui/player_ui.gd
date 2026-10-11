@@ -1,6 +1,7 @@
 class_name PlayerUI
 extends CanvasLayer
 
+const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 var current_interaction_npc_path: String
 var current_npc_data: Dictionary
 ## Peer currently in a fight that we may join (Overworld interaction).
@@ -19,6 +20,37 @@ func _ready() -> void:
 			$FightJoinMenu/FightJoinButtonContainer/JoinNeutral.pressed.connect(_on_join_neutral_stub)
 		if box.has_node("Cancel"):
 			$FightJoinMenu/FightJoinButtonContainer/Cancel.pressed.connect(hide_fight_join_menu)
+	_apply_static_texts()
+	var lm := _LocaleAccess.get_lm(self)
+	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
+		lm.language_changed.connect(_on_language_changed)
+
+
+func _on_language_changed(_locale: String) -> void:
+	_apply_static_texts()
+
+
+func _apply_static_texts() -> void:
+	if has_node("InteractionMenu/InteractionButtonContainer/Talk"):
+		$InteractionMenu/InteractionButtonContainer/Talk.text = tr("ui.interact.talk")
+	if has_node("InteractionMenu/InteractionButtonContainer/Trade"):
+		$InteractionMenu/InteractionButtonContainer/Trade.text = tr("ui.interact.trade")
+	if has_node("InteractionMenu/InteractionButtonContainer/Quest"):
+		$InteractionMenu/InteractionButtonContainer/Quest.text = tr("ui.interact.quest")
+	if has_node("InteractionMenu/InteractionButtonContainer/Leave"):
+		$InteractionMenu/InteractionButtonContainer/Leave.text = tr("ui.interact.leave")
+	if has_node("FightJoinMenu/FightJoinButtonContainer"):
+		var box: Node = $FightJoinMenu/FightJoinButtonContainer
+		if box.has_node("Title"):
+			box.get_node("Title").text = tr("battle.join.title")
+		if box.has_node("JoinPlayer"):
+			box.get_node("JoinPlayer").text = tr("battle.join.player")
+		if box.has_node("JoinEnemy"):
+			box.get_node("JoinEnemy").text = tr("battle.join.enemy")
+		if box.has_node("JoinNeutral"):
+			box.get_node("JoinNeutral").text = tr("battle.join.neutral")
+		if box.has_node("Cancel"):
+			box.get_node("Cancel").text = tr("battle.join.cancel")
 
 
 func show_interaction_menu(npc_data: Dictionary, npc_path: String) -> void:

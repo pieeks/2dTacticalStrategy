@@ -1,5 +1,6 @@
 extends Control
 
+const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 ## WorldSelection
 ##
 ## UI for choosing how to start or join a multiplayer world.
@@ -32,6 +33,21 @@ func _ready() -> void:
 	_join_dialog = JOIN_DIALOG_SCENE.instantiate()
 	add_child(_join_dialog)
 	_join_dialog.connect("join_confirmed", Callable(self, "_on_join_confirmed"))
+	_apply_static_texts()
+	var lm := _LocaleAccess.get_lm(self)
+	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
+		lm.language_changed.connect(_on_language_changed)
+
+
+func _on_language_changed(_locale: String) -> void:
+	_apply_static_texts()
+
+
+func _apply_static_texts() -> void:
+	$CanvasLayer/UIRoot/Label.text = tr("ui.world_selection.title")
+	$CanvasLayer/UIRoot/Panel/VBoxContainer/StartWorld.text = tr("ui.world_selection.start")
+	$CanvasLayer/UIRoot/Panel/VBoxContainer/JoinWorld.text = tr("ui.world_selection.join")
+	$CanvasLayer/UIRoot/Panel/VBoxContainer/BackToMenu.text = tr("ui.world_selection.back")
 
 
 ## Button callback: returns to the main menu scene.
