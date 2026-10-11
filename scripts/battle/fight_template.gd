@@ -399,12 +399,33 @@ func _on_battle_ended(result: String) -> void:
 		return
 	print("FightTemplate: battle ended with ", result)
 	if result == "victory":
+		var npc_type := str(encounter.get("npc_type", ""))
+		if npc_type != "":
+			rpc_quest_kill_credit.rpc(npc_type)
 		var npc_path := str(encounter.get("npc_path", ""))
 		if npc_path != "":
 			var fm := _get_fight_manager()
 			if fm != null and fm.has_method("rpc_remove_overworld_npc"):
 				fm.rpc_remove_overworld_npc.rpc(npc_path)
 	request_end_fight()
+
+
+## Credit kill quest progress to fight participants (local apply).
+@rpc("authority", "call_local", "reliable")
+func rpc_quest_kill_credit(npc_type: String) -> void:
+	if npc_type.is_empty():
+		return
+	var my_id := multiplayer.get_unique_id()
+	if not participants.has(my_id):
+		return
+	var qm := get_tree().root.get_node_or_null("QuestManager")
+	if qm == null:
+		return
+	qm.report_progress({
+		"type": "kill",
+		"target": npc_type,
+		"amount": 1,
+	})
 
 
 func _get_fight_manager() -> Node:

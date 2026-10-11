@@ -22,5 +22,9 @@
 		"minGold": 1,
 		"maxGold": 4
 	},
-	"is_hostile": false
+	"is_hostile": false,
+	"quests": {
+		"offer": ["q_intro_slime"],
+		"turn_in": ["q_intro_slime"]
+	}
 }

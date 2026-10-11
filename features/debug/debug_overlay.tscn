@@ -24,38 +24,72 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -85.0
-offset_top = -75.0
-offset_right = 85.0
-offset_bottom = 75.0
+offset_left = -110.0
+offset_top = -105.0
+offset_right = 110.0
+offset_bottom = 105.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIRoot/PanelContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="UIRoot/PanelContainer"]
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
 
-[node name="DebugOverlay" type="Label" parent="UIRoot/PanelContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIRoot/PanelContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DebugOverlay" type="Label" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 text = "Debug Overlay"
 
-[node name="NetworkInfo" type="Label" parent="UIRoot/PanelContainer/VBoxContainer"]
+[node name="NetworkInfo" type="Label" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="FightButtons" type="VBoxContainer" parent="UIRoot/PanelContainer/VBoxContainer"]
+[node name="MainMenu" type="VBoxContainer" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="StartFight" type="Button" parent="UIRoot/PanelContainer/VBoxContainer/FightButtons"]
+[node name="Fight" type="Button" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/MainMenu"]
+layout_mode = 2
+text = "Fight"
+
+[node name="Quests" type="Button" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/MainMenu"]
+layout_mode = 2
+text = "Quests"
+
+[node name="FightPage" type="VBoxContainer" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Back" type="Button" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage"]
+layout_mode = 2
+text = "Back"
+
+[node name="FightButtons" type="VBoxContainer" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage"]
+layout_mode = 2
+
+[node name="StartFight" type="Button" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage/FightButtons"]
 layout_mode = 2
 text = "Start Fight"
 
-[node name="JoinFight" type="Button" parent="UIRoot/PanelContainer/VBoxContainer/FightButtons"]
+[node name="JoinFight" type="Button" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage/FightButtons"]
 layout_mode = 2
 text = "Join Fight"
 
-[node name="LeaveFight" type="Button" parent="UIRoot/PanelContainer/VBoxContainer/FightButtons"]
+[node name="LeaveFight" type="Button" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/FightPage/FightButtons"]
 layout_mode = 2
 text = "Leave Fight"
+
+[node name="QuestPage" type="VBoxContainer" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Back" type="Button" parent="UIRoot/PanelContainer/ScrollContainer/VBoxContainer/QuestPage"]
+layout_mode = 2
+text = "Back"
 
 [node name="FightSelectPanel" type="PanelContainer" parent="UIRoot"]
 visible = false

@@ -1,0 +1,21 @@
+{
+	"id": "q_intro_slime",
+	"category": "side",
+	"title_key": "quest.q_intro_slime.title",
+	"description_key": "quest.q_intro_slime.desc",
+	"giver_npc": "test_npc_basic",
+	"turn_in_npc": "test_npc_basic",
+	"objectives": [
+		{
+			"id": "kill_1",
+			"type": "kill",
+			"target": "slime_basic",
+			"count": 1,
+			"text_key": "quest.q_intro_slime.obj.kill"
+		}
+	],
+	"rewards": {
+		"gold": 10,
+		"items": []
+	}
+}
