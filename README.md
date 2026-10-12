@@ -85,6 +85,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 ### Geplant / in Arbeit
 
+- CharacterAppearance Anim-Refactor (SpriteFrames-Takt, AnimationPlayer entschlacken): [`_dev/PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](_dev/PLAN_CHARACTER_APPEARANCE_REFACTOR.md)
 - Encounter-Symbol über Gegner; Loot-UI
 - Group Auto-Fight-Start; Quest Progress-Relay an Group
 - Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)
