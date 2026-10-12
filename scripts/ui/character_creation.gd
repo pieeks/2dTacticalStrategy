@@ -150,6 +150,7 @@ func _on_create_button_pressed() -> void:
 	# Party Data initialize (leader only at start). Stats = fight placeholders for §7 v1.
 	PlayerPartyState.party_data = {
 		"leader_id": PlayerPartyState.player_id,
+		"max_size": PlayerPartyState.DEFAULT_PARTY_MAX_SIZE,
 		"members": [
 			{
 				"id": PlayerPartyState.player_id,
@@ -169,6 +170,8 @@ func _on_create_button_pressed() -> void:
 			}
 		]
 	}
+	PlayerPartyState.ensure_party_data()
+
 	
 	# Inventory Data initialize
 	PlayerPartyState.inventory_data = {

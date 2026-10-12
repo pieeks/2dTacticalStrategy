@@ -87,8 +87,11 @@ An `PlayerPartyState` oder kleinem Helper:
 - `get_leader() -> Dictionary`
 - `get_members() -> Array`
 - `get_member(id) -> Dictionary`
+- `get_party_max_size() -> int`
 - `add_companion(data) -> bool` (respektiert `max_size`; Content später)
-- `is_in_party_fight_ready() -> bool`
+- `is_party_fight_ready() -> bool`
+- `build_party_roster_snapshot() -> Array` (Daten für §5b, noch nicht Fight-verdrahtet)
+- `ensure_party_data()` (öffentlicher Normalizer-Entry)
 
 v1 Scope:
 
@@ -96,9 +99,9 @@ v1 Scope:
 - Kein volles Companion-Recruit-UI
 - Fight: Multi-Unit-Spawn über `party_rosters` (§5b); Overworld weiter nur Main
 
-- [ ] `party_data`-Normalizer (`leader_id`, `members`, `max_size`)
-- [ ] Query-API an `PlayerPartyState`
-- [ ] Charaktererstellung schreibt konsistentes Schema (inkl. `max_size`)
+- [x] `party_data`-Normalizer (`leader_id`, `members`, `max_size`)
+- [x] Query-API an `PlayerPartyState`
+- [x] Charaktererstellung schreibt konsistentes Schema (inkl. `max_size`)
 - [ ] Party-Einheiten im Fight für alle Participants sichtbar (§5b)
 
 ---
@@ -399,7 +402,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 - [ ] Begriffe Party / Group / Encounter sind im Plan und Status-Docs konsistent
 - [ ] Encounter-Composition (`units[]`) auflösbar + im Fight gespawnt; `group_size`-Fallback lebt
 - [ ] `enemy_roster` host-autoritativ für Start/Join/Late-Join synchron
-- [ ] Party-Datenmodell normalisiert + Query-API
+- [x] Party-Datenmodell normalisiert + Query-API
 - [ ] `party_rosters` sync + Multi-Unit sichtbar für alle Fight-Peers
 - [ ] Group invite/leave spielbar (UI oder F3)
 - [ ] Keine Vermischung der drei Konzepte in Code-Namen

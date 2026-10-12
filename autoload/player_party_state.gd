@@ -29,8 +29,10 @@ var meta_data : Dictionary = {}
 ## Position dictionary storing current world position `{x, y}`.
 var position_data : Dictionary = {}
 
-## Party-related data (leader_id, members, roles, stats). Filled on character creation.
+## Party-related data (leader_id, members, max_size). Filled on character creation.
 var party_data: Dictionary = {}
+
+const DEFAULT_PARTY_MAX_SIZE := 4
 
 ## Inventory data (gold, items).
 var inventory_data : Dictionary = {}
@@ -125,6 +127,7 @@ func _sync_position_from_overworld_player() -> void:
 func save_to_disk() -> bool: 
 	_normalize_inventory()
 	_normalize_quest_data()
+	_normalize_party_data()
 	var save_data := {
 		"save_version": 1.0,
 		"player_id": player_id,
@@ -184,6 +187,7 @@ func load_from_disk(pid: String) -> bool:
 	player_id = pid
 	_normalize_inventory()
 	_normalize_quest_data()
+	_normalize_party_data()
 	
 	print("Save loaded: ", player_id)
 	return true
@@ -207,6 +211,152 @@ func _normalize_quest_data() -> void:
 		quest_data["active"] = {}
 	if not quest_data.has("completed") or typeof(quest_data["completed"]) != TYPE_ARRAY:
 		quest_data["completed"] = []
+
+
+## Public entry: ensure party_data shape is valid (call after creation / edits).
+func ensure_party_data() -> void:
+	_normalize_party_data()
+
+
+## Ensure party_data has leader_id, members[], max_size.
+func _normalize_party_data() -> void:
+	if typeof(party_data) != TYPE_DICTIONARY:
+		party_data = {}
+	if not party_data.has("members") or typeof(party_data["members"]) != TYPE_ARRAY:
+		party_data["members"] = []
+	var members: Array = party_data["members"]
+	var normalized_members: Array = []
+	for raw in members:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var m: Dictionary = (raw as Dictionary).duplicate(true)
+		if not m.has("id"):
+			m["id"] = str(m.get("name", player_id if player_id != "" else "member"))
+		if not m.has("role"):
+			m["role"] = "companion"
+		if not m.has("name"):
+			m["name"] = str(m.get("id", "Unknown"))
+		if not m.has("appearance") or typeof(m["appearance"]) != TYPE_DICTIONARY:
+			m["appearance"] = {}
+		if not m.has("stats") or typeof(m["stats"]) != TYPE_DICTIONARY:
+			m["stats"] = {}
+		if not m.has("equipment") or typeof(m["equipment"]) != TYPE_DICTIONARY:
+			m["equipment"] = {}
+		normalized_members.append(m)
+	party_data["members"] = normalized_members
+	var max_size := int(party_data.get("max_size", DEFAULT_PARTY_MAX_SIZE))
+	if max_size < 1:
+		max_size = DEFAULT_PARTY_MAX_SIZE
+	party_data["max_size"] = max_size
+	var leader_id := str(party_data.get("leader_id", ""))
+	if leader_id.is_empty() or get_member(leader_id).is_empty():
+		leader_id = ""
+		for m2 in normalized_members:
+			if str(m2.get("role", "")) == "leader":
+				leader_id = str(m2.get("id", ""))
+				break
+		if leader_id.is_empty() and not normalized_members.is_empty():
+			leader_id = str(normalized_members[0].get("id", ""))
+			normalized_members[0]["role"] = "leader"
+		if leader_id.is_empty() and player_id != "":
+			leader_id = player_id
+	party_data["leader_id"] = leader_id
+
+
+## All party members (normalized copy is not required; returns live array).
+func get_members() -> Array:
+	_normalize_party_data()
+	return party_data.get("members", [])
+
+
+## Leader member dict, or empty if none.
+func get_leader() -> Dictionary:
+	_normalize_party_data()
+	var leader_id := str(party_data.get("leader_id", ""))
+	if leader_id != "":
+		var by_id := get_member(leader_id)
+		if not by_id.is_empty():
+			return by_id
+	for m in get_members():
+		if typeof(m) == TYPE_DICTIONARY and str(m.get("role", "")) == "leader":
+			return m as Dictionary
+	return {}
+
+
+## Member by id, or empty dict.
+func get_member(member_id: String) -> Dictionary:
+	if member_id.is_empty():
+		return {}
+	if typeof(party_data) != TYPE_DICTIONARY:
+		return {}
+	var members = party_data.get("members", [])
+	if typeof(members) != TYPE_ARRAY:
+		return {}
+	for m in members:
+		if typeof(m) == TYPE_DICTIONARY and str(m.get("id", "")) == member_id:
+			return m as Dictionary
+	return {}
+
+
+func get_party_max_size() -> int:
+	_normalize_party_data()
+	return int(party_data.get("max_size", DEFAULT_PARTY_MAX_SIZE))
+
+
+## Append a companion if under max_size. Returns false if full or invalid.
+func add_companion(data: Dictionary) -> bool:
+	_normalize_party_data()
+	var members: Array = party_data["members"]
+	if members.size() >= get_party_max_size():
+		return false
+	if data.is_empty():
+		return false
+	var entry: Dictionary = data.duplicate(true)
+	if not entry.has("id") or str(entry.get("id", "")).is_empty():
+		entry["id"] = "companion_%d" % Time.get_unix_time_from_system()
+	if str(entry.get("role", "")) == "leader":
+		entry["role"] = "companion"
+	elif not entry.has("role"):
+		entry["role"] = "companion"
+	if not entry.has("name"):
+		entry["name"] = str(entry.get("id", "Companion"))
+	if not entry.has("appearance") or typeof(entry["appearance"]) != TYPE_DICTIONARY:
+		entry["appearance"] = {}
+	if not entry.has("stats") or typeof(entry["stats"]) != TYPE_DICTIONARY:
+		entry["stats"] = {}
+	if not entry.has("equipment") or typeof(entry["equipment"]) != TYPE_DICTIONARY:
+		entry["equipment"] = {}
+	members.append(entry)
+	party_data["members"] = members
+	_normalize_party_data()
+	return true
+
+
+## True when at least one member has a stats dictionary (fight-ready placeholder).
+func is_party_fight_ready() -> bool:
+	for m in get_members():
+		if typeof(m) != TYPE_DICTIONARY:
+			continue
+		var stats = m.get("stats", {})
+		if typeof(stats) == TYPE_DICTIONARY and not (stats as Dictionary).is_empty():
+			return true
+	return false
+
+
+## Snapshot for later fight sync (§5b). Does not start fights.
+func build_party_roster_snapshot() -> Array:
+	var roster: Array = []
+	for m in get_members():
+		if typeof(m) != TYPE_DICTIONARY:
+			continue
+		roster.append({
+			"member_id": str(m.get("id", "")),
+			"role": str(m.get("role", "companion")),
+			"name": str(m.get("name", "")),
+			"appearance": (m.get("appearance", {}) as Dictionary).duplicate(true) if typeof(m.get("appearance", {})) == TYPE_DICTIONARY else {},
+			"stats": (m.get("stats", {}) as Dictionary).duplicate(true) if typeof(m.get("stats", {})) == TYPE_DICTIONARY else {},
+		})
+	return roster
 
 
 ## Scans save folder for available characters.
