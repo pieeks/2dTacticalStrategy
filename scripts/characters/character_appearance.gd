@@ -17,8 +17,8 @@
 class_name CharacterAppearance
 extends Node2D
 
-## References to all sprite layers that form the character's appearance.
-## The order matches how they are visually stacked (Race → Body → Hair → Head → Legs → Weapon).
+## Body/gear layers used for appearance data and movement playback.
+## HandSprite2D is battle-only (not in this list / get_full_data); play() includes it when visible.
 @onready var layers : Array[AnimatedSprite2D] = [
 	$Race2DSprite,
 	$Body2DSprite,
@@ -29,36 +29,17 @@ extends Node2D
 	$OffWeaponAttachmentPoint/OffWeapon2DSprite
 ]
 
+## Kept for battle attachment clips; Idle/Walk no longer drive frames through it.
 @onready var animation_player : AnimationPlayer = $AnimationPlayer
 
 ## Currently active animation across all layers (e.g. "idle_front", "walk_left").
 var current_animation : String = "idle_front"
 
 
-## Cached SpriteFrames resources for different categories.
-## Loaded at runtime from the filesystem.
-var raceSprites : Array = []
-var headSprites : Array = []
-var hairSprites : Array = []
-var bodySprites : Array = []
-var legSprites : Array = []
-var weaponSprites : Array = []
-
-
-## Called when the node enters the scene tree.
-## Loads SpriteFrames resources from predefined directories.
+## Starts the default clip via SpriteFrames (scene autoplay must stay empty).
 func _ready() -> void:
-	raceSprites = load_files("res://features/character/race/", ".tres")
-	hairSprites = load_files("res://features/character/hair/basic/", ".tres")
-	bodySprites = load_files("res://features/character/body/basic/", ".tres")
-	legSprites = load_files("res://features/character/leg/basic/", ".tres")
-	# AnimationPlayer is the sole driver; per-layer autoplay desyncs on frame swaps.
-	for layer in layers:
-		if layer != null:
-			layer.autoplay = ""
-	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
-	if hand != null:
-		hand.autoplay = ""
+	if animation_player != null:
+		animation_player.stop()
 	play(current_animation, 1.0, true)
 
 
@@ -160,64 +141,114 @@ func _set_layer_frames(layer: AnimatedSprite2D, resource_path: String) -> void:
 		return
 	var frames = load(resource_path)
 	if frames is SpriteFrames:
-		layer.autoplay = ""
 		layer.sprite_frames = frames
 		_resync_animation()
 
 
-## Re-apply current AnimationPlayer clip at the same timestamp so layered frames match.
+## Re-apply current clip after a layer swap (restart + align to master frame).
 func _resync_animation() -> void:
-	if animation_player == null:
-		return
 	var anim := current_animation
-	if anim.is_empty() or not animation_player.has_animation(anim):
+	if anim.is_empty():
 		return
-	var pos := 0.0
-	if String(animation_player.current_animation) == anim and animation_player.is_playing():
-		pos = animation_player.current_animation_position
-	for layer in layers:
-		if layer != null and layer.sprite_frames != null and layer.sprite_frames.has_animation(anim):
-			layer.animation = anim
-	animation_player.play(anim)
-	animation_player.seek(pos, true)
+	var master := _master_layer_for(anim)
+	var master_frame := 0
+	var master_progress := 0.0
+	if master != null and master.is_playing() and String(master.animation) == anim:
+		master_frame = master.frame
+		master_progress = master.frame_progress
+	play(anim, 1.0, true)
+	if master_frame > 0 or master_progress > 0.0:
+		for layer in _playback_layers():
+			if not _layer_has_clip(layer, anim):
+				continue
+			var last_frame := layer.sprite_frames.get_frame_count(anim) - 1
+			layer.set_frame_and_progress(mini(master_frame, last_frame), master_progress)
 
 
-## Plays an animation on all available layers.
-## @param animation_name String: Name of the animation (must exist in SpriteFrames).
+## True when the current clip is actively playing on at least one body layer.
+func is_playing_current() -> bool:
+	var anim := current_animation
+	if anim.is_empty():
+		return false
+	for layer in _playback_layers():
+		if layer != null and layer.is_playing() and String(layer.animation) == anim:
+			return true
+	return false
+
+
+## Plays a SpriteFrames clip on all layers that have it (Variante B).
+## @param animation_name String: Clip name (must exist on at least one layer).
 ## @param speed float: Playback speed (default 1.0).
-## @param force bool: Replay/seek even if already on this animation (after layer swap).
+## @param force bool: Restart even if already on this clip (after layer swap).
 func play(animation_name: String, speed: float = 1.0, force: bool = false) -> void:
-	if not force and current_animation == animation_name and animation_player.is_playing():
+	if not force and current_animation == animation_name and is_playing_current():
 		return
 	current_animation = animation_name
-	if not animation_player.has_animation(animation_name):
+	if animation_player != null:
 		animation_player.stop()
+	if not _any_layer_has_clip(animation_name):
+		_stop_playback_layers()
 		return
-	animation_player.speed_scale = speed
-	animation_player.play(animation_name)
-	if force:
-		animation_player.seek(0.0, true)
+	_play_layers(animation_name, speed, force)
 
 
-## Loads all SpriteFrames resources in a directory matching a file extension.
-## @param path String: Directory to scan.
-## @param endWith String: File suffix filter (e.g. ".tres").
-## @return Array: All loaded SpriteFrames.
-func load_files(path: String, endWith: String) -> Array:
-	var files = []
-	var dir = DirAccess.open(path)
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if file_name.ends_with(endWith): 
-				var full_path = path + file_name
-				var frames = load(full_path)
-				if frames is SpriteFrames:
-					files.append(frames)
-			file_name = dir.get_next()
-		dir.list_dir_end()
-	return files
+## Layers that receive movement/idle playback (body layers + visible Hand).
+func _playback_layers() -> Array[AnimatedSprite2D]:
+	var result: Array[AnimatedSprite2D] = []
+	for layer in layers:
+		if layer != null:
+			result.append(layer)
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	if hand != null and hand.visible:
+		result.append(hand)
+	return result
+
+
+func _layer_has_clip(layer: AnimatedSprite2D, anim: String) -> bool:
+	return layer != null and layer.sprite_frames != null and layer.sprite_frames.has_animation(anim)
+
+
+func _any_layer_has_clip(anim: String) -> bool:
+	for layer in _playback_layers():
+		if _layer_has_clip(layer, anim):
+			return true
+	return false
+
+
+func _master_layer_for(anim: String) -> AnimatedSprite2D:
+	var race := $Race2DSprite as AnimatedSprite2D
+	if _layer_has_clip(race, anim):
+		return race
+	for layer in _playback_layers():
+		if _layer_has_clip(layer, anim):
+			return layer
+	return null
+
+
+## Idle/Walk must loop; many .tres still have loop=false from the AnimationPlayer era.
+func _ensure_movement_clip_loops(frames: SpriteFrames, anim: String) -> void:
+	if frames == null or not frames.has_animation(anim):
+		return
+	if anim.begins_with("idle_") or anim.begins_with("walk_"):
+		if not frames.get_animation_loop(anim):
+			frames.set_animation_loop(anim, true)
+
+
+func _play_layers(anim: String, speed: float, force: bool) -> void:
+	for layer in _playback_layers():
+		if not _layer_has_clip(layer, anim):
+			continue
+		_ensure_movement_clip_loops(layer.sprite_frames, anim)
+		layer.speed_scale = speed
+		if force:
+			layer.set_frame_and_progress(0, 0.0)
+		layer.play(anim)
+
+
+func _stop_playback_layers() -> void:
+	for layer in _playback_layers():
+		if layer != null and layer.is_playing():
+			layer.stop()
 
 
 ## Returns the name of the currently active animation.
@@ -281,7 +312,6 @@ func _apply_layer_frames_only(layer: AnimatedSprite2D, data: Dictionary, key: St
 		if layer != null:
 			var frames = load(path)
 			if frames is SpriteFrames:
-				layer.autoplay = ""
 				layer.sprite_frames = frames
 			layer.visible = true
 	elif layer != null:

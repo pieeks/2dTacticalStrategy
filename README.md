@@ -76,6 +76,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - `GroupManager`: Invite/Accept/Leave/Kick (Peer-Menü + F3); CSV `group.*`
 - Plan: [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md)
 - Character/NPC-Cleanup (FacingUtil, BattleEnemy-Prefab, AppearanceData/NpcArchetype): [`_dev/PLAN_CHARACTER_NPC_CLEANUP.md`](_dev/PLAN_CHARACTER_NPC_CLEANUP.md)
+- CharacterAppearance Anim-Refactor (SpriteFrames-Takt, `AppearanceCatalog`, Idle/Walk ohne AP-Frame-Tracks): [`_dev/PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](_dev/PLAN_CHARACTER_APPEARANCE_REFACTOR.md)
 
 **Debug**
 
@@ -85,7 +86,6 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 ### Geplant / in Arbeit
 
-- CharacterAppearance Anim-Refactor (SpriteFrames-Takt, AnimationPlayer entschlacken): [`_dev/PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](_dev/PLAN_CHARACTER_APPEARANCE_REFACTOR.md)
 - Encounter-Symbol über Gegner; Loot-UI
 - Group Auto-Fight-Start; Quest Progress-Relay an Group
 - Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)

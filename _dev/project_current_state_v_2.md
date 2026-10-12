@@ -43,7 +43,7 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter + Cha
 
 ## Nächste sinnvolle Schritte
 
-1. CharacterAppearance-Anim-Refactor: [`PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](PLAN_CHARACTER_APPEARANCE_REFACTOR.md)
+1. Manuelle Smoke für Appearance-Refactor ([`PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](PLAN_CHARACTER_APPEARANCE_REFACTOR.md) Kurztest)
 2. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
 3. Optional manuelle Smoke in [`PLAN_CHARACTER_NPC_CLEANUP.md`](PLAN_CHARACTER_NPC_CLEANUP.md) / Party-Encounter-Kurztests
 4. Polish: Encounter-Symbole, Loot-Placeholder; Group Auto-Fight-Start
