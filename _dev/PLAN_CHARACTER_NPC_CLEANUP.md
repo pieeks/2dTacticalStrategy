@@ -135,16 +135,16 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 - Ist: `_spawn_battle_enemies` baut `Node2D.new()` + Appearance + Label
 - Soll: kleine Szene/Script `BattleEnemy` (Appearance, Label, Meta `npc_type`/`stats`)
 
-- [ ] Prefab + Spawn umstellen
-- [ ] Turn-Controller / AI unverändert an `unit.node` angebunden
+- [x] Prefab + Spawn umstellen
+- [x] Turn-Controller / AI unverändert an `unit.node` angebunden
 
 ### 3.2 PlayerCharacter schlanker (gezielt)
 
 - Ist: Fight-Gate jedes Physik-Frame via Tree-Pfad zu FightManager; viele Verantwortlichkeiten in einem Script
 - Soll: Fight-Visibility über Signal/Callback vom FightManager (oder gecachte Ref); Interact bleibt, aber ohne neue Features
 
-- [ ] Fight-World-Gate ohne Frame-Polling (Signal oder State-Flag)
-- [ ] Keine Verhaltensänderung für Spieler (Appearance hide/show wie bisher)
+- [x] Fight-World-Gate ohne Frame-Polling (Signal oder State-Flag)
+- [x] Keine Verhaltensänderung für Spieler (Appearance hide/show wie bisher)
 
 ### 3.3 Quest-Kill vs. Roster (Naht)
 
@@ -153,7 +153,7 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 
 **Entscheidung v1:** Credit pro besiegtem Enemy-`npc_type` aus Roster (aggregiert), nicht pauschal 1.
 
-- [ ] Victory-Kill-Credit an Roster anbinden
+- [x] Victory-Kill-Credit an Roster anbinden
 - [ ] Demo-Quest / F3-Smoke: Trio → passender Kill-Count
 
 ---
@@ -173,7 +173,7 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 
 1. **§1 P1** Walk-Gate + Spawn-Name + NPC-Sync-Totpfad + Patrol-API — erledigt (Smoke manuell)
 2. **§2** Appearance-Collect + Schema + Archetyp-Loader — erledigt (Kurztest manuell)
-3. **§3** Battle-Enemy-Prefab + Fight-Gate-Signal + Kill-Credit
+3. **§3** Battle-Enemy-Prefab + Fight-Gate-Signal + Kill-Credit — erledigt (Smoke manuell)
 4. **§4** Aufräumen
 5. Kurztest + Status/README anpassen
 
@@ -208,8 +208,8 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 
 - [x] P1 (§1) ohne Net-/Crash-Totpfade
 - [x] Appearance-Collect und Archetyp-Laden nicht mehr doppelt driftend
-- [ ] Battle-Enemies über Prefab (kein ad-hoc `Node2D.new`-Haufen)
-- [ ] Leitplanken eingehalten: OW ≠ Fight-Nodes
+- [x] Battle-Enemies über Prefab (kein ad-hoc `Node2D.new`-Haufen)
+- [x] Leitplanken eingehalten: OW ≠ Fight-Nodes
 - [x] Status/README verlinken diesen Plan; erledigte Slices abgehakt
 
 ---

@@ -5,8 +5,8 @@ signal fight_ready_to_remove(owner_peer_id: int)
 
 const BattleTurnControllerScript = preload("res://scripts/battle/battle_turn_controller.gd")
 const BattleHudScene = preload("res://scenes/battle/battle_hud.tscn")
-const CharacterAppearanceScene = preload("res://scenes/characters/character_appearance.tscn")
 const AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
+const BattleEnemyScene := preload("res://scenes/battle/battle_enemy.tscn")
 
 @onready var grid_manager: Node2D = $GridManager
 @onready var player_container: Node = $PlayerContainer
@@ -419,23 +419,11 @@ func _spawn_battle_enemies() -> void:
 			appearance_data = (entry["appearance"] as Dictionary).duplicate(true)
 		else:
 			appearance_data = fallback_appearance.duplicate(true)
-		var enemy := Node2D.new()
+		var enemy: Node2D = BattleEnemyScene.instantiate()
 		enemy.name = enemy_name
-		enemy.set_meta("npc_type", npc_type)
-		enemy.set_meta("npc_name", display_name)
-		enemy.set_meta("stats", stats)
-		var app: Node2D = CharacterAppearanceScene.instantiate()
-		enemy.add_child(app)
-		if not appearance_data.is_empty() and app.has_method("apply_full_data"):
-			app.call_deferred("apply_full_data", appearance_data)
-		if app.has_method("play"):
-			app.call_deferred("play", "idle_front")
-		var label := Label.new()
-		label.text = display_name
-		label.position = Vector2(-24, -36)
-		label.add_theme_font_size_override("font_size", 10)
-		enemy.add_child(label)
 		npc_container.add_child(enemy)
+		if enemy.has_method("setup"):
+			enemy.setup(npc_type, display_name, stats, appearance_data)
 		# Offset along columns so multiple enemies do not stack.
 		var cell_x := grid_w - (i % 3)
 		@warning_ignore("integer_division")
@@ -458,9 +446,7 @@ func _on_battle_ended(result: String) -> void:
 		return
 	print("FightTemplate: battle ended with ", result)
 	if result == "victory":
-		var npc_type := str(encounter.get("npc_type", ""))
-		if npc_type != "":
-			rpc_quest_kill_credit.rpc(npc_type)
+		_credit_kills_from_roster()
 		var npc_path := str(encounter.get("npc_path", ""))
 		if npc_path != "":
 			var fm := _get_fight_manager()
@@ -469,10 +455,30 @@ func _on_battle_ended(result: String) -> void:
 	request_end_fight()
 
 
+## Aggregate enemy_roster npc_types and credit each once with count.
+func _credit_kills_from_roster() -> void:
+	var counts: Dictionary = {}
+	var roster: Variant = encounter.get("enemy_roster", [])
+	if roster is Array:
+		for entry in roster as Array:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var npc_type := str((entry as Dictionary).get("npc_type", "")).strip_edges()
+			if npc_type.is_empty():
+				continue
+			counts[npc_type] = int(counts.get(npc_type, 0)) + 1
+	if counts.is_empty():
+		var fallback := str(encounter.get("npc_type", "")).strip_edges()
+		if fallback != "":
+			counts[fallback] = 1
+	for npc_type in counts.keys():
+		rpc_quest_kill_credit.rpc(str(npc_type), int(counts[npc_type]))
+
+
 ## Credit kill quest progress to fight participants (local apply).
 @rpc("authority", "call_local", "reliable")
-func rpc_quest_kill_credit(npc_type: String) -> void:
-	if npc_type.is_empty():
+func rpc_quest_kill_credit(npc_type: String, amount: int = 1) -> void:
+	if npc_type.is_empty() or amount <= 0:
 		return
 	var my_id := multiplayer.get_unique_id()
 	if not participants.has(my_id):
@@ -483,7 +489,7 @@ func rpc_quest_kill_credit(npc_type: String) -> void:
 	qm.report_progress({
 		"type": "kill",
 		"target": npc_type,
-		"amount": 1,
+		"amount": amount,
 	})
 
 

@@ -4,6 +4,8 @@ extends Node
 const AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
 
 signal fight_ended_for_peer(peer_id: int)
+## Emitted whenever a peer enters or leaves fight tracking (for Overworld gate).
+signal peer_fight_presence_changed(peer_id: int, in_fight: bool)
 
 @export var fight_scene: PackedScene
 
@@ -21,6 +23,17 @@ func is_peer_in_fight(peer_id: int) -> bool:
 	return peers_in_fight.get(peer_id, false) == true
 
 
+## Update fight presence and notify listeners when the value changes.
+func _set_peer_in_fight(peer_id: int, in_fight: bool) -> void:
+	var was_in := is_peer_in_fight(peer_id)
+	if in_fight:
+		peers_in_fight[peer_id] = true
+	else:
+		peers_in_fight.erase(peer_id)
+	if was_in != in_fight:
+		peer_fight_presence_changed.emit(peer_id, in_fight)
+
+
 func is_peer_on_fight_cooldown(peer_id: int) -> bool:
 	var until_ms: int = int(_peer_fight_cooldown_until.get(peer_id, 0))
 	return Time.get_ticks_msec() < until_ms
@@ -32,7 +45,7 @@ func _arm_fight_leave_cooldown(peer_id: int) -> void:
 
 ## Drop all fight tracking for a peer (disconnect). Keeps leave-cooldown out of the dict.
 func clear_peer_fight_tracking(peer_id: int) -> void:
-	peers_in_fight.erase(peer_id)
+	_set_peer_in_fight(peer_id, false)
 	_peer_fight_cooldown_until.erase(peer_id)
 
 
@@ -64,7 +77,7 @@ func start_fight_with_encounter(peer_id: int, encounter: Dictionary) -> void:
 	if is_peer_on_fight_cooldown(peer_id):
 		return
 	print("FightManager: start_fight_with_encounter ", peer_id, " ", encounter.get("npc_type", ""))
-	peers_in_fight[peer_id] = true
+	_set_peer_in_fight(peer_id, true)
 	var enriched: Dictionary = encounter.duplicate(true)
 	_merge_client_party_roster_payload(enriched, peer_id)
 	enriched = _enrich_encounter_player_data(enriched, [peer_id])
@@ -429,7 +442,7 @@ func rpc_start_fight(owner_peer_id: int, encounter: Dictionary = {}) -> void:
 	if fight_instance.has_signal("fight_ready_to_remove"):
 		fight_instance.fight_ready_to_remove.connect(_on_fight_ready_to_remove)
 	is_fight_active = true
-	peers_in_fight[owner_peer_id] = true
+	_set_peer_in_fight(owner_peer_id, true)
 
 
 @rpc("any_peer", "reliable")
@@ -460,7 +473,7 @@ func rpc_create_existing_fight(
 		fight_instance.apply_turn_state(turn_state)
 	is_fight_active = true
 	for p in participants_list:
-		peers_in_fight[int(p)] = true
+		_set_peer_in_fight(int(p), true)
 	var npc_path := str(encounter.get("npc_path", ""))
 	if npc_path != "":
 		_lock_npc_by_path(npc_path)
@@ -520,7 +533,7 @@ func rpc_sync_join_fight(
 ) -> void:
 	if not _accept_host_broadcast():
 		return
-	peers_in_fight[peer_id] = true
+	_set_peer_in_fight(peer_id, true)
 	var fight_node: Node = fight_layer.get_node_or_null("Fight_%d" % owner_peer_id)
 	if fight_node == null:
 		if fight_scene == null:
@@ -545,7 +558,7 @@ func rpc_sync_join_fight(
 			fight_instance.apply_turn_state(turn_state)
 		is_fight_active = true
 		for p in snapshot:
-			peers_in_fight[int(p)] = true
+			_set_peer_in_fight(int(p), true)
 		if fight_instance.has_method("add_participant"):
 			fight_instance.add_participant(peer_id)
 		return
@@ -568,7 +581,7 @@ func rpc_request_end_fight_for_peer() -> void:
 func rpc_end_fight_for_peer(peer_id: int) -> void:
 	if not _accept_host_broadcast():
 		return
-	peers_in_fight.erase(peer_id)
+	_set_peer_in_fight(peer_id, false)
 	_arm_fight_leave_cooldown(peer_id)
 	if fight_layer.get_child_count() == 0:
 		is_fight_active = false
