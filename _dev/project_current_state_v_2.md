@@ -23,26 +23,27 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in,
   - Absicherung: Request-RPCs Server-only; Broadcasts Host-Sender-Guard; Disconnect-Cleanup
 - **UI**: Charaktererstellung, World Selection, Settings, ESC (Quit + Autosave), PlayerUi
 - **Persistenz**: `PlayerPartyState` Autosave (45 s Intervall + Quit / WM_CLOSE / Session-Ende); inkl. `quest_data`
-- **Quests (v1)**: `QuestManager`, Demo `q_intro_slime` an `test_npc_basic`, Accept/Turn-in-UI, Quest-Log, kill/talk/reach, F3-Cheats; Group-Sync Stub
+- **Quests (v1)**: `QuestManager`, Demo `q_intro_slime` an `test_npc_basic`, Accept/Turn-in-UI, Quest-Log, kill/talk/reach, F3-Cheats; `_peers_in_same_group` via `GroupManager`
+- **Group (v1)**: `GroupManager` Invite/Accept/Leave/Kick, Disconnect-Cleanup, Peer-Menü + F3
 
 ## Begriffe (Party / Group / Encounter)
 
-- **Party** — ein Spieler: Main + Gefährten (`PlayerPartyState.party_data`)
-- **Group** — mehrere Spieler-Partys in einer Session (Koop; geplant: `GroupManager`)
+- **Party** — ein Spieler: Main + Gefährten (`PlayerPartyState.party_data`; Fight: `party_rosters`)
+- **Group** — mehrere Spieler-Partys in einer Session (`GroupManager`)
 - **Encounter** — Map-Anker → Kampf-Roster (`units[]`; Ordner `resources/encounters/`)
 
 ## Bewusst später / offen
 
 - Encounter-Symbol über Gegner; Loot-UI
-- Party-Multi-Unit (v1 = 1 Avatar pro Peer)
-- Story-/Klassen-Quests + Biom-Gates; Gruppen-Progress-Sync
+- Group Auto-Fight-Start; Quest Progress-Relay an Group-Members
+- Story-/Klassen-Quests + Biom-Gates
 - Koop-Start / PvP-Join-Seiten
 - Dungeons mit mehreren Ebenen
 - Steam P2P produktiv
 
 ## Nächste sinnvolle Schritte
 
-1. Party / Group / Encounter nach [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md)
+1. Kurztests Party/Group/Encounter in [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md)
 2. Kurztest-Checkliste in `PLAN_QUESTSYSTEM.md` manuell durchspielen
 3. Polish: Encounter-Symbole, Loot-Placeholder
 4. Steamworks-Migration wenn Scope stabil

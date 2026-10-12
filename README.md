@@ -72,15 +72,16 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 **Debug**
 
-- Debug-Overlay (F3): Netzwerkinfo inkl. aktiver Fight-Owners + Start / Join / Leave + Quest-Cheats
+- Debug-Overlay (F3): Fight / Quest / Group-Cheats + Party Companion stubs
+- GroupManager: Invite/Accept/Leave/Kick (Host-autoritativ; Peer-Menü + F3)
 - Dev-Testscenes unter `_dev/tests/`
 - Kampfsystem-Plan: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md)
 
 ### Geplant / in Arbeit
 
-- Party / Group / Encounter (Begriffe + Architektur fest; Ordner vorbereitet): [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md)
+- Party / Group / Encounter (Kern implementiert; Rest in Plan): [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md)
 - Encounter-Symbol über Gegner; Loot-UI
-- Verstärkung / Party-Multi-Unit im Fight
+- Group Auto-Fight-Start; Quest Progress-Relay an Group
 - Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)
 - Dungeons mit mehreren Ebenen
 - Steam P2P (Addons vorbereitet, noch nicht produktiv)

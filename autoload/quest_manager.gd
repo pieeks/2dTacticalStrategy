@@ -229,8 +229,12 @@ func get_turn_in_from_npc(npc_data: Dictionary) -> Array:
 	return result
 
 
-## Stub: true when peers share a group (no group system yet).
-func _peers_in_same_group(_peer_a: int, _peer_b: int) -> bool:
+## True when peers share a session group (GroupManager).
+func _peers_in_same_group(peer_a: int, peer_b: int) -> bool:
+	if GroupManager == null:
+		return false
+	if GroupManager.has_method("is_grouped_with_peers"):
+		return GroupManager.is_grouped_with_peers(peer_a, peer_b)
 	return false
 
 

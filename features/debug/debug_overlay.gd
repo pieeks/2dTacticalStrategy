@@ -3,7 +3,7 @@ class_name DebugOverlay
 
 ## DebugOverlay — network info + fight/quest debug menus (F3 toggle).
 
-enum Page { MAIN, FIGHT, QUESTS }
+enum Page { MAIN, FIGHT, QUESTS, GROUP }
 
 @export var autoload_path: NodePath = NodePath("/root/NetworkManagerTest")
 @export var start_visible: bool = false
@@ -40,6 +40,12 @@ var _listed_available: Array[String] = []
 var _listed_completed: Array[String] = []
 var _listed_all: Array[String] = []
 
+## Group cheat widgets (built at runtime).
+var _group_page: VBoxContainer
+var _group_peer_list: ItemList
+var _group_status_label: Label
+var _listed_peers: Array[int] = []
+
 
 func _ready() -> void:
 	# Above BattleHud (layer 100) so F3 buttons stay clickable in fights.
@@ -72,11 +78,15 @@ func _ready() -> void:
 	btn_join_cancel.pressed.connect(_hide_fight_select)
 	fight_list.item_activated.connect(func(_index: int) -> void: _on_join_selected_pressed())
 	_setup_party_cheat_buttons()
+	_setup_group_cheat_page()
 	_setup_quest_cheat_buttons()
 	var qm := _qm()
 	if qm != null and qm.has_signal("quests_changed") and not qm.quests_changed.is_connected(_refresh_quest_lists):
 		qm.quests_changed.connect(_refresh_quest_lists)
 	_refresh_quest_lists()
+	if GroupManager != null and GroupManager.has_signal("group_changed"):
+		if not GroupManager.group_changed.is_connected(_refresh_group_status):
+			GroupManager.group_changed.connect(_refresh_group_status)
 
 
 func _process(_delta: float) -> void:
@@ -97,6 +107,8 @@ func _show_page(page: Page) -> void:
 	main_menu.visible = page == Page.MAIN
 	fight_page.visible = page == Page.FIGHT
 	quest_page.visible = page == Page.QUESTS
+	if _group_page != null:
+		_group_page.visible = page == Page.GROUP
 	match page:
 		Page.MAIN:
 			lbl_title.text = "Debug Overlay"
@@ -106,6 +118,10 @@ func _show_page(page: Page) -> void:
 		Page.QUESTS:
 			lbl_title.text = "Debug — Quests"
 			_refresh_quest_lists()
+		Page.GROUP:
+			lbl_title.text = "Debug — Group"
+			_refresh_group_peer_list()
+			_refresh_group_status()
 
 
 func _get_fight_manager() -> Node:
@@ -117,6 +133,140 @@ func _get_fight_manager() -> Node:
 
 func _qm() -> Node:
 	return get_tree().root.get_node_or_null("QuestManager")
+
+
+## English-only Group cheats (no CSV).
+func _setup_group_cheat_page() -> void:
+	var btn_menu_group := Button.new()
+	btn_menu_group.text = "Group"
+	main_menu.add_child(btn_menu_group)
+	btn_menu_group.pressed.connect(func() -> void: _show_page(Page.GROUP))
+
+	_group_page = VBoxContainer.new()
+	_group_page.name = "GroupPage"
+	_group_page.visible = false
+	var vbox_parent: Node = $UIRoot/PanelContainer/ScrollContainer/VBoxContainer
+	vbox_parent.add_child(_group_page)
+
+	var btn_back := Button.new()
+	btn_back.text = "Back"
+	btn_back.pressed.connect(func() -> void: _show_page(Page.MAIN))
+	_group_page.add_child(btn_back)
+
+	_group_status_label = Label.new()
+	_group_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_group_page.add_child(_group_status_label)
+
+	var lbl_peers := Label.new()
+	lbl_peers.text = "Lobby Peers"
+	_group_page.add_child(lbl_peers)
+	_group_peer_list = ItemList.new()
+	_group_peer_list.custom_minimum_size = Vector2(0, 64)
+	_group_peer_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_group_page.add_child(_group_peer_list)
+
+	_add_cheat_button(_group_page, "Refresh Peers", _refresh_group_peer_list)
+	_add_cheat_button(_group_page, "Invite Selected", _on_group_invite_selected)
+	_add_cheat_button(_group_page, "Accept Invite", _on_group_accept)
+	_add_cheat_button(_group_page, "Decline Invite", _on_group_decline)
+	_add_cheat_button(_group_page, "Leave Group", _on_group_leave)
+	_add_cheat_button(_group_page, "Kick Selected", _on_group_kick_selected)
+	_add_cheat_button(_group_page, "Print Group", _on_group_print)
+
+
+func _refresh_group_status() -> void:
+	if _group_status_label == null:
+		return
+	if GroupManager == null:
+		_group_status_label.text = "GroupManager missing"
+		return
+	var pending := GroupManager.pending_invite_from
+	_group_status_label.text = "id=%s leader=%d members=%s pending_from=%d" % [
+		GroupManager.get_group_id(),
+		GroupManager.get_leader_peer_id(),
+		str(GroupManager.get_members()),
+		pending,
+	]
+
+
+func _refresh_group_peer_list() -> void:
+	if _group_peer_list == null:
+		return
+	_group_peer_list.clear()
+	_listed_peers.clear()
+	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+		_group_peer_list.add_item("(no multiplayer)")
+		return
+	var my_id := multiplayer.get_unique_id()
+	for pid in multiplayer.get_peers():
+		var id := int(pid)
+		if id == my_id:
+			continue
+		_listed_peers.append(id)
+		_group_peer_list.add_item("peer %d" % id)
+	if _listed_peers.is_empty():
+		_group_peer_list.add_item("(no other peers)")
+
+
+func _selected_group_peer() -> int:
+	if _group_peer_list == null or _listed_peers.is_empty():
+		return 0
+	var selected: PackedInt32Array = _group_peer_list.get_selected_items()
+	if selected.is_empty():
+		return 0
+	var idx := int(selected[0])
+	if idx < 0 or idx >= _listed_peers.size():
+		return 0
+	return _listed_peers[idx]
+
+
+func _on_group_invite_selected() -> void:
+	var pid := _selected_group_peer()
+	if pid == 0:
+		print("DebugOverlay: pick a peer first")
+		return
+	GroupManager.invite(pid)
+	print("DebugOverlay: invite sent to ", pid)
+	_refresh_group_status()
+
+
+func _on_group_accept() -> void:
+	GroupManager.accept_invite()
+	_refresh_group_status()
+
+
+func _on_group_decline() -> void:
+	GroupManager.decline_invite()
+	_refresh_group_status()
+
+
+func _on_group_leave() -> void:
+	GroupManager.leave()
+	_refresh_group_status()
+
+
+func _on_group_kick_selected() -> void:
+	var pid := _selected_group_peer()
+	if pid == 0:
+		print("DebugOverlay: pick a peer first")
+		return
+	GroupManager.kick(pid)
+	print("DebugOverlay: kick ", pid)
+	_refresh_group_status()
+
+
+func _on_group_print() -> void:
+	_refresh_group_status()
+	print(
+		"DebugOverlay: group id=",
+		GroupManager.get_group_id(),
+		" leader=",
+		GroupManager.get_leader_peer_id(),
+		" members=",
+		GroupManager.get_members(),
+		" pending_from=",
+		GroupManager.pending_invite_from
+	)
 
 
 ## English-only party smoke helper (no CSV) — stub companion for §5b multi-unit fights.

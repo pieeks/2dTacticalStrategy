@@ -44,10 +44,20 @@ ui.esc.quit,Quit,Beenden
 ui.net.disconnected_title,Disconnected,Verbindung getrennt
 ui.net.ok,OK,OK
 ui.net.host_closed,The host closed the game.,Der Host hat das Spiel geschlossen.
+ui.net.host_port_busy,Could not host — port already in use. Close the other game instance and try again.,Hosten fehlgeschlagen — Port belegt. Andere Spielinstanz schließen und erneut versuchen.
 ui.interact.talk,Talk,Reden
 ui.interact.trade,Trade,Handeln
 ui.interact.quest,Quest,Quest
 ui.interact.leave,Leave,Verlassen
+group.menu_title,Group,Gruppe
+group.invite,Invite,Einladen
+group.accept,Accept,Annehmen
+group.decline,Decline,Ablehnen
+group.leave,Leave group,Gruppe verlassen
+group.kick,Kick,Kicken
+group.cancel,Cancel,Abbrechen
+group.invited_by,Invite from peer %d,Einladung von Peer %d
+group.full,Group is full,Gruppe ist voll
 battle.join.title,Join fight,Kampf beitreten
 battle.join.player,Join player,Spieler joinen
 battle.join.enemy,Join enemy,Gegner joinen

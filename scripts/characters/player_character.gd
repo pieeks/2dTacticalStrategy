@@ -190,9 +190,9 @@ func _try_interact_with_player(target: Node) -> void:
 			if player_ui.has_method("show_fight_join_menu"):
 				player_ui.show_fight_join_menu(target_peer)
 			return
-	# Non-fight player interaction (placeholder menu).
-	if sync:
-		sync.interaction_approved.rpc_id(multiplayer.get_unique_id(), {}, "")
+	# Non-fight player interaction → Group invite / accept / leave.
+	if player_ui != null and player_ui.has_method("show_group_menu"):
+		player_ui.show_group_menu(target_peer)
 
 
 ## E on a fight-locked Overworld NPC → same Join menu as interacting with the fighter.

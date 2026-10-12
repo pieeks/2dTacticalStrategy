@@ -120,20 +120,25 @@ func _enrich_encounter_party_rosters(encounter: Dictionary, peer_ids: Array) -> 
 
 ## Single-leader roster from legacy player_appearances / player_stats.
 func _fallback_party_roster_for_peer(peer_id: int, encounter: Dictionary) -> Array:
-	var apps: Variant = encounter.get("player_appearances", {})
-	var stats_map: Variant = encounter.get("player_stats", {})
+	var key := str(peer_id)
 	var appearance: Dictionary = {}
 	var stats: Dictionary = {}
-	if apps is Dictionary and (apps as Dictionary).get(str(peer_id), {}) is Dictionary:
-		appearance = ((apps as Dictionary)[str(peer_id)] as Dictionary).duplicate(true)
-	if stats_map is Dictionary and (stats_map as Dictionary).get(str(peer_id), {}) is Dictionary:
-		stats = ((stats_map as Dictionary)[str(peer_id)] as Dictionary).duplicate(true)
+	var apps: Variant = encounter.get("player_appearances", {})
+	if apps is Dictionary:
+		var app_raw: Variant = (apps as Dictionary).get(key, {})
+		if app_raw is Dictionary:
+			appearance = (app_raw as Dictionary).duplicate(true)
+	var stats_map: Variant = encounter.get("player_stats", {})
+	if stats_map is Dictionary:
+		var stats_raw: Variant = (stats_map as Dictionary).get(key, {})
+		if stats_raw is Dictionary:
+			stats = (stats_raw as Dictionary).duplicate(true)
 	if appearance.is_empty():
 		appearance = _collect_player_appearance(peer_id)
 	if stats.is_empty():
 		stats = _collect_player_stats(peer_id)
 	return [{
-		"member_id": str(peer_id),
+		"member_id": key,
 		"role": "leader",
 		"name": "Player %d" % peer_id,
 		"appearance": appearance,

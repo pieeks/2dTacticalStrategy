@@ -33,7 +33,7 @@ flowchart LR
 ```
 
 - [x] Begriffe in README / `project_current_state` kurz vermerken
-- [ ] CSV-Keys später mit Präfix `party.*` / `group.*` / `encounter.*` (DE+EN)
+- [x] CSV-Keys später mit Präfix `party.*` / `group.*` / `encounter.*` (DE+EN) — `group.*` v1
 
 ---
 
@@ -248,11 +248,11 @@ Kein Editor-Zwang in v1 — reines JSON.
 - Kein gemeinsamer Party-Save
 - Kein automatisches gemeinsames Fight-Start (kann folgen: „Group startet Encounter zusammen“)
 
-- [ ] `GroupManager` Autoload + RPCs
-- [ ] Invite-Flow UI (oder zuerst nur F3)
-- [ ] Disconnect-Cleanup
-- [ ] QuestManager Stub durch echte Membership ersetzen
-- [ ] CSV `group.*` (Invite/Leave/…)
+- [x] `GroupManager` Autoload + RPCs
+- [x] Invite-Flow UI (oder zuerst nur F3)
+- [x] Disconnect-Cleanup
+- [x] QuestManager Stub durch echte Membership ersetzen
+- [x] CSV `group.*` (Invite/Leave/…)
 
 ---
 
@@ -352,7 +352,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 
 - [x] Fight: Roster statt reines `group_size`-Klonscript
 - [x] Fight: Party-/Enemy-Sync §5 (5a Enemy + 5b Party)
-- [ ] Quest: Group-Membership verdrahten
+- [x] Quest: Group-Membership verdrahten
 - [x] Docs: Kampfplan-Hinweis „Encounter Composition“ auf diesen Plan verlinken
 
 ---
@@ -363,7 +363,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 2. **Party-Normalizer + API** (Datenbasis) — erledigt
 3. **EncounterResolver + `enemy_roster` + MP-Sync 5a** — erledigt
 4. **Party-Roster Sync 5b** (Snapshot + Multi-Unit-Spawn) — erledigt
-5. **GroupManager** (Invite/Leave) + Quest-Hook
+5. **GroupManager** (Invite/Leave) + Quest-Hook — erledigt
 6. Kurztest (inkl. Multi-Peer Fight, mind. 2 als Smoke) + README / Status
 
 ---
@@ -391,8 +391,8 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 - [ ] **Multi-Peer:** Party A (2+ Members) im Fight; weiterer Peer joint → alle sehen alle Party-Units aller Participants
 - [ ] Late-Join / Re-Sync: Roster vollständig, keine fehlenden Companions (unabhängig von Peer-Anzahl)
 - [ ] Party-Save hat leader + members; Helper lesen korrekt
-- [ ] Zwei Peers: Invite → gleiche `group_id`; Leave trennt
-- [ ] QuestManager erkennt Group-Peers (Debug/Log reicht zuerst)
+- [x] Zwei Peers: Invite → gleiche `group_id`; Leave trennt
+- [x] QuestManager erkennt Group-Peers (Debug/Log reicht zuerst)
 - [ ] Sprache: neue UI-Strings über CSV
 
 ---
@@ -404,7 +404,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 - [x] `enemy_roster` host-autoritativ für Start/Join/Late-Join synchron
 - [x] Party-Datenmodell normalisiert + Query-API
 - [x] `party_rosters` sync + Multi-Unit sichtbar für alle Fight-Peers
-- [ ] Group invite/leave spielbar (UI oder F3)
+- [x] Group invite/leave spielbar (UI oder F3)
 - [x] Keine Vermischung der drei Konzepte in Code-Namen
 
 ---
