@@ -15,6 +15,10 @@ var npc_loot: Dictionary
 var npc_sync: Dictionary
 var npc_is_hostile: bool = false
 var npc_group_size: int = 1
+## Optional reusable encounter composition id (`resources/encounters/<id>.json`).
+var npc_encounter_id: String = ""
+## Optional inline composition units: [{ "npc_type", "count" }, ...].
+var npc_encounter_units: Array = []
 var npc_quests: Dictionary = {}
 
 func _ready() -> void:
@@ -90,6 +94,19 @@ func load_npc_enemy_data(type: String, count: int) -> void:
 	npc_sync = parsed.get("sync", {})
 	npc_is_hostile = parsed.get("is_hostile", false)
 	npc_group_size = maxi(1, int(parsed.get("group_size", 1)))
+	npc_encounter_id = str(parsed.get("encounter_id", "")).strip_edges()
+	npc_encounter_units = []
+	var encounter_block: Variant = parsed.get("encounter", {})
+	if encounter_block is Dictionary:
+		var enc_dict: Dictionary = encounter_block as Dictionary
+		if npc_encounter_id.is_empty():
+			npc_encounter_id = str(enc_dict.get("id", "")).strip_edges()
+		var enc_units: Variant = enc_dict.get("units", [])
+		if enc_units is Array:
+			npc_encounter_units = (enc_units as Array).duplicate(true)
+	var top_units: Variant = parsed.get("units", [])
+	if npc_encounter_units.is_empty() and top_units is Array:
+		npc_encounter_units = (top_units as Array).duplicate(true)
 	var quests_raw = parsed.get("quests", {})
 	npc_quests = quests_raw if typeof(quests_raw) == TYPE_DICTIONARY else {}
 	

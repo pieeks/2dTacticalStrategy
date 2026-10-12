@@ -64,6 +64,7 @@ func start_fight_with_encounter(peer_id: int, encounter: Dictionary) -> void:
 	print("FightManager: start_fight_with_encounter ", peer_id, " ", encounter.get("npc_type", ""))
 	peers_in_fight[peer_id] = true
 	var enriched: Dictionary = _enrich_encounter_player_data(encounter, [peer_id])
+	enriched = EncounterResolver.attach_enemy_roster(enriched)
 	rpc_start_fight.rpc(peer_id, enriched)
 	var npc_path := str(enriched.get("npc_path", ""))
 	if npc_path != "":
@@ -152,6 +153,9 @@ func sync_active_fights_to_peer(peer_id: int) -> void:
 			var encounter: Dictionary = {}
 			if child.has_method("get_encounter"):
 				encounter = child.get_encounter()
+			encounter = EncounterResolver.attach_enemy_roster(encounter)
+			if child.has_method("set_encounter"):
+				child.set_encounter(encounter)
 			var turn_state: Dictionary = {}
 			if child.has_method("get_turn_state"):
 				turn_state = child.get_turn_state()
@@ -296,6 +300,8 @@ func _process_join_request(
 	if fight.has_method("get_encounter"):
 		encounter = fight.get_encounter()
 	encounter = _enrich_encounter_player_data(encounter, participants_list)
+	# Keep existing host enemy_roster; only build if somehow missing.
+	encounter = EncounterResolver.attach_enemy_roster(encounter)
 	if fight.has_method("set_encounter"):
 		fight.set_encounter(encounter)
 	var turn_state: Dictionary = {}

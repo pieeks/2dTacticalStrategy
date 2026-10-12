@@ -150,6 +150,10 @@ func _build_encounter() -> Dictionary:
 			enc["npc_name"] = str(name)
 		enc["stats"] = specification.npc_stats.duplicate(true)
 		enc["group_size"] = maxi(1, int(specification.npc_group_size))
+		if specification.npc_encounter_id != "":
+			enc["encounter_id"] = specification.npc_encounter_id
+		if not specification.npc_encounter_units.is_empty():
+			enc["units"] = specification.npc_encounter_units.duplicate(true)
 	# Prefer Spec-JSON appearance (only defined layers) — not live sprites with hidden defaults.
 	if is_instance_valid(specification) and not specification.npc_appearance.is_empty():
 		enc["appearance"] = specification.npc_appearance.duplicate(true)

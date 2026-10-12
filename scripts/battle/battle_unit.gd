@@ -129,11 +129,19 @@ static func make_player(peer_id: int, stats: Dictionary = {}) -> BattleUnit:
 static func make_enemy(index: int, encounter: Dictionary) -> BattleUnit:
 	var u := BattleUnit.new()
 	u.unit_id = "enemy_%d" % index
-	u.display_name = str(encounter.get("npc_name", "Enemy"))
 	u.side = SIDE_ENEMY
 	u.owner_peer_id = 0
+	var entry: Dictionary = {}
+	var roster: Variant = encounter.get("enemy_roster", [])
+	if roster is Array and index >= 0 and index < (roster as Array).size():
+		var raw: Variant = (roster as Array)[index]
+		if raw is Dictionary:
+			entry = raw as Dictionary
+	u.display_name = str(entry.get("display_name", encounter.get("npc_name", "Enemy")))
 	var stats: Dictionary = {}
-	if encounter.get("stats") is Dictionary:
+	if entry.get("stats") is Dictionary:
+		stats = entry["stats"] as Dictionary
+	elif encounter.get("stats") is Dictionary:
 		stats = encounter["stats"] as Dictionary
 	_apply_combat_stats(u, stats, DEFAULT_ENEMY_STATS)
 	return u

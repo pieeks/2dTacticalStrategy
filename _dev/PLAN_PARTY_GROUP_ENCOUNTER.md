@@ -203,13 +203,13 @@ Resolver-Priorität:
 
 Kein Editor-Zwang in v1 — reines JSON.
 
-- [ ] `EncounterResolver` (oder Funktionen in FightManager): Spec/ID → `enemy_roster`
-- [ ] Schema dokumentieren (`units[].npc_type`, `units[].count` ≥ 1)
-- [ ] Mindestens 1 Demo-Encounter mit `count > 1` und idealerweise 2 Typen (wenn 2 Specs existieren) oder 3× slime
-- [ ] `fight_template._spawn_battle_enemies` auf Roster umstellen
-- [ ] Alte Specs mit nur `group_size` weiter lauffähig
+- [x] `EncounterResolver` (oder Funktionen in FightManager): Spec/ID → `enemy_roster`
+- [x] Schema dokumentieren (`units[].npc_type`, `units[].count` ≥ 1)
+- [x] Mindestens 1 Demo-Encounter mit `count > 1` und idealerweise 2 Typen (wenn 2 Specs existieren) oder 3× slime
+- [x] `fight_template._spawn_battle_enemies` auf Roster umstellen
+- [x] Alte Specs mit nur `group_size` weiter lauffähig
 - [x] Optional: Ordner `resources/encounters/` + Loader
-- [ ] `enemy_roster` in Start-/Join-/Late-Join-RPCs mitsenden (siehe §5)
+- [x] `enemy_roster` in Start-/Join-/Late-Join-RPCs mitsenden (siehe §5)
 
 ---
 
@@ -331,14 +331,14 @@ v1-Lösung (an bestehende Appearance-Sync anlehnen):
 
 Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 
-- [ ] `enemy_roster` im Encounter; Spawn nur aus Snapshot
-- [ ] Start-/Join-/Late-Join-RPCs: Roster immer mitsenden
+- [x] `enemy_roster` im Encounter; Spawn nur aus Snapshot
+- [x] Start-/Join-/Late-Join-RPCs: Roster immer mitsenden
 - [ ] Kurztest (≥2 Peers): gleicher Enemy-Count/Looks nach Join
 - [ ] Party-Snapshot RPC Client→Host
 - [ ] `party_rosters` anreichern + Multi-Unit-Spawn pro Peer
 - [ ] Kurztest: Peer A mit ≥2 Members, weiterer Peer joint → alle Participants sehen alle Party-Units + Enemies
 - [ ] Turn-Order / Unit-IDs für Party-Companions stabil
-- [ ] Design skaliert mit Lobby-Max (kein Hardcode auf 2 Peers)
+- [x] Design skaliert mit Lobby-Max (kein Hardcode auf 2 Peers)
 
 ---
 
@@ -350,18 +350,18 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 | Fight | N Units / Peer via `party_rosters` (§5) | Join/Verstärkung wie heute; später Group-Auto-Join | `enemy_roster` Host-Snapshot (§5) |
 | Quests | Fortschritt in Party-Save | Progress-Share Stub → echt | Kill nach `npc_type` |
 
-- [ ] Fight: Roster statt reines `group_size`-Klonscript
-- [ ] Fight: Party-/Enemy-Sync §5
+- [x] Fight: Roster statt reines `group_size`-Klonscript
+- [ ] Fight: Party-/Enemy-Sync §5 (5a Enemy erledigt; 5b Party offen)
 - [ ] Quest: Group-Membership verdrahten
-- [ ] Docs: Kampfplan-Hinweis „Encounter Composition“ auf diesen Plan verlinken
+- [x] Docs: Kampfplan-Hinweis „Encounter Composition“ auf diesen Plan verlinken
 
 ---
 
 ## 7. Empfohlene Umsetzungsreihenfolge
 
 1. Begriffe + dieser Plan (§0–§1) — erledigt
-2. **EncounterResolver + `enemy_roster` + MP-Sync 5a**
-3. **Party-Normalizer + API** (Datenbasis)
+2. **Party-Normalizer + API** (Datenbasis) — erledigt
+3. **EncounterResolver + `enemy_roster` + MP-Sync 5a** — erledigt
 4. **Party-Roster Sync 5b** (Snapshot + Multi-Unit-Spawn)
 5. **GroupManager** (Invite/Leave) + Quest-Hook
 6. Kurztest (inkl. Multi-Peer Fight, mind. 2 als Smoke) + README / Status
@@ -399,13 +399,13 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 
 ## Definition of Done (erster Slice)
 
-- [ ] Begriffe Party / Group / Encounter sind im Plan und Status-Docs konsistent
-- [ ] Encounter-Composition (`units[]`) auflösbar + im Fight gespawnt; `group_size`-Fallback lebt
-- [ ] `enemy_roster` host-autoritativ für Start/Join/Late-Join synchron
+- [x] Begriffe Party / Group / Encounter sind im Plan und Status-Docs konsistent
+- [x] Encounter-Composition (`units[]`) auflösbar + im Fight gespawnt; `group_size`-Fallback lebt
+- [x] `enemy_roster` host-autoritativ für Start/Join/Late-Join synchron
 - [x] Party-Datenmodell normalisiert + Query-API
 - [ ] `party_rosters` sync + Multi-Unit sichtbar für alle Fight-Peers
 - [ ] Group invite/leave spielbar (UI oder F3)
-- [ ] Keine Vermischung der drei Konzepte in Code-Namen
+- [x] Keine Vermischung der drei Konzepte in Code-Namen
 
 ---
 

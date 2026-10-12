@@ -39,7 +39,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Fight-Instanzen unter Overworld-`FightLayer` (kein Scene-Wechsel)
 - Zwei Nodes: World-Player (während Fight gated) + `BattleCharacter` im Fight
 - Fight-Visuals: Spieler und Gegner als `CharacterAppearance` (Overworld-Look)
-- Encounter `group_size` (Default 1) aus NPC-Spec; Gegner-Stats (HP/ATK/Move/Init) aus JSON
+- Encounter: Host-`enemy_roster` aus `units[]` / `encounter_id` / Fallback `group_size`; Sync bei Start/Join/Late-Join
 - Spieler-Kampfstats aus Party-Placeholder (`members[0].stats`), Sync über Encounter `player_stats`
 - v1: ein Kampf-Avatar pro Peer (keine lokalen Party-Begleiter-Units)
 - Host-autoritativer Lifecycle: Start / Join / Leave / Destroy + Late-Join-Sync

@@ -126,6 +126,7 @@ Erst wenn Rahmen + Grid stabil laufen.
   → UI-Stubs „Gegner joinen“ / „Neutral“ vorhanden, ohne Logik
 - [x] Fight-Visuals: Spieler + Gegner als `CharacterAppearance` (kein Polygon-Platzhalter)
 - [x] Encounter `group_size` (Default 1) + Spawn/Rebuild-Loop `Enemy_0…n`
+  → Composition/`enemy_roster`: siehe [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md) §3 + §5a
 - [x] Debug F3: Join Fight öffnet Liste aktiver Fights zur Auswahl
 
 ---
@@ -135,7 +136,7 @@ Erst wenn Rahmen + Grid stabil laufen.
 - [x] Battle-Stats am Charakter/NPC (HP, ATK, MOVE, Initiative) — auch wenn Placeholder
   → NPC: `resources/npcs/*.json` → Encounter → `make_enemy`; Player: Party `members[0].stats` + Fight-Sync `player_stats`
 - [x] Encounter-Definition (welche Gegner, wie viele) — Prefab oder Dictionary
-  → Spec-Top-Level `group_size` + Appearance/Stats im Encounter-Dict
+  → `units[]` / `encounter_id` / Fallback `group_size` → Host-`enemy_roster` ([`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md) §3)
 - [x] Ordner `data/` oder bestehende Specs erweitern (nicht leere `.gitkeep` wie in NewGameRepo)
   → Specs unter `resources/npcs/` erweitert (kein leerer `data/`-Tree)
 - [x] Party-Mitglieder im Kampf (nicht nur 1 Avatar) — Scope für v1 festlegen
