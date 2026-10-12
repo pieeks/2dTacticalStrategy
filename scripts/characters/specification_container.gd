@@ -1,11 +1,11 @@
 class_name NpcSpecification
 extends NPCController
 
+const NpcArchetypeScript := preload("res://scripts/characters/npc_archetype.gd")
+
 @onready var appearance: CharacterAppearance = $"../CharacterAppearance"
 
 @export var npc_type: String
-
-var base_npc_path: String = "res://resources/npcs/"
 
 var npc_count: int
 var npc_name: String
@@ -39,51 +39,23 @@ func set_specifical_nodes() -> void:
 		$"..".set_force_fight_area(force_fight_node)
 		$"..".add_child(aggro_controller_node)
 	
-	if npc_appearance.size() > 0: 
-		if npc_appearance.has("race_path"):
-			appearance.set_race(npc_appearance["race_path"])
-		else:
-			appearance.get_node("Race2DSprite").visible = false
-		
-		if npc_appearance.has("hair_path"):
-			appearance.set_hair(npc_appearance["hair_path"])
-		else: 
-			appearance.get_node("Hair2DSprite").visible = false
-		
-		if npc_appearance.has("body_path"):
-			appearance.set_body(npc_appearance["body_path"])
-		else:
-			appearance.get_node("Body2DSprite").visible = false
-		
-		if npc_appearance.has("leg_path"):
-			appearance.set_leg(npc_appearance["leg_path"])
-		else: 
-			appearance.get_node("Leg2DSprite").visible = false
+	if npc_appearance.size() > 0 and appearance != null and appearance.has_method("apply_full_data"):
+		appearance.apply_full_data(npc_appearance)
 
 
 func load_npc_enemy_data(type: String, count: int) -> void:
 	npc_type = type
 	npc_count = (count + 1)
-	base_npc_path = base_npc_path + npc_type + ".json"
-	if not FileAccess.file_exists(base_npc_path):
-		push_error("No save found at: " + base_npc_path)
+	var parsed := NpcArchetypeScript.load_type(npc_type)
+	if parsed.is_empty():
+		push_error("NpcSpecification: missing or invalid archetype for npc_type=%s" % npc_type)
+		return
 	
-	var file := FileAccess.open(base_npc_path, FileAccess.READ)
-	if file == null: 
-		push_error("Could not open file: " + base_npc_path)
-	
-	var txt = file.get_as_text()
-	file.close()
-	
-	var parsed := JSON.parse_string(txt) as Dictionary
-	if typeof(parsed) != TYPE_DICTIONARY: 
-		push_error("Save file invalid or corrupted: " + base_npc_path)
-	
-	npc_name = parsed.get("name", "")
-	npc_appearance = parsed.get("appearance", {})
-	npc_stats = parsed.get("stats", {})
-	npc_loot = parsed.get("loot", {})
-	npc_is_hostile = parsed.get("is_hostile", false)
+	npc_name = str(parsed.get("name", ""))
+	npc_appearance = parsed.get("appearance", {}) if parsed.get("appearance", {}) is Dictionary else {}
+	npc_stats = parsed.get("stats", {}) if parsed.get("stats", {}) is Dictionary else {}
+	npc_loot = parsed.get("loot", {}) if parsed.get("loot", {}) is Dictionary else {}
+	npc_is_hostile = bool(parsed.get("is_hostile", false))
 	npc_group_size = maxi(1, int(parsed.get("group_size", 1)))
 	npc_encounter_id = str(parsed.get("encounter_id", "")).strip_edges()
 	npc_encounter_units = []

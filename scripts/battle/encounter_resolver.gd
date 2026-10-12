@@ -2,8 +2,8 @@ class_name EncounterResolver
 extends RefCounted
 ## Resolves World-Encounter / encounter_id / group_size into a host enemy_roster snapshot.
 
-const NPC_BASE_PATH := "res://resources/npcs/"
 const ENCOUNTER_BASE_PATH := "res://resources/encounters/"
+const NpcArchetypeScript := preload("res://scripts/characters/npc_archetype.gd")
 
 
 ## Ensure encounter has enemy_roster. Skips rebuild if already non-empty (Join/Late-Join).
@@ -106,9 +106,7 @@ static func _make_roster_entry(npc_type: String, archetype: Dictionary, index: i
 
 
 static func _load_npc_archetype(npc_type: String) -> Dictionary:
-	if npc_type.is_empty():
-		return {}
-	return _load_json_dict(NPC_BASE_PATH + npc_type + ".json")
+	return NpcArchetypeScript.load_type(npc_type)
 
 
 static func _load_encounter_file(encounter_id: String) -> Dictionary:

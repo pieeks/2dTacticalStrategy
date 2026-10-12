@@ -103,9 +103,9 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 - Ist: Fallback-Kaskade doppelt in `FightManager._collect_player_appearance` und `FightTemplate._get_overworld_player_appearance`
 - Soll: eine Hilfsfunktion (z. B. an `PlayerPartyState` oder kleinem Appearance-Helper): Sync → Save → Visual → Party-Leader
 
-- [ ] Gemeinsame Collect-API
-- [ ] FightManager + FightTemplate nutzen dieselbe Funktion
-- [ ] Creation schreibt Appearance konsistent in `party_data.members[leader]` (player_data nur Legacy/Fallback)
+- [x] Gemeinsame Collect-API
+- [x] FightManager + FightTemplate nutzen dieselbe Funktion
+- [x] Creation schreibt Appearance konsistent in `party_data.members[leader]` (player_data nur Legacy/Fallback)
 
 ### 2.2 Appearance-Schema bewusst machen
 
@@ -114,7 +114,7 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 
 **Entscheidung v1:** Head/Hand/Weapon in Dict optional serialisieren wenn gesetzt; fehlende Keys → Layer unsichtbar (wie Spec-Apply beim NPC).
 
-- [ ] Schema erweitern oder Battle-Layer-Hide bei fehlenden Keys
+- [x] Schema erweitern oder Battle-Layer-Hide bei fehlenden Keys
 - [ ] Kurztest: Overworld-Look ≈ Battle-Look (gleiche gesetzte Layer)
 
 ### 2.3 Gemeinsamer NPC-Archetyp-Loader
@@ -122,9 +122,9 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 - Ist: `NpcSpecification.load_npc_enemy_data` und `EncounterResolver._load_npc_archetype` lesen JSON getrennt
 - Soll: eine Loader-Funktion (Stats, Appearance, Loot, hostile, encounter-Felder)
 
-- [ ] Shared Loader (z. B. `NpcArchetype.load(npc_type) -> Dictionary`)
-- [ ] Spec + EncounterResolver verdrahten
-- [ ] Alte Specs (`group_size`, `encounter_id`, inline `units`) weiter lauffähig
+- [x] Shared Loader (z. B. `NpcArchetype.load(npc_type) -> Dictionary`)
+- [x] Spec + EncounterResolver verdrahten
+- [x] Alte Specs (`group_size`, `encounter_id`, inline `units`) weiter lauffähig
 
 ---
 
@@ -172,7 +172,7 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 ## 5. Empfohlene Umsetzungsreihenfolge
 
 1. **§1 P1** Walk-Gate + Spawn-Name + NPC-Sync-Totpfad + Patrol-API — erledigt (Smoke manuell)
-2. **§2** Appearance-Collect + Schema + Archetyp-Loader
+2. **§2** Appearance-Collect + Schema + Archetyp-Loader — erledigt (Kurztest manuell)
 3. **§3** Battle-Enemy-Prefab + Fight-Gate-Signal + Kill-Credit
 4. **§4** Aufräumen
 5. Kurztest + Status/README anpassen
@@ -207,7 +207,7 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 ## Definition of Done
 
 - [x] P1 (§1) ohne Net-/Crash-Totpfade
-- [ ] Appearance-Collect und Archetyp-Laden nicht mehr doppelt driftend
+- [x] Appearance-Collect und Archetyp-Laden nicht mehr doppelt driftend
 - [ ] Battle-Enemies über Prefab (kein ad-hoc `Node2D.new`-Haufen)
 - [ ] Leitplanken eingehalten: OW ≠ Fight-Nodes
 - [x] Status/README verlinken diesen Plan; erledigte Slices abgehakt

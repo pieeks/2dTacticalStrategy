@@ -1,6 +1,8 @@
 extends Node
 ## Host-Autorität: Start/Ende/Join von Kämpfen, Encounter-Lock, Join-in-Progress-Sync.
 
+const AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
+
 signal fight_ended_for_peer(peer_id: int)
 
 @export var fight_scene: PackedScene
@@ -149,28 +151,7 @@ func _fallback_party_roster_for_peer(peer_id: int, encounter: Dictionary) -> Arr
 ## Collect current worn look for a peer from Overworld / Save / PartyState.
 func _collect_player_appearance(peer_id: int) -> Dictionary:
 	var players: Node = get_tree().get_root().get_node_or_null("Overworld/Players")
-	if players != null:
-		var player: Node = players.get_node_or_null(str(peer_id))
-		if player != null:
-			var sync_node = player.get("sync")
-			if sync_node != null and sync_node.get("appearance") is Dictionary:
-				var from_sync: Dictionary = sync_node.appearance
-				if not from_sync.is_empty() and str(from_sync.get("race_path", "")) != "":
-					return from_sync.duplicate(true)
-			var save_node = player.get("save")
-			if save_node != null and not save_node.appearance_data.is_empty():
-				if str(save_node.appearance_data.get("race_path", "")) != "":
-					return save_node.appearance_data.duplicate(true)
-			var app = player.get("appearance")
-			if app != null and app.has_method("get_full_data"):
-				var from_visual: Dictionary = app.get_full_data()
-				if not from_visual.is_empty() and str(from_visual.get("race_path", "")) != "":
-					return from_visual
-	if peer_id == multiplayer.get_unique_id():
-		var party_app: Variant = PlayerPartyState.player_data.get("appearance", {})
-		if party_app is Dictionary and str(party_app.get("race_path", "")) != "":
-			return (party_app as Dictionary).duplicate(true)
-	return {}
+	return AppearanceDataScript.collect_for_peer(peer_id, players)
 
 
 ## Combat stats for a peer (party leader placeholder for v1).

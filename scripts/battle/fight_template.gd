@@ -6,6 +6,7 @@ signal fight_ready_to_remove(owner_peer_id: int)
 const BattleTurnControllerScript = preload("res://scripts/battle/battle_turn_controller.gd")
 const BattleHudScene = preload("res://scenes/battle/battle_hud.tscn")
 const CharacterAppearanceScene = preload("res://scenes/characters/character_appearance.tscn")
+const AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
 
 @onready var grid_manager: Node2D = $GridManager
 @onready var player_container: Node = $PlayerContainer
@@ -302,10 +303,6 @@ func _activate_local_leader_camera() -> void:
 		my_char.activate_camera()
 
 
-func _appearance_dict_usable(data: Dictionary) -> bool:
-	return not data.is_empty() and str(data.get("race_path", "")) != ""
-
-
 func _get_player_stats_for_peer(peer_id: int) -> Dictionary:
 	var synced: Variant = encounter.get("player_stats", {})
 	if synced is Dictionary:
@@ -326,46 +323,16 @@ func _get_player_appearance_for_peer(peer_id: int) -> Dictionary:
 	var synced: Variant = encounter.get("player_appearances", {})
 	if synced is Dictionary:
 		var from_enc: Variant = (synced as Dictionary).get(str(peer_id), {})
-		if from_enc is Dictionary and _appearance_dict_usable(from_enc):
+		if from_enc is Dictionary and AppearanceDataScript.is_usable(from_enc as Dictionary):
 			return (from_enc as Dictionary).duplicate(true)
-	# 2) Live Overworld player node.
+	# 2) Live Overworld player node / local party.
 	return _get_overworld_player_appearance(peer_id)
 
 
 func _get_overworld_player_appearance(peer_id: int) -> Dictionary:
 	var overworld: Node = get_parent().get_parent() if get_parent() else null
-	if overworld == null:
-		return {}
-	var players: Node = overworld.get_node_or_null("Players")
-	if players == null:
-		return {}
-	var player: Node = players.get_node_or_null(str(peer_id))
-	if player == null:
-		# Local authority fallback when node not found yet.
-		if peer_id == multiplayer.get_unique_id():
-			var local_app: Variant = PlayerPartyState.player_data.get("appearance", {})
-			if local_app is Dictionary and _appearance_dict_usable(local_app):
-				return (local_app as Dictionary).duplicate(true)
-		return {}
-	var sync_node = player.get("sync")
-	if sync_node != null and sync_node.get("appearance") is Dictionary:
-		var from_sync: Dictionary = sync_node.appearance
-		if _appearance_dict_usable(from_sync):
-			return from_sync.duplicate(true)
-	var save_node = player.get("save")
-	if save_node != null and not save_node.appearance_data.is_empty():
-		if _appearance_dict_usable(save_node.appearance_data):
-			return save_node.appearance_data.duplicate(true)
-	var app = player.get("appearance")
-	if app != null and app.has_method("get_full_data"):
-		var from_visual: Dictionary = app.get_full_data()
-		if _appearance_dict_usable(from_visual):
-			return from_visual
-	if peer_id == multiplayer.get_unique_id():
-		var party_app: Variant = PlayerPartyState.player_data.get("appearance", {})
-		if party_app is Dictionary and _appearance_dict_usable(party_app):
-			return (party_app as Dictionary).duplicate(true)
-	return {}
+	var players: Node = overworld.get_node_or_null("Players") if overworld != null else null
+	return AppearanceDataScript.collect_for_peer(peer_id, players)
 
 
 ## Spawn one party member node named player_<peer>_<member_id>.
@@ -402,7 +369,7 @@ func _spawn_party_member(peer_id: int, entry: Dictionary, member_index: int) -> 
 	player_container.add_child(character)
 	character.global_position = world_pos
 	var appearance_data: Dictionary = {}
-	if entry.get("appearance") is Dictionary and _appearance_dict_usable(entry["appearance"]):
+	if entry.get("appearance") is Dictionary and AppearanceDataScript.is_usable(entry["appearance"]):
 		appearance_data = (entry["appearance"] as Dictionary).duplicate(true)
 	else:
 		appearance_data = _get_player_appearance_for_peer(peer_id)

@@ -126,6 +126,57 @@ func set_body(resource_path: String) -> void:
 			body.sprite_frames = frames
 
 
+## Returns the resource path of the current head SpriteFrames.
+func get_head() -> String:
+	var head := $Head2DSprite as AnimatedSprite2D
+	if head.sprite_frames:
+		return head.sprite_frames.resource_path
+	return ""
+
+
+## Assigns new SpriteFrames to the head layer.
+func set_head(resource_path: String) -> void:
+	if resource_path != "" and resource_path != null:
+		var frames = load(resource_path)
+		if frames is SpriteFrames:
+			var head := $Head2DSprite as AnimatedSprite2D
+			head.sprite_frames = frames
+
+
+## Returns the resource path of the main weapon SpriteFrames.
+func get_main_weapon() -> String:
+	var weapon := $MainWeaponAttachmentPoint/MainWeapon2DSprite as AnimatedSprite2D
+	if weapon.sprite_frames:
+		return weapon.sprite_frames.resource_path
+	return ""
+
+
+## Assigns new SpriteFrames to the main weapon layer.
+func set_main_weapon(resource_path: String) -> void:
+	if resource_path != "" and resource_path != null:
+		var frames = load(resource_path)
+		if frames is SpriteFrames:
+			var weapon := $MainWeaponAttachmentPoint/MainWeapon2DSprite as AnimatedSprite2D
+			weapon.sprite_frames = frames
+
+
+## Returns the resource path of the off-hand weapon SpriteFrames.
+func get_off_weapon() -> String:
+	var weapon := $OffWeaponAttachmentPoint/OffWeapon2DSprite as AnimatedSprite2D
+	if weapon.sprite_frames:
+		return weapon.sprite_frames.resource_path
+	return ""
+
+
+## Assigns new SpriteFrames to the off-hand weapon layer.
+func set_off_weapon(resource_path: String) -> void:
+	if resource_path != "" and resource_path != null:
+		var frames = load(resource_path)
+		if frames is SpriteFrames:
+			var weapon := $OffWeaponAttachmentPoint/OffWeapon2DSprite as AnimatedSprite2D
+			weapon.sprite_frames = frames
+
+
 ## Plays an animation on all available layers.
 ## @param animation_name String: Name of the animation (must exist in SpriteFrames).
 ## @param speed float: Playback speed (default 1.0).
@@ -176,6 +227,9 @@ func get_full_data() -> Dictionary:
 	var hair := $Hair2DSprite as AnimatedSprite2D
 	var body := $Body2DSprite as AnimatedSprite2D
 	var leg := $Leg2DSprite as AnimatedSprite2D
+	var head := $Head2DSprite as AnimatedSprite2D
+	var main_weapon := $MainWeaponAttachmentPoint/MainWeapon2DSprite as AnimatedSprite2D
+	var off_weapon := $OffWeaponAttachmentPoint/OffWeapon2DSprite as AnimatedSprite2D
 	if race.visible and race.sprite_frames:
 		data["race_path"] = race.sprite_frames.resource_path
 	if hair.visible and hair.sprite_frames:
@@ -184,37 +238,41 @@ func get_full_data() -> Dictionary:
 		data["body_path"] = body.sprite_frames.resource_path
 	if leg.visible and leg.sprite_frames:
 		data["leg_path"] = leg.sprite_frames.resource_path
+	if head.visible and head.sprite_frames:
+		data["head_path"] = head.sprite_frames.resource_path
+	if main_weapon.visible and main_weapon.sprite_frames:
+		data["main_weapon_path"] = main_weapon.sprite_frames.resource_path
+	if off_weapon.visible and off_weapon.sprite_frames:
+		data["off_weapon_path"] = off_weapon.sprite_frames.resource_path
 	return data
 
 
 ## Applies a full appearance dataset from a dictionary.
 ## Present keys → set layer + show; missing/empty keys → hide layer (NPC Spec pattern).
 func apply_full_data(data: Dictionary) -> void:
-	var race := $Race2DSprite as AnimatedSprite2D
-	var hair := $Hair2DSprite as AnimatedSprite2D
-	var body := $Body2DSprite as AnimatedSprite2D
-	var leg := $Leg2DSprite as AnimatedSprite2D
-	var race_path := str(data.get("race_path", ""))
-	if data.has("race_path") and race_path != "":
-		set_race(race_path)
-		race.visible = true
+	_apply_layer($Race2DSprite as AnimatedSprite2D, data, "race_path", set_race)
+	_apply_layer($Hair2DSprite as AnimatedSprite2D, data, "hair_path", set_hair)
+	_apply_layer($Body2DSprite as AnimatedSprite2D, data, "body_path", set_body)
+	_apply_layer($Leg2DSprite as AnimatedSprite2D, data, "leg_path", set_leg)
+	_apply_layer($Head2DSprite as AnimatedSprite2D, data, "head_path", set_head)
+	_apply_layer(
+		$MainWeaponAttachmentPoint/MainWeapon2DSprite as AnimatedSprite2D,
+		data,
+		"main_weapon_path",
+		set_main_weapon
+	)
+	_apply_layer(
+		$OffWeaponAttachmentPoint/OffWeapon2DSprite as AnimatedSprite2D,
+		data,
+		"off_weapon_path",
+		set_off_weapon
+	)
+
+
+func _apply_layer(layer: AnimatedSprite2D, data: Dictionary, key: String, setter: Callable) -> void:
+	var path := str(data.get(key, "")).strip_edges()
+	if data.has(key) and path != "":
+		setter.call(path)
+		layer.visible = true
 	else:
-		race.visible = false
-	var hair_path := str(data.get("hair_path", ""))
-	if data.has("hair_path") and hair_path != "":
-		set_hair(hair_path)
-		hair.visible = true
-	else:
-		hair.visible = false
-	var body_path := str(data.get("body_path", ""))
-	if data.has("body_path") and body_path != "":
-		set_body(body_path)
-		body.visible = true
-	else:
-		body.visible = false
-	var leg_path := str(data.get("leg_path", ""))
-	if data.has("leg_path") and leg_path != "":
-		set_leg(leg_path)
-		leg.visible = true
-	else:
-		leg.visible = false
+		layer.visible = false
