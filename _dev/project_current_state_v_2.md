@@ -1,6 +1,6 @@
 # Project Current State (v2)
 
-Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter-Slice abgeschlossen (Multi-Unit-Fight, GroupManager).
+Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter + Character/NPC-Cleanup abgeschlossen.
 
 ## Bereits vorhanden
 
@@ -43,11 +43,10 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter-Slice
 
 ## Nächste sinnvolle Schritte
 
-1. Character/NPC/Enemy Cleanup P1: [`PLAN_CHARACTER_NPC_CLEANUP.md`](PLAN_CHARACTER_NPC_CLEANUP.md)
-2. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
-3. Optional offen in Party/Group/Encounter: `group_size`-Fallback / Composition-Demo / Late-Join-Spectator
-4. Polish: Encounter-Symbole, Loot-Placeholder; Group Auto-Fight-Start
-5. Steamworks-Migration wenn Scope stabil
+1. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
+2. Optional manuelle Smoke in [`PLAN_CHARACTER_NPC_CLEANUP.md`](PLAN_CHARACTER_NPC_CLEANUP.md) / Party-Encounter-Kurztests
+3. Polish: Encounter-Symbole, Loot-Placeholder; Group Auto-Fight-Start
+4. Steamworks-Migration wenn Scope stabil
 
 ## Verweise
 

@@ -160,12 +160,12 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 
 ## 4. P3 — Aufräumen
 
-- [ ] `character_appearance_old.gd` entfernen (falls unreferenziert)
-- [ ] Legacy [`scripts/world/patrols/biom_1/patrol.gd`](../scripts/world/patrols/biom_1/patrol.gd) entfernen oder klar als unused markieren
-- [ ] `_dir_name` / Snap: gemeinsame Utility (Player Idle/Walk; optional NPC später)
-- [ ] `NPCController`-Exports mit Spec-Runtime zusammenführen oder Klasse streichen
-- [ ] Character-Creation Inventory: `items: []` konsistent zum Normalizer
-- [ ] Irreführende Debug-Prints in AggroArea entfernen (F3 bleibt EN)
+- [x] `character_appearance_old.gd` entfernen (falls unreferenziert)
+- [x] Legacy [`scripts/world/patrols/biom_1/patrol.gd`](../scripts/world/patrols/biom_1/patrol.gd) entfernen oder klar als unused markieren
+- [x] `_dir_name` / Snap: gemeinsame Utility (Player Idle/Walk; optional NPC später)
+- [x] `NPCController`-Exports mit Spec-Runtime zusammenführen oder Klasse streichen
+- [x] Character-Creation Inventory: `items: []` konsistent zum Normalizer
+- [x] Irreführende Debug-Prints in AggroArea entfernen (F3 bleibt EN)
 
 ---
 
@@ -174,8 +174,8 @@ Dateien: [`npc_character.gd`](../scripts/characters/npc_character.gd), [`aggro_c
 1. **§1 P1** Walk-Gate + Spawn-Name + NPC-Sync-Totpfad + Patrol-API — erledigt (Smoke manuell)
 2. **§2** Appearance-Collect + Schema + Archetyp-Loader — erledigt (Kurztest manuell)
 3. **§3** Battle-Enemy-Prefab + Fight-Gate-Signal + Kill-Credit — erledigt (Smoke manuell)
-4. **§4** Aufräumen
-5. Kurztest + Status/README anpassen
+4. **§4** Aufräumen — erledigt
+5. Kurztest + Status/README — Slice code-seitig done; manuelle Smoke-Punkte bleiben offen
 
 ---
 

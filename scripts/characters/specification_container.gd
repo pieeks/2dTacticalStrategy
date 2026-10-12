@@ -1,5 +1,5 @@
 class_name NpcSpecification
-extends NPCController
+extends Node
 
 const NpcArchetypeScript := preload("res://scripts/characters/npc_archetype.gd")
 

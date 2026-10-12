@@ -176,7 +176,7 @@ func _on_create_button_pressed() -> void:
 	# Inventory Data initialize
 	PlayerPartyState.inventory_data = {
 		"gold": 50,
-		"items": {}
+		"items": [],
 	}
 	
 	# Position Data initialize

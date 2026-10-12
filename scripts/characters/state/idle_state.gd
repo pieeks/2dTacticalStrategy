@@ -12,6 +12,7 @@ extends NodeState
 ## - Emits animation change events only when animation actually changes
 ## - Transitions to Walk state when movement input is detected
 
+const FacingUtilScript := preload("res://scripts/characters/facing_util.gd")
 
 ## Cached reference to the owning PlayerCharacter.
 var _player: PlayerCharacter
@@ -24,7 +25,7 @@ func _on_enter() -> void:
 	_player = owner_actor as PlayerCharacter
 	if _player:
 		_player._last_anim = ""
-		var animationName := "idle_" + _dir_name(_player.facing_dir())
+		var animationName := "idle_" + FacingUtilScript.dir_name(_player.facing_dir())
 		_emit_and_play(animationName)
 
 
@@ -33,7 +34,7 @@ func _on_enter() -> void:
 func _on_physics_process(_delta: float) -> void:
 	if _player == null:
 		return
-	var animationName := "idle_" + _dir_name(_player.facing_dir())
+	var animationName := "idle_" + FacingUtilScript.dir_name(_player.facing_dir())
 	_emit_and_play(animationName)
 
 
@@ -42,16 +43,6 @@ func _on_physics_process(_delta: float) -> void:
 func _on_next_transitions() -> void:
 	if _player and _player.is_moving():
 		request_transition("Walk")
-
-
-## Maps a facing vector to a string suffix used in animation names.
-## @param v Vector2: Facing direction vector.
-## @return String: One of "right", "left", "front", or "back".
-func _dir_name(v: Vector2) -> String:
-	if abs(v.x) > abs(v.y):
-		return "right" if v.x >= 0.0 else "left"
-	else:
-		return "front" if v.y >= 0.0 else "back"
 
 
 ## Emits animation change signal and plays the animation,

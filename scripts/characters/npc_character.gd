@@ -1,6 +1,8 @@
 class_name NPCCharacter
 extends CharacterBody2D
 
+const FacingUtilScript := preload("res://scripts/characters/facing_util.gd")
+
 ## Multiplayer & Performance
 @onready var multiplayer_synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
 var is_awake: bool = false
@@ -497,7 +499,4 @@ func facing_dir() -> Vector2:
 
 
 func _dir_name(v: Vector2) -> String:
-	if abs(v.x) > abs(v.y):
-		return "right" if v.x >= 0.0 else "left"
-	else:
-		return "front" if v.y >= 0.0 else "back"
+	return FacingUtilScript.dir_name(v)
