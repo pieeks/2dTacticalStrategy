@@ -348,6 +348,17 @@ func _force_sleep() -> void:
 
 # --- Patrouillen-Werkzeuge für States ---
 
+## Stop patrol pause timer while chasing / interrupted (AggroController).
+func stop_patrol() -> void:
+	if patrol_pause_timer != null and is_instance_valid(patrol_pause_timer) and patrol_pause_timer.is_inside_tree():
+		patrol_pause_timer.stop()
+
+
+## Clear patrol pause before AggroController resumes WalkNPC.
+func resume_patrol() -> void:
+	stop_patrol()
+
+
 func start_patrol_pause():
 	# Nur der Host soll den Pausen-Timer starten.
 	if not is_multiplayer_authority():

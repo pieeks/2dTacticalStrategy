@@ -73,11 +73,12 @@ func _snap_to_cardinal(v: Vector2) -> Vector2:
 		return Vector2(0.0, signf(v.y))
 
 
-## Emits animation change signal and plays the animation.
-## Does not check `_last_anim`, so repeated emissions may occur.
+## Emits animation change signal and plays the animation,
+## but only if the animation differs from the last one.
 ##
 ## @param anim String: Name of the animation to play.
 func _emit_and_play(anim: String) -> void:
-	if _player:
+	if _player and anim != _player._last_anim:
+		_player._last_anim = anim
 		_player.emit_signal("animation_state_changed", anim)
 		_player.play_animation(anim)

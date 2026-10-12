@@ -12,7 +12,6 @@ var npc_name: String
 var npc_appearance: Dictionary
 var npc_stats: Dictionary
 var npc_loot: Dictionary
-var npc_sync: Dictionary
 var npc_is_hostile: bool = false
 var npc_group_size: int = 1
 ## Optional reusable encounter composition id (`resources/encounters/<id>.json`).
@@ -39,13 +38,6 @@ func set_specifical_nodes() -> void:
 		$"..".add_child(force_fight_node)
 		$"..".set_force_fight_area(force_fight_node)
 		$"..".add_child(aggro_controller_node)
-	
-	if NetworkManagerTest.is_host == true: 
-		if npc_sync.get("isActive") == true: 
-			var sync := preload("res://scenes/characters/npc_specifications/npc_sync.tscn")
-			var syncNode := sync.instantiate()
-			$".".add_child(syncNode)
-			$"..".set_npc_sync(syncNode)
 	
 	if npc_appearance.size() > 0: 
 		if npc_appearance.has("race_path"):
@@ -91,7 +83,6 @@ func load_npc_enemy_data(type: String, count: int) -> void:
 	npc_appearance = parsed.get("appearance", {})
 	npc_stats = parsed.get("stats", {})
 	npc_loot = parsed.get("loot", {})
-	npc_sync = parsed.get("sync", {})
 	npc_is_hostile = parsed.get("is_hostile", false)
 	npc_group_size = maxi(1, int(parsed.get("group_size", 1)))
 	npc_encounter_id = str(parsed.get("encounter_id", "")).strip_edges()

@@ -7,9 +7,6 @@
 		"leg_path": "res://features/character/leg/basic/blue.tres",
 		"race_path": "res://features/character/race/elf_basic.tres"
 	},
-	"sync": {
-		"isActice": "true"
-	},
 	"stats": {
 		"health": 100,
 		"minDamage": 2,
