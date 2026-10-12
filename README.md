@@ -41,8 +41,6 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Fight-Visuals: Spieler und Gegner als `CharacterAppearance` (Overworld-Look)
 - Encounter: Host-`enemy_roster` aus `units[]` / `encounter_id` / Fallback `group_size`; Sync bei Start/Join/Late-Join
 - Party-Multi-Unit im Fight über Host-`party_rosters` (Client-Snapshot; Unit-IDs `player_<peer>_<member_id>`)
-
-- v1: ein Kampf-Avatar pro Peer (keine lokalen Party-Begleiter-Units)
 - Host-autoritativer Lifecycle: Start / Join / Leave / Destroy + Late-Join-Sync
 - Absicherung: Client-Requests nur Host; Broadcast-RPCs Host-Sender-Guard; Disconnect räumt Fight-State
 - Hex-`GridManager` (`AStar2D`), Reachable-Highlights, freie Fight-Kamera (WASD-Pan)
@@ -67,19 +65,25 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - `QuestManager` + JSON unter `resources/quests/`; Persistenz in `PlayerPartyState.quest_data`
 - Demo-Quest `q_intro_slime` an `test_npc_basic` (Talk | Quest | Leave; Accept-/Turn-in-Panel)
 - Ziele: kill / talk / reach; Quest-Log im PlayerUi; Rewards (Gold)
-- Group-Sync Stub; F3-Cheats (EN): Accept / Ready / Turn-in / Force Complete
+- Group-Membership via `GroupManager` (`_peers_in_same_group`); F3-Cheats (EN): Accept / Ready / Turn-in / Force Complete
 - Plan: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md)
+
+**Party / Group / Encounter**
+
+- Begriffe: Party (Save) ≠ Group (Session) ≠ Encounter (Kampf-Composition)
+- `PlayerPartyState` Party-API + Normalizer; Gefährten im Fight, Overworld nur Main
+- `EncounterResolver` → Host-`enemy_roster`; optional `resources/encounters/`
+- `GroupManager`: Invite/Accept/Leave/Kick (Peer-Menü + F3); CSV `group.*`
+- Plan: [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md)
 
 **Debug**
 
 - Debug-Overlay (F3): Fight / Quest / Group-Cheats + Party Companion stubs
-- GroupManager: Invite/Accept/Leave/Kick (Host-autoritativ; Peer-Menü + F3)
 - Dev-Testscenes unter `_dev/tests/`
 - Kampfsystem-Plan: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md)
 
 ### Geplant / in Arbeit
 
-- Party / Group / Encounter (Kern implementiert; Rest in Plan): [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md)
 - Encounter-Symbol über Gegner; Loot-UI
 - Group Auto-Fight-Start; Quest Progress-Relay an Group
 - Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)

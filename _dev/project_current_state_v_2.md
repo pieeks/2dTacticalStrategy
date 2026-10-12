@@ -1,6 +1,6 @@
 # Project Current State (v2)
 
-Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in, F3-Cheats).
+Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter-Slice abgeschlossen (Multi-Unit-Fight, GroupManager).
 
 ## Bereits vorhanden
 
@@ -43,9 +43,9 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in,
 
 ## Nächste sinnvolle Schritte
 
-1. Kurztests Party/Group/Encounter in [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md)
-2. Kurztest-Checkliste in `PLAN_QUESTSYSTEM.md` manuell durchspielen
-3. Polish: Encounter-Symbole, Loot-Placeholder
+1. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
+2. Optional offen in Party/Group/Encounter: `group_size`-Fallback / Composition-Demo / Late-Join-Spectator (siehe Plan-Kurztest)
+3. Polish: Encounter-Symbole, Loot-Placeholder; Group Auto-Fight-Start
 4. Steamworks-Migration wenn Scope stabil
 
 ## Verweise

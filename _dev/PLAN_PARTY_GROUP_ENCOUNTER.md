@@ -333,10 +333,10 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 
 - [x] `enemy_roster` im Encounter; Spawn nur aus Snapshot
 - [x] Start-/Join-/Late-Join-RPCs: Roster immer mitsenden
-- [ ] Kurztest (≥2 Peers): gleicher Enemy-Count/Looks nach Join
+- [x] Kurztest (≥2 Peers): gleicher Enemy-Count/Looks nach Join
 - [x] Party-Snapshot RPC Client→Host
 - [x] `party_rosters` anreichern + Multi-Unit-Spawn pro Peer
-- [ ] Kurztest: Peer A mit ≥2 Members, weiterer Peer joint → alle Participants sehen alle Party-Units + Enemies
+- [x] Kurztest: Peer A mit ≥2 Members, weiterer Peer joint → alle Participants sehen alle Party-Units + Enemies
 - [x] Turn-Order / Unit-IDs für Party-Companions stabil
 - [x] Design skaliert mit Lobby-Max (kein Hardcode auf 2 Peers)
 
@@ -364,7 +364,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 3. **EncounterResolver + `enemy_roster` + MP-Sync 5a** — erledigt
 4. **Party-Roster Sync 5b** (Snapshot + Multi-Unit-Spawn) — erledigt
 5. **GroupManager** (Invite/Leave) + Quest-Hook — erledigt
-6. Kurztest (inkl. Multi-Peer Fight, mind. 2 als Smoke) + README / Status
+6. Kurztest (inkl. Multi-Peer Fight, mind. 2 als Smoke) + README / Status — erledigt
 
 ---
 
@@ -386,14 +386,14 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 
 - [ ] Spec nur mit `group_size: 3` → 3 gleiche Gegner im Fight (Kompatibilität)
 - [ ] Spec/Encounter mit `units: [{slime,2},{slime,1}]` → 3 Units (oder Mix wenn 2 Typen)
-- [ ] Map zeigt weiter 1 Sprite; Fight hat N Enemies
-- [ ] **Multi-Peer (Smoke: 2, Ziel: bis Lobby-Max):** nach Join sehen alle Participants denselben Enemy-Roster
-- [ ] **Multi-Peer:** Party A (2+ Members) im Fight; weiterer Peer joint → alle sehen alle Party-Units aller Participants
+- [x] Map zeigt weiter 1 Sprite; Fight hat N Enemies
+- [x] **Multi-Peer (Smoke: 2, Ziel: bis Lobby-Max):** nach Join sehen alle Participants denselben Enemy-Roster
+- [x] **Multi-Peer:** Party A (2+ Members) im Fight; weiterer Peer joint → alle sehen alle Party-Units aller Participants
 - [ ] Late-Join / Re-Sync: Roster vollständig, keine fehlenden Companions (unabhängig von Peer-Anzahl)
-- [ ] Party-Save hat leader + members; Helper lesen korrekt
+- [x] Party-Save hat leader + members; Helper lesen korrekt
 - [x] Zwei Peers: Invite → gleiche `group_id`; Leave trennt
 - [x] QuestManager erkennt Group-Peers (Debug/Log reicht zuerst)
-- [ ] Sprache: neue UI-Strings über CSV
+- [x] Sprache: neue UI-Strings über CSV (`group.*`)
 
 ---
 
