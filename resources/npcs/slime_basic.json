@@ -1,6 +1,7 @@
 {
 	"name": "slime",
 	"group_size": 1,
+	"encounter_id": "enc_slime_trio",
 	"appearance": {
 		"race_path": "res://features/enemy/slime/slime_basic.tres"
 	},

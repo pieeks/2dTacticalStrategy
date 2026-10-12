@@ -108,6 +108,9 @@ func start_battle_with(player: Node2D) -> void:
 	if not multiplayer.is_server() and not player.is_multiplayer_authority():
 		return
 	var encounter := _build_encounter()
+	# Only attach local PartyState when starting for ourselves (never another peer's).
+	if peer_id == multiplayer.get_unique_id():
+		encounter["party_roster"] = PlayerPartyState.build_party_roster_snapshot()
 	if multiplayer.is_server():
 		if fm.has_method("start_fight_with_encounter"):
 			fm.start_fight_with_encounter(peer_id, encounter)
@@ -150,6 +153,10 @@ func _build_encounter() -> Dictionary:
 			enc["npc_name"] = str(name)
 		enc["stats"] = specification.npc_stats.duplicate(true)
 		enc["group_size"] = maxi(1, int(specification.npc_group_size))
+		if specification.npc_encounter_id != "":
+			enc["encounter_id"] = specification.npc_encounter_id
+		if not specification.npc_encounter_units.is_empty():
+			enc["units"] = specification.npc_encounter_units.duplicate(true)
 	# Prefer Spec-JSON appearance (only defined layers) — not live sprites with hidden defaults.
 	if is_instance_valid(specification) and not specification.npc_appearance.is_empty():
 		enc["appearance"] = specification.npc_appearance.duplicate(true)

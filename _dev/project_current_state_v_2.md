@@ -1,6 +1,6 @@
 # Project Current State (v2)
 
-Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in, F3-Cheats).
+Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter-Slice abgeschlossen (Multi-Unit-Fight, GroupManager).
 
 ## Bereits vorhanden
 
@@ -18,31 +18,39 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in,
   - Host-autoritativ: Start / Join / Leave / Destroy + Late-Join-Sync
   - `GridManager` (Hex + AStar2D), Move / Attack / Wait, Enemy-AI
   - Join: E auf kämpfenden Peer **oder** fight-locked NPC → Join-Menü (Ally queued)
-  - Stats aus NPC-JSON + Party-Placeholder; `group_size` aus Spec
+  - Stats aus NPC-JSON + Party; Host-`enemy_roster` + `party_rosters` (Multi-Unit pro Peer, Snapshot-Sync)
   - Free-Cam im Fight (Zoom 0.8); Overworld-Kamera unverändert
   - Absicherung: Request-RPCs Server-only; Broadcasts Host-Sender-Guard; Disconnect-Cleanup
 - **UI**: Charaktererstellung, World Selection, Settings, ESC (Quit + Autosave), PlayerUi
 - **Persistenz**: `PlayerPartyState` Autosave (45 s Intervall + Quit / WM_CLOSE / Session-Ende); inkl. `quest_data`
-- **Quests (v1)**: `QuestManager`, Demo `q_intro_slime` an `test_npc_basic`, Accept/Turn-in-UI, Quest-Log, kill/talk/reach, F3-Cheats; Group-Sync Stub
+- **Quests (v1)**: `QuestManager`, Demo `q_intro_slime` an `test_npc_basic`, Accept/Turn-in-UI, Quest-Log, kill/talk/reach, F3-Cheats; `_peers_in_same_group` via `GroupManager`
+- **Group (v1)**: `GroupManager` Invite/Accept/Leave/Kick, Disconnect-Cleanup, Peer-Menü + F3
+
+## Begriffe (Party / Group / Encounter)
+
+- **Party** — ein Spieler: Main + Gefährten (`PlayerPartyState.party_data`; Fight: `party_rosters`)
+- **Group** — mehrere Spieler-Partys in einer Session (`GroupManager`)
+- **Encounter** — Map-Anker → Kampf-Roster (`units[]`; Ordner `resources/encounters/`)
 
 ## Bewusst später / offen
 
 - Encounter-Symbol über Gegner; Loot-UI
-- Party-Multi-Unit (v1 = 1 Avatar pro Peer)
-- Story-/Klassen-Quests + Biom-Gates; Gruppen-Progress-Sync
+- Group Auto-Fight-Start; Quest Progress-Relay an Group-Members
+- Story-/Klassen-Quests + Biom-Gates
 - Koop-Start / PvP-Join-Seiten
 - Dungeons mit mehreren Ebenen
 - Steam P2P produktiv
 
 ## Nächste sinnvolle Schritte
 
-1. Kurztest-Checkliste in `PLAN_QUESTSYSTEM.md` manuell durchspielen
-2. Polish: Encounter-Symbole, Loot-Placeholder
-3. Small Scope Overworld/Dungeon erweitern
+1. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
+2. Optional offen in Party/Group/Encounter: `group_size`-Fallback / Composition-Demo / Late-Join-Spectator (siehe Plan-Kurztest)
+3. Polish: Encounter-Symbole, Loot-Placeholder; Group Auto-Fight-Start
 4. Steamworks-Migration wenn Scope stabil
 
 ## Verweise
 
 - Kampfsystem-Plan: [`PLAN_KAMPFSYSTEM_GRID.md`](PLAN_KAMPFSYSTEM_GRID.md)
 - Quest-Plan: [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md)
+- Party/Group/Encounter: [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md)
 - README (aktueller Feature-Überblick)

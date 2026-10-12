@@ -153,12 +153,11 @@ func add_participant(peer_id: int) -> void:
 	_rebuild_units_from_nodes()
 	if peer_id == multiplayer.get_unique_id():
 		_ensure_battle_hud()
-		var my_char: Node = player_container.get_node_or_null(str(peer_id))
-		if my_char != null and my_char.has_method("activate_camera"):
-			my_char.activate_camera()
-	# Mid-fight join: queue until next full round (do not insert into current order).
+		_activate_local_leader_camera()
+	# Mid-fight join: queue all party units until next full round.
 	if multiplayer.is_server() and _turns_started and turn_controller and not was_already:
-		turn_controller.queue_unit_for_next_round("player_%d" % peer_id)
+		for unit_id in _party_unit_ids_for_peer(peer_id):
+			turn_controller.queue_unit_for_next_round(unit_id)
 		turn_controller._broadcast_state()
 	elif multiplayer.is_server() and _turns_started and turn_controller:
 		turn_controller.build_turn_order()
@@ -200,16 +199,28 @@ func _rebuild_units_from_nodes() -> void:
 	# Preserve phase/order while refreshing node links (clear_units must not reset turn).
 	turn_controller.clear_units()
 	for p in participants:
-		var char_node: Node2D = player_container.get_node_or_null(str(p)) as Node2D
-		if char_node == null:
-			continue
-		var unit: BattleUnit = previous.get("player_%d" % p) as BattleUnit
-		if unit == null:
-			unit = BattleUnit.make_player(p, _get_player_stats_for_peer(p))
-		unit.node = char_node
-		turn_controller.register_unit(unit)
-		if char_node.has_method("set_turn_controller"):
-			char_node.set_turn_controller(turn_controller)
+		var roster: Array = _get_party_roster_for_peer(p)
+		for member_i in range(roster.size()):
+			var entry: Dictionary = roster[member_i] as Dictionary
+			var member_id := str(entry.get("member_id", str(p)))
+			var unit_id := BattleUnit.party_unit_id(p, member_id)
+			var char_node: Node2D = player_container.get_node_or_null(unit_id) as Node2D
+			if char_node == null:
+				continue
+			var unit: BattleUnit = previous.get(unit_id) as BattleUnit
+			if unit == null:
+				var stats: Dictionary = {}
+				if entry.get("stats") is Dictionary:
+					stats = entry["stats"] as Dictionary
+				else:
+					stats = _get_player_stats_for_peer(p)
+				unit = BattleUnit.make_party_member(
+					p, member_id, stats, str(entry.get("name", "Player %d" % p))
+				)
+			unit.node = char_node
+			turn_controller.register_unit(unit)
+			if char_node.has_method("set_turn_controller"):
+				char_node.set_turn_controller(turn_controller)
 	for child in npc_container.get_children():
 		if not str(child.name).begins_with("Enemy_"):
 			continue
@@ -236,7 +247,59 @@ func _refresh_enemy_label(enemy: BattleUnit) -> void:
 
 func _ensure_participant_characters() -> void:
 	for p in participants:
-		_spawn_battle_character(p)
+		var roster: Array = _get_party_roster_for_peer(p)
+		for member_i in range(roster.size()):
+			_spawn_party_member(p, roster[member_i] as Dictionary, member_i)
+	if participants.has(multiplayer.get_unique_id()):
+		_activate_local_leader_camera()
+
+
+## Party roster for peer from encounter snapshot, or single-leader fallback.
+func _get_party_roster_for_peer(peer_id: int) -> Array:
+	var map: Variant = encounter.get("party_rosters", {})
+	if map is Dictionary:
+		var raw: Variant = (map as Dictionary).get(str(peer_id), [])
+		if raw is Array and not (raw as Array).is_empty():
+			var cleaned: Array = []
+			for entry in raw as Array:
+				if entry is Dictionary:
+					cleaned.append(entry)
+			if not cleaned.is_empty():
+				return cleaned
+	# Legacy fallback: one avatar from player_appearances / player_stats.
+	return [{
+		"member_id": str(peer_id),
+		"role": "leader",
+		"name": "Player %d" % peer_id,
+		"appearance": _get_player_appearance_for_peer(peer_id),
+		"stats": _get_player_stats_for_peer(peer_id),
+	}]
+
+
+func _party_unit_ids_for_peer(peer_id: int) -> Array[String]:
+	var ids: Array[String] = []
+	for entry in _get_party_roster_for_peer(peer_id):
+		if entry is Dictionary:
+			ids.append(BattleUnit.party_unit_id(peer_id, str(entry.get("member_id", peer_id))))
+	return ids
+
+
+func _activate_local_leader_camera() -> void:
+	var my_id := multiplayer.get_unique_id()
+	var roster: Array = _get_party_roster_for_peer(my_id)
+	var leader_id := ""
+	for entry in roster:
+		if entry is Dictionary and str(entry.get("role", "")) == "leader":
+			leader_id = str(entry.get("member_id", ""))
+			break
+	if leader_id.is_empty() and not roster.is_empty() and roster[0] is Dictionary:
+		leader_id = str((roster[0] as Dictionary).get("member_id", my_id))
+	if leader_id.is_empty():
+		leader_id = str(my_id)
+	var node_name := BattleUnit.party_unit_id(my_id, leader_id)
+	var my_char: Node = player_container.get_node_or_null(node_name)
+	if my_char != null and my_char.has_method("activate_camera"):
+		my_char.activate_camera()
 
 
 func _appearance_dict_usable(data: Dictionary) -> bool:
@@ -305,49 +368,63 @@ func _get_overworld_player_appearance(peer_id: int) -> Dictionary:
 	return {}
 
 
-func _spawn_battle_character(peer_id: int) -> void:
+## Spawn one party member node named player_<peer>_<member_id>.
+func _spawn_party_member(peer_id: int, entry: Dictionary, member_index: int) -> void:
 	if battle_character_scene == null:
 		push_error("FightTemplate: battle_character_scene ist nicht gesetzt.")
 		return
 	if not is_instance_valid(player_container):
 		return
-	if player_container.get_node_or_null(str(peer_id)) != null:
+	var member_id := str(entry.get("member_id", peer_id))
+	var unit_id := BattleUnit.party_unit_id(peer_id, member_id)
+	if player_container.get_node_or_null(unit_id) != null:
 		return
 	var character: CharacterBody2D = battle_character_scene.instantiate()
-	character.name = str(peer_id)
+	character.name = unit_id
 	character.set_multiplayer_authority(peer_id)
+	var is_leader := str(entry.get("role", "")) == "leader" or member_index == 0
+	if is_leader:
+		character.set_meta("is_party_leader", true)
 	var spacing: float = 40.0
 	if grid_manager is GridManager:
 		spacing = (grid_manager as GridManager).spacing
-	var idx := participants.find(peer_id)
-	if idx < 0:
-		idx = participants.size()
+	var peer_idx := participants.find(peer_id)
+	if peer_idx < 0:
+		peer_idx = participants.size()
+	# Staffel Members desselben Peers nebeneinander; Peers in Zeilen.
+	var cell_x := (peer_idx % 3) * 2 + (member_index % 2)
 	@warning_ignore("integer_division")
-	var cell := Vector2i(idx % 5, idx / 5)
-	var local_cell := Vector2(float(cell.x) * spacing, float(cell.y) * spacing * 0.75)
-	if cell.y % 2 == 1:
+	var cell_y := (peer_idx / 3) + int(member_index / 2)
+	var local_cell := Vector2(float(cell_x) * spacing, float(cell_y) * spacing * 0.75)
+	if cell_y % 2 == 1:
 		local_cell.x += spacing / 2.0
 	var world_pos: Vector2 = grid_manager.to_global(local_cell) if grid_manager else local_cell
 	player_container.add_child(character)
 	character.global_position = world_pos
+	var appearance_data: Dictionary = {}
+	if entry.get("appearance") is Dictionary and _appearance_dict_usable(entry["appearance"]):
+		appearance_data = (entry["appearance"] as Dictionary).duplicate(true)
+	else:
+		appearance_data = _get_player_appearance_for_peer(peer_id)
 	if character.has_method("apply_appearance"):
-		character.apply_appearance(_get_player_appearance_for_peer(peer_id))
+		character.apply_appearance(appearance_data)
 	if character.has_method("setup_for_fight") and grid_manager is GridManager:
 		character.setup_for_fight(grid_manager as GridManager)
 	if character.has_method("set_turn_controller") and turn_controller:
 		character.set_turn_controller(turn_controller)
-	if character.has_method("activate_camera") and peer_id == multiplayer.get_unique_id():
-		character.activate_camera()
 
 
 func _spawn_battle_enemies() -> void:
 	if not is_instance_valid(npc_container):
 		return
-	# Default 1; Debug-Start ohne Encounter spawnt einen Platzhalter mit Scene-Default-Look.
-	var group_size: int = maxi(1, int(encounter.get("group_size", 1)))
-	var appearance_data: Dictionary = {}
+	# Prefer host enemy_roster snapshot; fall back to group_size × encounter appearance.
+	var roster: Array = []
+	if encounter.get("enemy_roster") is Array:
+		roster = encounter["enemy_roster"] as Array
+	var spawn_count: int = roster.size() if not roster.is_empty() else maxi(1, int(encounter.get("group_size", 1)))
+	var fallback_appearance: Dictionary = {}
 	if encounter.has("appearance") and encounter["appearance"] is Dictionary:
-		appearance_data = (encounter["appearance"] as Dictionary).duplicate(true)
+		fallback_appearance = (encounter["appearance"] as Dictionary).duplicate(true)
 	var spacing: float = 40.0
 	var grid_w := 9
 	var grid_h := 3
@@ -356,15 +433,30 @@ func _spawn_battle_enemies() -> void:
 		grid_w = maxi((grid_manager as GridManager).width - 1, 0)
 		@warning_ignore("integer_division")
 		grid_h = maxi((grid_manager as GridManager).height / 2, 0)
-	for i in range(group_size):
+	for i in range(spawn_count):
 		var enemy_name := "Enemy_%d" % i
 		if npc_container.get_node_or_null(enemy_name) != null:
 			continue
+		var entry: Dictionary = {}
+		if i < roster.size() and roster[i] is Dictionary:
+			entry = roster[i] as Dictionary
+		var npc_type := str(entry.get("npc_type", encounter.get("npc_type", "")))
+		var display_name := str(entry.get("display_name", encounter.get("npc_name", "Enemy")))
+		var stats: Dictionary = {}
+		if entry.get("stats") is Dictionary:
+			stats = (entry["stats"] as Dictionary).duplicate(true)
+		elif encounter.get("stats") is Dictionary:
+			stats = (encounter["stats"] as Dictionary).duplicate(true)
+		var appearance_data: Dictionary = {}
+		if entry.get("appearance") is Dictionary and not (entry["appearance"] as Dictionary).is_empty():
+			appearance_data = (entry["appearance"] as Dictionary).duplicate(true)
+		else:
+			appearance_data = fallback_appearance.duplicate(true)
 		var enemy := Node2D.new()
 		enemy.name = enemy_name
-		enemy.set_meta("npc_type", str(encounter.get("npc_type", "")))
-		enemy.set_meta("npc_name", str(encounter.get("npc_name", "Enemy")))
-		enemy.set_meta("stats", encounter.get("stats", {}))
+		enemy.set_meta("npc_type", npc_type)
+		enemy.set_meta("npc_name", display_name)
+		enemy.set_meta("stats", stats)
 		var app: Node2D = CharacterAppearanceScene.instantiate()
 		enemy.add_child(app)
 		if not appearance_data.is_empty() and app.has_method("apply_full_data"):
@@ -372,12 +464,12 @@ func _spawn_battle_enemies() -> void:
 		if app.has_method("play"):
 			app.call_deferred("play", "idle_front")
 		var label := Label.new()
-		label.text = str(encounter.get("npc_name", "Enemy"))
+		label.text = display_name
 		label.position = Vector2(-24, -36)
 		label.add_theme_font_size_override("font_size", 10)
 		enemy.add_child(label)
 		npc_container.add_child(enemy)
-		# Offset along columns so group_size > 1 does not stack.
+		# Offset along columns so multiple enemies do not stack.
 		var cell_x := grid_w - (i % 3)
 		@warning_ignore("integer_division")
 		var cell_y := grid_h + (i / 3)
@@ -494,13 +586,23 @@ func rpc_remove_battle_character(peer_id: int) -> void:
 	if not _accept_host_broadcast():
 		return
 	participants.erase(peer_id)
-	var char_node: Node = player_container.get_node_or_null(str(peer_id))
-	if char_node != null:
+	var prefix := "player_%d_" % peer_id
+	var to_free: Array[Node] = []
+	for child in player_container.get_children():
+		if str(child.name).begins_with(prefix) or str(child.name) == str(peer_id):
+			to_free.append(child)
+	for char_node in to_free:
 		if char_node.has_method("stop_network"):
 			char_node.stop_network()
 		char_node.queue_free()
 	if turn_controller:
-		turn_controller.units.erase("player_%d" % peer_id)
+		var erase_ids: Array[String] = []
+		for unit_id in turn_controller.units.keys():
+			var uid := str(unit_id)
+			if uid.begins_with(prefix) or uid == "player_%d" % peer_id:
+				erase_ids.append(uid)
+		for uid2 in erase_ids:
+			turn_controller.units.erase(uid2)
 		if multiplayer.is_server() and int(turn_controller.phase) != 3:
 			turn_controller.build_turn_order()
 			if turn_controller.turn_order.is_empty():

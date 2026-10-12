@@ -57,8 +57,11 @@ func queue_unit_for_next_round(unit_id: String) -> void:
 
 func is_local_unit_queued() -> bool:
 	var my_id := multiplayer.get_unique_id()
-	var u: BattleUnit = units.get("player_%d" % my_id) as BattleUnit
-	return u != null and u.joins_next_round
+	for unit_id in units.keys():
+		var u: BattleUnit = units[unit_id] as BattleUnit
+		if u != null and u.is_player() and u.owner_peer_id == my_id and u.joins_next_round:
+			return true
+	return false
 
 
 func _promote_queued_units() -> void:
@@ -148,7 +151,7 @@ func _schedule_enemy_ai(expected_unit_id: String) -> void:
 	_ai_watchdog_token += 1
 	var token := _ai_watchdog_token
 	get_tree().create_timer(_ENEMY_AI_DELAY, true, false, true).timeout.connect(
-		_on_enemy_ai_timer.bind(token), CONNECT_ONE_SHOT
+		_on_enemy_ai_timer.bind(token, expected_unit_id), CONNECT_ONE_SHOT
 	)
 	# If AI stalls (pause/timer/path), force the turn forward.
 	get_tree().create_timer(_ENEMY_AI_WATCHDOG, true, false, true).timeout.connect(
@@ -156,10 +159,10 @@ func _schedule_enemy_ai(expected_unit_id: String) -> void:
 	)
 
 
-func _on_enemy_ai_timer(token: int) -> void:
+func _on_enemy_ai_timer(token: int, expected_unit_id: String) -> void:
 	if token != _ai_watchdog_token:
 		return
-	_run_enemy_ai()
+	_run_enemy_ai(expected_unit_id)
 
 
 func _on_enemy_ai_watchdog(token: int, expected_unit_id: String) -> void:
@@ -179,6 +182,8 @@ func _advance_turn() -> void:
 	if phase == Phase.ENDED:
 		return
 	phase = Phase.RESOLVING
+	# Invalidate pending enemy AI timers so they cannot double-advance.
+	_ai_watchdog_token += 1
 	var result := _check_battle_end()
 	if result != "":
 		phase = Phase.ENDED
@@ -198,22 +203,22 @@ func _advance_turn() -> void:
 	var next_index := (active_index + 1) % order_size
 	var wrapped := next_index == 0
 	if wrapped:
-		# Full round finished — mid-fight joins enter the order now.
+		# Full round finished — mid-fight joins enter; always rebuild order.
 		_promote_queued_units()
-		if turn_order.is_empty():
-			build_turn_order()
+		build_turn_order()
 		active_index = 0
 	else:
 		active_index = next_index
-	# Skip dead / still-queued units
+	# Skip dead / still-queued / missing units until a valid actor is found.
 	var guard := 0
-	while guard < turn_order.size() + 2:
+	var max_guard := maxi(turn_order.size(), 1) * 2 + 2
+	while guard < max_guard:
 		var next_u := get_active_unit()
 		if next_u != null and next_u.is_alive() and not next_u.joins_next_round:
 			break
 		active_index = (active_index + 1) % maxi(turn_order.size(), 1)
 		guard += 1
-		if guard >= turn_order.size():
+		if guard > 0 and guard % maxi(turn_order.size(), 1) == 0:
 			build_turn_order()
 			active_index = 0
 			if turn_order.is_empty():
@@ -221,7 +226,15 @@ func _advance_turn() -> void:
 				_broadcast_state()
 				battle_ended.emit("victory")
 				return
-			break
+	var final_u := get_active_unit()
+	if final_u == null or not final_u.is_alive() or final_u.joins_next_round:
+		build_turn_order()
+		active_index = 0
+		if turn_order.is_empty():
+			phase = Phase.ENDED
+			_broadcast_state()
+			battle_ended.emit("victory")
+			return
 	_begin_active_turn()
 
 
@@ -435,12 +448,12 @@ func _host_try_wait(unit_id: String, sender_id: int) -> void:
 	_advance_turn()
 
 
-func _run_enemy_ai() -> void:
+func _run_enemy_ai(expected_unit_id: String) -> void:
 	if not multiplayer.is_server() or phase != Phase.ACTIVE:
 		return
 	var u := get_active_unit()
-	if u == null or not u.is_enemy() or not u.is_alive():
-		_advance_turn()
+	# Stale timer after turn already advanced — never force another advance.
+	if u == null or u.unit_id != expected_unit_id or not u.is_enemy() or not u.is_alive():
 		return
 	if u.node == null or grid_manager == null:
 		_advance_turn()
@@ -457,8 +470,6 @@ func _run_enemy_ai() -> void:
 		var steps := grid_manager.get_path_step_count(u.node.global_position, other.node.global_position)
 		if steps > 0 and steps <= u.attack_range:
 			_host_try_attack(u.unit_id, other.unit_id, 1)
-			# Attack advances; invalidate watchdog.
-			_ai_watchdog_token += 1
 			return
 		if steps > 0 and steps < best_steps:
 			best_steps = steps
@@ -478,21 +489,32 @@ func _run_enemy_ai() -> void:
 		if best_pos != Vector2.INF:
 			_host_try_move(u.unit_id, best_pos, 1)
 			if u.has_moved:
-				get_tree().create_timer(_ENEMY_AI_DELAY, true, false, true).timeout.connect(
-					_enemy_ai_after_move.bind(u.unit_id), CONNECT_ONE_SHOT
-				)
+				# Keep same AI token; arm a short follow-up + watchdog for post-move.
+				_schedule_enemy_ai_after_move(u.unit_id)
 				return
 	# Always end the enemy turn.
-	_ai_watchdog_token += 1
 	_host_try_wait(u.unit_id, 1)
 
 
-func _enemy_ai_after_move(enemy_unit_id: String) -> void:
+func _schedule_enemy_ai_after_move(expected_unit_id: String) -> void:
+	_ai_watchdog_token += 1
+	var token := _ai_watchdog_token
+	get_tree().create_timer(_ENEMY_AI_DELAY, true, false, true).timeout.connect(
+		_enemy_ai_after_move.bind(expected_unit_id, token), CONNECT_ONE_SHOT
+	)
+	get_tree().create_timer(_ENEMY_AI_WATCHDOG, true, false, true).timeout.connect(
+		_on_enemy_ai_watchdog.bind(token, expected_unit_id), CONNECT_ONE_SHOT
+	)
+
+
+func _enemy_ai_after_move(enemy_unit_id: String, token: int) -> void:
+	if token != _ai_watchdog_token:
+		return
 	if not multiplayer.is_server() or phase != Phase.ACTIVE:
 		return
 	var again := get_active_unit()
-	if again == null or again.unit_id != enemy_unit_id:
-		_advance_turn()
+	# Watchdog or another advance already moved on — do not skip the current unit.
+	if again == null or again.unit_id != enemy_unit_id or not again.is_enemy():
 		return
 	if again.node == null or grid_manager == null:
 		_advance_turn()
@@ -508,9 +530,7 @@ func _enemy_ai_after_move(enemy_unit_id: String) -> void:
 		)
 		if steps2 > 0 and steps2 <= again.attack_range:
 			_host_try_attack(again.unit_id, other2.unit_id, 1)
-			_ai_watchdog_token += 1
 			return
-	_ai_watchdog_token += 1
 	_host_try_wait(enemy_unit_id, 1)
 
 
@@ -626,7 +646,10 @@ func _rebind_unit_nodes() -> void:
 		if u == null:
 			continue
 		if u.is_player() and players != null:
-			u.node = players.get_node_or_null(str(u.owner_peer_id)) as Node2D
+			# Prefer unit_id node name (player_<peer>_<member>); legacy peer-named node fallback.
+			u.node = players.get_node_or_null(u.unit_id) as Node2D
+			if u.node == null:
+				u.node = players.get_node_or_null(str(u.owner_peer_id)) as Node2D
 			if u.node != null and u.node.has_method("set_turn_controller"):
 				u.node.set_turn_controller(self)
 		elif u.is_enemy() and npcs != null:

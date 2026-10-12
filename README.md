@@ -39,9 +39,8 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - Fight-Instanzen unter Overworld-`FightLayer` (kein Scene-Wechsel)
 - Zwei Nodes: World-Player (während Fight gated) + `BattleCharacter` im Fight
 - Fight-Visuals: Spieler und Gegner als `CharacterAppearance` (Overworld-Look)
-- Encounter `group_size` (Default 1) aus NPC-Spec; Gegner-Stats (HP/ATK/Move/Init) aus JSON
-- Spieler-Kampfstats aus Party-Placeholder (`members[0].stats`), Sync über Encounter `player_stats`
-- v1: ein Kampf-Avatar pro Peer (keine lokalen Party-Begleiter-Units)
+- Encounter: Host-`enemy_roster` aus `units[]` / `encounter_id` / Fallback `group_size`; Sync bei Start/Join/Late-Join
+- Party-Multi-Unit im Fight über Host-`party_rosters` (Client-Snapshot; Unit-IDs `player_<peer>_<member_id>`)
 - Host-autoritativer Lifecycle: Start / Join / Leave / Destroy + Late-Join-Sync
 - Absicherung: Client-Requests nur Host; Broadcast-RPCs Host-Sender-Guard; Disconnect räumt Fight-State
 - Hex-`GridManager` (`AStar2D`), Reachable-Highlights, freie Fight-Kamera (WASD-Pan)
@@ -66,19 +65,27 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 - `QuestManager` + JSON unter `resources/quests/`; Persistenz in `PlayerPartyState.quest_data`
 - Demo-Quest `q_intro_slime` an `test_npc_basic` (Talk | Quest | Leave; Accept-/Turn-in-Panel)
 - Ziele: kill / talk / reach; Quest-Log im PlayerUi; Rewards (Gold)
-- Group-Sync Stub; F3-Cheats (EN): Accept / Ready / Turn-in / Force Complete
+- Group-Membership via `GroupManager` (`_peers_in_same_group`); F3-Cheats (EN): Accept / Ready / Turn-in / Force Complete
 - Plan: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md)
+
+**Party / Group / Encounter**
+
+- Begriffe: Party (Save) ≠ Group (Session) ≠ Encounter (Kampf-Composition)
+- `PlayerPartyState` Party-API + Normalizer; Gefährten im Fight, Overworld nur Main
+- `EncounterResolver` → Host-`enemy_roster`; optional `resources/encounters/`
+- `GroupManager`: Invite/Accept/Leave/Kick (Peer-Menü + F3); CSV `group.*`
+- Plan: [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md)
 
 **Debug**
 
-- Debug-Overlay (F3): Netzwerkinfo inkl. aktiver Fight-Owners + Start / Join / Leave + Quest-Cheats
+- Debug-Overlay (F3): Fight / Quest / Group-Cheats + Party Companion stubs
 - Dev-Testscenes unter `_dev/tests/`
 - Kampfsystem-Plan: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md)
 
 ### Geplant / in Arbeit
 
 - Encounter-Symbol über Gegner; Loot-UI
-- Verstärkung / Party-Multi-Unit im Fight
+- Group Auto-Fight-Start; Quest Progress-Relay an Group
 - Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)
 - Dungeons mit mehreren Ebenen
 - Steam P2P (Addons vorbereitet, noch nicht produktiv)
@@ -136,7 +143,7 @@ Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid
 - **Vorbereitet:** GodotSteam und [steam-multiplayer-peer](addons/steam-multiplayer-peer/) (noch nicht angebunden)
 - **Steam-WIP-Skripte:** [`_dev/steam_wip/`](_dev/steam_wip/) (nicht als Autoload aktiv)
 
-Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md), Quests: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md).
+Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md), Quests: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md), Party/Group/Encounter: [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md).
 
 ## Lizenz
 

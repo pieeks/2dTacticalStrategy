@@ -116,10 +116,33 @@ static func _apply_combat_stats(u: BattleUnit, stats: Dictionary, defaults: Dict
 	u.attack_range = int(stats.get("attack_range", defaults.get("attack_range", 1)))
 
 
+## Sanitize member_id for node / unit_id suffixes.
+static func sanitize_member_id(member_id: String) -> String:
+	var raw := member_id.strip_edges()
+	if raw.is_empty():
+		return "member"
+	return raw.validate_node_name()
+
+
+static func party_unit_id(peer_id: int, member_id: String) -> String:
+	return "player_%d_%s" % [peer_id, sanitize_member_id(member_id)]
+
+
 static func make_player(peer_id: int, stats: Dictionary = {}) -> BattleUnit:
+	return make_party_member(peer_id, str(peer_id), stats, "Player %d" % peer_id)
+
+
+## Party member unit; unit_id = player_<peer>_<member_id>.
+static func make_party_member(
+	peer_id: int,
+	member_id: String,
+	stats: Dictionary = {},
+	unit_display_name: String = ""
+) -> BattleUnit:
 	var u := BattleUnit.new()
-	u.unit_id = "player_%d" % peer_id
-	u.display_name = "Player %d" % peer_id
+	var mid := sanitize_member_id(member_id if member_id != "" else str(peer_id))
+	u.unit_id = party_unit_id(peer_id, mid)
+	u.display_name = unit_display_name if unit_display_name != "" else "Player %d" % peer_id
 	u.side = SIDE_PLAYER
 	u.owner_peer_id = peer_id
 	_apply_combat_stats(u, stats, DEFAULT_PLAYER_STATS)
@@ -129,11 +152,19 @@ static func make_player(peer_id: int, stats: Dictionary = {}) -> BattleUnit:
 static func make_enemy(index: int, encounter: Dictionary) -> BattleUnit:
 	var u := BattleUnit.new()
 	u.unit_id = "enemy_%d" % index
-	u.display_name = str(encounter.get("npc_name", "Enemy"))
 	u.side = SIDE_ENEMY
 	u.owner_peer_id = 0
+	var entry: Dictionary = {}
+	var roster: Variant = encounter.get("enemy_roster", [])
+	if roster is Array and index >= 0 and index < (roster as Array).size():
+		var raw: Variant = (roster as Array)[index]
+		if raw is Dictionary:
+			entry = raw as Dictionary
+	u.display_name = str(entry.get("display_name", encounter.get("npc_name", "Enemy")))
 	var stats: Dictionary = {}
-	if encounter.get("stats") is Dictionary:
+	if entry.get("stats") is Dictionary:
+		stats = entry["stats"] as Dictionary
+	elif encounter.get("stats") is Dictionary:
 		stats = encounter["stats"] as Dictionary
 	_apply_combat_stats(u, stats, DEFAULT_ENEMY_STATS)
 	return u

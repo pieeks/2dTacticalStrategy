@@ -58,11 +58,19 @@ func reset_session() -> void:
 	if PlayerPartyState != null and PlayerPartyState.has_method("try_autosave"):
 		PlayerPartyState.try_autosave("session_end")
 	_disconnect_multiplayer_signals()
+	# Close ENet explicitly so UDP 4242 is released before a new host binds.
+	if network != null and is_instance_valid(network):
+		network.close()
 	if multiplayer.has_multiplayer_peer():
+		var peer: MultiplayerPeer = multiplayer.multiplayer_peer
 		multiplayer.multiplayer_peer = null
+		if peer != null and peer != network and is_instance_valid(peer):
+			peer.close()
 	_ready_peers.clear()
 	is_host = false
 	network = null
+	if GroupManager != null and GroupManager.has_method("reset_session_state"):
+		GroupManager.reset_session_state()
 
 
 ## Disconnects known multiplayer/network signal handlers if connected.
@@ -83,15 +91,17 @@ func _disconnect_multiplayer_signals() -> void:
 ## Creates a new ENet lobby as host.
 ## Initializes server peer, sets multiplayer peer, connects signals.
 func create_lobby() -> void:
-	if multiplayer.has_multiplayer_peer():
-		reset_session()
-	else:
-		_disconnect_multiplayer_signals()
+	# Always tear down any previous peer so port bind cannot collide with a stale host.
+	reset_session()
 	is_host = true
 	network = ENetMultiplayerPeer.new()
 	var err := network.create_server(port, lobby_members_max)
 	if err != OK:
-		push_error("Failed to start ENet server")
+		push_error(
+			"Failed to start ENet server on port %d (err=%s). Is another instance already hosting?"
+			% [port, error_string(err)]
+		)
+		pending_menu_message = "ui.net.host_port_busy"
 		reset_session()
 		return
 	multiplayer.multiplayer_peer = network

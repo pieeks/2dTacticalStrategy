@@ -8,8 +8,23 @@ var current_interaction_npc_path: String
 var current_npc_data: Dictionary
 ## Peer currently in a fight that we may join (Overworld interaction).
 var _fight_join_target_peer_id: int = 0
+## Peer for Group invite / accept menu.
+var _group_target_peer_id: int = 0
 
 var _quest_panel: Node = null
+var _group_menu: PanelContainer = null
+var _group_title: Label = null
+var _group_btn_invite: Button = null
+var _group_btn_accept: Button = null
+var _group_btn_decline: Button = null
+var _group_btn_leave: Button = null
+var _group_btn_cancel: Button = null
+## Popup when another peer invites us to a group.
+var _group_invite_dialog: PanelContainer = null
+var _group_invite_label: Label = null
+var _group_invite_accept: Button = null
+var _group_invite_decline: Button = null
+var _group_invite_from: int = 0
 
 
 func _ready() -> void:
@@ -25,6 +40,8 @@ func _ready() -> void:
 		if box.has_node("Cancel"):
 			$FightJoinMenu/FightJoinButtonContainer/Cancel.pressed.connect(hide_fight_join_menu)
 	_ensure_quest_panel()
+	_ensure_group_menu()
+	_ensure_group_invite_dialog()
 	_apply_static_texts()
 	_refresh_quest_log()
 	var lm := _LocaleAccess.get_lm(self)
@@ -33,11 +50,37 @@ func _ready() -> void:
 	var qm := _qm()
 	if qm != null and not qm.quests_changed.is_connected(_on_quests_changed):
 		qm.quests_changed.connect(_on_quests_changed)
+	var gm := _gm()
+	if gm != null:
+		if gm.has_signal("group_changed") and not gm.group_changed.is_connected(_on_group_changed):
+			gm.group_changed.connect(_on_group_changed)
+		if gm.has_signal("invite_received") and not gm.invite_received.is_connected(_on_group_invite_received):
+			gm.invite_received.connect(_on_group_invite_received)
+		if gm.has_signal("invite_cleared") and not gm.invite_cleared.is_connected(_on_group_invite_cleared):
+			gm.invite_cleared.connect(_on_group_invite_cleared)
 
 
 func _on_language_changed(_locale: String) -> void:
 	_apply_static_texts()
 	_refresh_quest_log()
+	_refresh_group_invite_dialog_texts()
+
+
+func _on_group_changed() -> void:
+	if _group_menu != null and _group_menu.visible:
+		_refresh_group_menu_buttons()
+	var gm := _gm()
+	if gm != null and not gm.has_pending_invite():
+		hide_group_invite_dialog()
+
+
+func _on_group_invite_received(from_peer: int) -> void:
+	print("PlayerUI: group invite from peer ", from_peer)
+	show_group_invite_dialog(from_peer)
+
+
+func _on_group_invite_cleared() -> void:
+	hide_group_invite_dialog()
 
 
 func _on_quests_changed() -> void:
@@ -65,10 +108,24 @@ func _apply_static_texts() -> void:
 			box.get_node("JoinNeutral").text = tr("battle.join.neutral")
 		if box.has_node("Cancel"):
 			box.get_node("Cancel").text = tr("battle.join.cancel")
+	if _group_title != null:
+		_group_title.text = tr("group.menu_title")
+	if _group_btn_invite != null:
+		_group_btn_invite.text = tr("group.invite")
+	if _group_btn_accept != null:
+		_group_btn_accept.text = tr("group.accept")
+	if _group_btn_decline != null:
+		_group_btn_decline.text = tr("group.decline")
+	if _group_btn_leave != null:
+		_group_btn_leave.text = tr("group.leave")
+	if _group_btn_cancel != null:
+		_group_btn_cancel.text = tr("group.cancel")
+	_refresh_group_invite_dialog_texts()
 
 
 func show_interaction_menu(npc_data: Dictionary, npc_path: String) -> void:
 	hide_fight_join_menu()
+	hide_group_menu()
 	if _quest_panel != null and _quest_panel.has_method("hide_panel"):
 		_quest_panel.hide_panel()
 	current_interaction_npc_path = npc_path
@@ -77,6 +134,22 @@ func show_interaction_menu(npc_data: Dictionary, npc_path: String) -> void:
 	$InteractionMenu/InteractionButtonContainer/Talk.show()
 	$InteractionMenu/InteractionButtonContainer/Leave.show()
 	_update_quest_button_visibility()
+
+
+## Overworld peer interaction: Invite / Accept / Decline / Leave.
+func show_group_menu(target_peer_id: int) -> void:
+	hide_fight_join_menu()
+	_on_leave_pressed_ui_only()
+	_group_target_peer_id = target_peer_id
+	_ensure_group_menu()
+	_refresh_group_menu_buttons()
+	_group_menu.show()
+
+
+func hide_group_menu() -> void:
+	_group_target_peer_id = 0
+	if _group_menu != null:
+		_group_menu.hide()
 
 
 func show_fight_join_menu(target_peer_id: int) -> void:
@@ -112,6 +185,8 @@ func _on_leave_pressed_ui_only() -> void:
 		_hide_interaction_buttons()
 	if _quest_panel != null and _quest_panel.has_method("hide_panel"):
 		_quest_panel.hide_panel()
+	if _group_menu != null:
+		_group_menu.hide()
 
 
 func _on_leave_pressed() -> void:
@@ -134,6 +209,10 @@ func _on_leave_pressed() -> void:
 
 func _qm() -> Node:
 	return get_tree().root.get_node_or_null("QuestManager")
+
+
+func _gm() -> Node:
+	return get_tree().root.get_node_or_null("GroupManager")
 
 
 ## Talk stub + talk objective progress for current NPC.
@@ -272,3 +351,147 @@ func _get_fight_manager() -> Node:
 	if overworld == null:
 		return null
 	return overworld.get_node_or_null("FightManager")
+
+
+func _ensure_group_menu() -> void:
+	if _group_menu != null:
+		return
+	_group_menu = PanelContainer.new()
+	_group_menu.name = "GroupMenu"
+	_group_menu.visible = false
+	_group_menu.set_anchors_preset(Control.PRESET_CENTER)
+	_group_menu.offset_left = -80
+	_group_menu.offset_top = -70
+	_group_menu.offset_right = 80
+	_group_menu.offset_bottom = 70
+	var vbox := VBoxContainer.new()
+	_group_menu.add_child(vbox)
+	_group_title = Label.new()
+	_group_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_group_title)
+	_group_btn_invite = Button.new()
+	_group_btn_invite.pressed.connect(_on_group_invite_pressed)
+	vbox.add_child(_group_btn_invite)
+	_group_btn_accept = Button.new()
+	_group_btn_accept.pressed.connect(_on_group_accept_pressed)
+	vbox.add_child(_group_btn_accept)
+	_group_btn_decline = Button.new()
+	_group_btn_decline.pressed.connect(_on_group_decline_pressed)
+	vbox.add_child(_group_btn_decline)
+	_group_btn_leave = Button.new()
+	_group_btn_leave.pressed.connect(_on_group_leave_pressed)
+	vbox.add_child(_group_btn_leave)
+	_group_btn_cancel = Button.new()
+	_group_btn_cancel.pressed.connect(hide_group_menu)
+	vbox.add_child(_group_btn_cancel)
+	add_child(_group_menu)
+	_apply_static_texts()
+
+
+func _refresh_group_menu_buttons() -> void:
+	var gm := _gm()
+	if _group_menu == null or gm == null:
+		return
+	var target := _group_target_peer_id
+	var pending_from_target: bool = gm.has_pending_invite_from(target)
+	var already_grouped: bool = gm.is_grouped_with(target)
+	var in_group: bool = gm.is_in_session_group()
+	_group_btn_invite.visible = target != 0 and not already_grouped and not pending_from_target
+	_group_btn_accept.visible = pending_from_target or (gm.has_pending_invite() and target == 0)
+	_group_btn_decline.visible = _group_btn_accept.visible
+	_group_btn_leave.visible = in_group
+	_group_btn_cancel.visible = true
+
+
+func _on_group_invite_pressed() -> void:
+	var target := _group_target_peer_id
+	hide_group_menu()
+	var gm := _gm()
+	if target != 0 and gm != null:
+		gm.invite(target)
+
+
+func _on_group_accept_pressed() -> void:
+	hide_group_menu()
+	var gm := _gm()
+	if gm != null:
+		gm.accept_invite()
+
+
+func _on_group_decline_pressed() -> void:
+	hide_group_menu()
+	var gm := _gm()
+	if gm != null:
+		gm.decline_invite()
+
+
+func _on_group_leave_pressed() -> void:
+	hide_group_menu()
+	var gm := _gm()
+	if gm != null:
+		gm.leave()
+
+
+func _ensure_group_invite_dialog() -> void:
+	if _group_invite_dialog != null:
+		return
+	_group_invite_dialog = PanelContainer.new()
+	_group_invite_dialog.name = "GroupInviteDialog"
+	_group_invite_dialog.visible = false
+	_group_invite_dialog.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_group_invite_dialog.offset_left = -120
+	_group_invite_dialog.offset_top = 24
+	_group_invite_dialog.offset_right = 120
+	_group_invite_dialog.offset_bottom = 120
+	var vbox := VBoxContainer.new()
+	_group_invite_dialog.add_child(vbox)
+	_group_invite_label = Label.new()
+	_group_invite_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_group_invite_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(_group_invite_label)
+	_group_invite_accept = Button.new()
+	_group_invite_accept.pressed.connect(_on_group_invite_dialog_accept)
+	vbox.add_child(_group_invite_accept)
+	_group_invite_decline = Button.new()
+	_group_invite_decline.pressed.connect(_on_group_invite_dialog_decline)
+	vbox.add_child(_group_invite_decline)
+	add_child(_group_invite_dialog)
+	_refresh_group_invite_dialog_texts()
+
+
+func _refresh_group_invite_dialog_texts() -> void:
+	if _group_invite_accept != null:
+		_group_invite_accept.text = tr("group.accept")
+	if _group_invite_decline != null:
+		_group_invite_decline.text = tr("group.decline")
+	if _group_invite_label != null and _group_invite_from != 0:
+		_group_invite_label.text = tr("group.invited_by") % _group_invite_from
+
+
+func show_group_invite_dialog(from_peer: int) -> void:
+	_ensure_group_invite_dialog()
+	_group_invite_from = from_peer
+	_refresh_group_invite_dialog_texts()
+	_group_invite_dialog.show()
+
+
+func hide_group_invite_dialog() -> void:
+	_group_invite_from = 0
+	if _group_invite_dialog != null:
+		_group_invite_dialog.hide()
+
+
+func _on_group_invite_dialog_accept() -> void:
+	hide_group_invite_dialog()
+	hide_group_menu()
+	var gm := _gm()
+	if gm != null:
+		gm.accept_invite()
+
+
+func _on_group_invite_dialog_decline() -> void:
+	hide_group_invite_dialog()
+	hide_group_menu()
+	var gm := _gm()
+	if gm != null:
+		gm.decline_invite()
