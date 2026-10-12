@@ -1,0 +1,7 @@
+{
+	"id": "enc_slime_trio",
+	"map_npc_type": "slime_basic",
+	"units": [
+		{ "npc_type": "slime_basic", "count": 3 }
+	]
+}

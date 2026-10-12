@@ -77,6 +77,7 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 ### Geplant / in Arbeit
 
+- Party / Group / Encounter (Begriffe + Architektur fest; Ordner vorbereitet): [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md)
 - Encounter-Symbol über Gegner; Loot-UI
 - Verstärkung / Party-Multi-Unit im Fight
 - Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)
@@ -136,7 +137,7 @@ Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid
 - **Vorbereitet:** GodotSteam und [steam-multiplayer-peer](addons/steam-multiplayer-peer/) (noch nicht angebunden)
 - **Steam-WIP-Skripte:** [`_dev/steam_wip/`](_dev/steam_wip/) (nicht als Autoload aktiv)
 
-Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md), Quests: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md).
+Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md), Quests: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md), Party/Group/Encounter: [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md).
 
 ## Lizenz
 

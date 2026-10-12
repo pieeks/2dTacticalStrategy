@@ -25,6 +25,12 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in,
 - **Persistenz**: `PlayerPartyState` Autosave (45 s Intervall + Quit / WM_CLOSE / Session-Ende); inkl. `quest_data`
 - **Quests (v1)**: `QuestManager`, Demo `q_intro_slime` an `test_npc_basic`, Accept/Turn-in-UI, Quest-Log, kill/talk/reach, F3-Cheats; Group-Sync Stub
 
+## Begriffe (Party / Group / Encounter)
+
+- **Party** — ein Spieler: Main + Gefährten (`PlayerPartyState.party_data`)
+- **Group** — mehrere Spieler-Partys in einer Session (Koop; geplant: `GroupManager`)
+- **Encounter** — Map-Anker → Kampf-Roster (`units[]`; Ordner `resources/encounters/`)
+
 ## Bewusst später / offen
 
 - Encounter-Symbol über Gegner; Loot-UI
@@ -36,13 +42,14 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in,
 
 ## Nächste sinnvolle Schritte
 
-1. Kurztest-Checkliste in `PLAN_QUESTSYSTEM.md` manuell durchspielen
-2. Polish: Encounter-Symbole, Loot-Placeholder
-3. Small Scope Overworld/Dungeon erweitern
+1. Party / Group / Encounter nach [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md)
+2. Kurztest-Checkliste in `PLAN_QUESTSYSTEM.md` manuell durchspielen
+3. Polish: Encounter-Symbole, Loot-Placeholder
 4. Steamworks-Migration wenn Scope stabil
 
 ## Verweise
 
 - Kampfsystem-Plan: [`PLAN_KAMPFSYSTEM_GRID.md`](PLAN_KAMPFSYSTEM_GRID.md)
 - Quest-Plan: [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md)
+- Party/Group/Encounter: [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md)
 - README (aktueller Feature-Überblick)
