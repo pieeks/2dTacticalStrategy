@@ -5,9 +5,6 @@
 	"appearance": {
 		"race_path": "res://features/enemy/slime/slime_basic.tres"
 	},
-	"sync": {
-		"isActice": "true"
-	},
 	"stats": {
 		"health": 80,
 		"minDamage": 2,

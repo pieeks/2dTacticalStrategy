@@ -1,6 +1,8 @@
 class_name NPCCharacter
 extends CharacterBody2D
 
+const FacingUtilScript := preload("res://scripts/characters/facing_util.gd")
+
 ## Multiplayer & Performance
 @onready var multiplayer_synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
 var is_awake: bool = false
@@ -348,6 +350,17 @@ func _force_sleep() -> void:
 
 # --- Patrouillen-Werkzeuge für States ---
 
+## Stop patrol pause timer while chasing / interrupted (AggroController).
+func stop_patrol() -> void:
+	if patrol_pause_timer != null and is_instance_valid(patrol_pause_timer) and patrol_pause_timer.is_inside_tree():
+		patrol_pause_timer.stop()
+
+
+## Clear patrol pause before AggroController resumes WalkNPC.
+func resume_patrol() -> void:
+	stop_patrol()
+
+
 func start_patrol_pause():
 	# Nur der Host soll den Pausen-Timer starten.
 	if not is_multiplayer_authority():
@@ -486,7 +499,4 @@ func facing_dir() -> Vector2:
 
 
 func _dir_name(v: Vector2) -> String:
-	if abs(v.x) > abs(v.y):
-		return "right" if v.x >= 0.0 else "left"
-	else:
-		return "front" if v.y >= 0.0 else "back"
+	return FacingUtilScript.dir_name(v)

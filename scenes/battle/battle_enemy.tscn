@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/battle/battle_enemy.gd" id="1_enemy"]
+[ext_resource type="PackedScene" uid="uid://byvvm28uhv7he" path="res://scenes/characters/character_appearance.tscn" id="2_appear"]
+
+[node name="BattleEnemy" type="Node2D"]
+script = ExtResource("1_enemy")
+
+[node name="CharacterAppearance" parent="." instance=ExtResource("2_appear")]
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -24.0
+offset_top = -36.0
+offset_right = 40.0
+offset_bottom = -16.0
+theme_override_font_sizes/font_size = 10
+text = "Enemy"

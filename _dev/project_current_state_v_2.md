@@ -1,6 +1,6 @@
 # Project Current State (v2)
 
-Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter-Slice abgeschlossen (Multi-Unit-Fight, GroupManager).
+Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter + Character/NPC-Cleanup abgeschlossen.
 
 ## Bereits vorhanden
 
@@ -43,14 +43,17 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter-Slice
 
 ## Nächste sinnvolle Schritte
 
-1. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
-2. Optional offen in Party/Group/Encounter: `group_size`-Fallback / Composition-Demo / Late-Join-Spectator (siehe Plan-Kurztest)
-3. Polish: Encounter-Symbole, Loot-Placeholder; Group Auto-Fight-Start
-4. Steamworks-Migration wenn Scope stabil
+1. CharacterAppearance-Anim-Refactor: [`PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](PLAN_CHARACTER_APPEARANCE_REFACTOR.md)
+2. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
+3. Optional manuelle Smoke in [`PLAN_CHARACTER_NPC_CLEANUP.md`](PLAN_CHARACTER_NPC_CLEANUP.md) / Party-Encounter-Kurztests
+4. Polish: Encounter-Symbole, Loot-Placeholder; Group Auto-Fight-Start
+5. Steamworks-Migration wenn Scope stabil
 
 ## Verweise
 
 - Kampfsystem-Plan: [`PLAN_KAMPFSYSTEM_GRID.md`](PLAN_KAMPFSYSTEM_GRID.md)
 - Quest-Plan: [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md)
 - Party/Group/Encounter: [`PLAN_PARTY_GROUP_ENCOUNTER.md`](PLAN_PARTY_GROUP_ENCOUNTER.md)
+- Character/NPC Cleanup: [`PLAN_CHARACTER_NPC_CLEANUP.md`](PLAN_CHARACTER_NPC_CLEANUP.md)
+- Appearance-Anim-Refactor: [`PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](PLAN_CHARACTER_APPEARANCE_REFACTOR.md)
 - README (aktueller Feature-Überblick)

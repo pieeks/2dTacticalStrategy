@@ -63,10 +63,17 @@ func _spawn_player(peer_id: int) -> Node:
 		return null
 	var p := player_scene.instantiate()
 	print("[Spawner] instantiate OK on peer", multiplayer.get_unique_id(), " -> ", p)
+	p.name = str(peer_id)
 	p.set_multiplayer_authority(peer_id)
 	p.player_ui = player_ui
 	players[peer_id] = p
 	return p
+
+
+## Returns the spawned player node for peer_id, or null if missing/invalid.
+func get_player(peer_id: int) -> Node:
+	var p: Variant = players.get(peer_id)
+	return p if is_instance_valid(p) else null
 
 
 ## Removes a spawned player instance for the given peer.

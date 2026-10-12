@@ -5,7 +5,8 @@ signal fight_ready_to_remove(owner_peer_id: int)
 
 const BattleTurnControllerScript = preload("res://scripts/battle/battle_turn_controller.gd")
 const BattleHudScene = preload("res://scenes/battle/battle_hud.tscn")
-const CharacterAppearanceScene = preload("res://scenes/characters/character_appearance.tscn")
+const AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
+const BattleEnemyScene := preload("res://scenes/battle/battle_enemy.tscn")
 
 @onready var grid_manager: Node2D = $GridManager
 @onready var player_container: Node = $PlayerContainer
@@ -302,10 +303,6 @@ func _activate_local_leader_camera() -> void:
 		my_char.activate_camera()
 
 
-func _appearance_dict_usable(data: Dictionary) -> bool:
-	return not data.is_empty() and str(data.get("race_path", "")) != ""
-
-
 func _get_player_stats_for_peer(peer_id: int) -> Dictionary:
 	var synced: Variant = encounter.get("player_stats", {})
 	if synced is Dictionary:
@@ -326,46 +323,16 @@ func _get_player_appearance_for_peer(peer_id: int) -> Dictionary:
 	var synced: Variant = encounter.get("player_appearances", {})
 	if synced is Dictionary:
 		var from_enc: Variant = (synced as Dictionary).get(str(peer_id), {})
-		if from_enc is Dictionary and _appearance_dict_usable(from_enc):
+		if from_enc is Dictionary and AppearanceDataScript.is_usable(from_enc as Dictionary):
 			return (from_enc as Dictionary).duplicate(true)
-	# 2) Live Overworld player node.
+	# 2) Live Overworld player node / local party.
 	return _get_overworld_player_appearance(peer_id)
 
 
 func _get_overworld_player_appearance(peer_id: int) -> Dictionary:
 	var overworld: Node = get_parent().get_parent() if get_parent() else null
-	if overworld == null:
-		return {}
-	var players: Node = overworld.get_node_or_null("Players")
-	if players == null:
-		return {}
-	var player: Node = players.get_node_or_null(str(peer_id))
-	if player == null:
-		# Local authority fallback when node not found yet.
-		if peer_id == multiplayer.get_unique_id():
-			var local_app: Variant = PlayerPartyState.player_data.get("appearance", {})
-			if local_app is Dictionary and _appearance_dict_usable(local_app):
-				return (local_app as Dictionary).duplicate(true)
-		return {}
-	var sync_node = player.get("sync")
-	if sync_node != null and sync_node.get("appearance") is Dictionary:
-		var from_sync: Dictionary = sync_node.appearance
-		if _appearance_dict_usable(from_sync):
-			return from_sync.duplicate(true)
-	var save_node = player.get("save")
-	if save_node != null and not save_node.appearance_data.is_empty():
-		if _appearance_dict_usable(save_node.appearance_data):
-			return save_node.appearance_data.duplicate(true)
-	var app = player.get("appearance")
-	if app != null and app.has_method("get_full_data"):
-		var from_visual: Dictionary = app.get_full_data()
-		if _appearance_dict_usable(from_visual):
-			return from_visual
-	if peer_id == multiplayer.get_unique_id():
-		var party_app: Variant = PlayerPartyState.player_data.get("appearance", {})
-		if party_app is Dictionary and _appearance_dict_usable(party_app):
-			return (party_app as Dictionary).duplicate(true)
-	return {}
+	var players: Node = overworld.get_node_or_null("Players") if overworld != null else null
+	return AppearanceDataScript.collect_for_peer(peer_id, players)
 
 
 ## Spawn one party member node named player_<peer>_<member_id>.
@@ -402,7 +369,7 @@ func _spawn_party_member(peer_id: int, entry: Dictionary, member_index: int) -> 
 	player_container.add_child(character)
 	character.global_position = world_pos
 	var appearance_data: Dictionary = {}
-	if entry.get("appearance") is Dictionary and _appearance_dict_usable(entry["appearance"]):
+	if entry.get("appearance") is Dictionary and AppearanceDataScript.is_usable(entry["appearance"]):
 		appearance_data = (entry["appearance"] as Dictionary).duplicate(true)
 	else:
 		appearance_data = _get_player_appearance_for_peer(peer_id)
@@ -452,23 +419,11 @@ func _spawn_battle_enemies() -> void:
 			appearance_data = (entry["appearance"] as Dictionary).duplicate(true)
 		else:
 			appearance_data = fallback_appearance.duplicate(true)
-		var enemy := Node2D.new()
+		var enemy: Node2D = BattleEnemyScene.instantiate()
 		enemy.name = enemy_name
-		enemy.set_meta("npc_type", npc_type)
-		enemy.set_meta("npc_name", display_name)
-		enemy.set_meta("stats", stats)
-		var app: Node2D = CharacterAppearanceScene.instantiate()
-		enemy.add_child(app)
-		if not appearance_data.is_empty() and app.has_method("apply_full_data"):
-			app.call_deferred("apply_full_data", appearance_data)
-		if app.has_method("play"):
-			app.call_deferred("play", "idle_front")
-		var label := Label.new()
-		label.text = display_name
-		label.position = Vector2(-24, -36)
-		label.add_theme_font_size_override("font_size", 10)
-		enemy.add_child(label)
 		npc_container.add_child(enemy)
+		if enemy.has_method("setup"):
+			enemy.setup(npc_type, display_name, stats, appearance_data)
 		# Offset along columns so multiple enemies do not stack.
 		var cell_x := grid_w - (i % 3)
 		@warning_ignore("integer_division")
@@ -491,9 +446,7 @@ func _on_battle_ended(result: String) -> void:
 		return
 	print("FightTemplate: battle ended with ", result)
 	if result == "victory":
-		var npc_type := str(encounter.get("npc_type", ""))
-		if npc_type != "":
-			rpc_quest_kill_credit.rpc(npc_type)
+		_credit_kills_from_roster()
 		var npc_path := str(encounter.get("npc_path", ""))
 		if npc_path != "":
 			var fm := _get_fight_manager()
@@ -502,10 +455,30 @@ func _on_battle_ended(result: String) -> void:
 	request_end_fight()
 
 
+## Aggregate enemy_roster npc_types and credit each once with count.
+func _credit_kills_from_roster() -> void:
+	var counts: Dictionary = {}
+	var roster: Variant = encounter.get("enemy_roster", [])
+	if roster is Array:
+		for entry in roster as Array:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var npc_type := str((entry as Dictionary).get("npc_type", "")).strip_edges()
+			if npc_type.is_empty():
+				continue
+			counts[npc_type] = int(counts.get(npc_type, 0)) + 1
+	if counts.is_empty():
+		var fallback := str(encounter.get("npc_type", "")).strip_edges()
+		if fallback != "":
+			counts[fallback] = 1
+	for npc_type in counts.keys():
+		rpc_quest_kill_credit.rpc(str(npc_type), int(counts[npc_type]))
+
+
 ## Credit kill quest progress to fight participants (local apply).
 @rpc("authority", "call_local", "reliable")
-func rpc_quest_kill_credit(npc_type: String) -> void:
-	if npc_type.is_empty():
+func rpc_quest_kill_credit(npc_type: String, amount: int = 1) -> void:
+	if npc_type.is_empty() or amount <= 0:
 		return
 	var my_id := multiplayer.get_unique_id()
 	if not participants.has(my_id):
@@ -516,7 +489,7 @@ func rpc_quest_kill_credit(npc_type: String) -> void:
 	qm.report_progress({
 		"type": "kill",
 		"target": npc_type,
-		"amount": 1,
+		"amount": amount,
 	})
 
 

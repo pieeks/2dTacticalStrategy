@@ -92,6 +92,7 @@ func _ready() -> void:
 	# Connect animation change signal
 	connect("animation_state_changed", Callable(self, "_on_animation_state_changed"))
 	action.end_interaction_signal.connect(end_interaction)
+	_connect_fight_presence_signal()
 	_apply_fight_world_gate()
 	if NetworkManagerTest.is_authority(self):
 		call_deferred("_finish_spawn_force_fight_suppress")
@@ -111,6 +112,21 @@ func _get_fight_manager() -> Node:
 	if overworld == null:
 		return null
 	return overworld.get_node_or_null("FightManager")
+
+
+## React to FightManager presence changes instead of polling every physics frame.
+func _connect_fight_presence_signal() -> void:
+	var fm := _get_fight_manager()
+	if fm == null or not fm.has_signal("peer_fight_presence_changed"):
+		return
+	if not fm.peer_fight_presence_changed.is_connected(_on_peer_fight_presence_changed):
+		fm.peer_fight_presence_changed.connect(_on_peer_fight_presence_changed)
+
+
+func _on_peer_fight_presence_changed(peer_id: int, _in_fight: bool) -> void:
+	if peer_id != get_multiplayer_authority():
+		return
+	_apply_fight_world_gate()
 
 
 func _is_local_peer_in_fight() -> bool:
@@ -225,8 +241,6 @@ func _try_interact_with_fight_locked_npc(npc: Node) -> bool:
 ##   and broadcasts position
 ## - Non-authority (puppets): interpolates display velocity for smooth movement
 func _physics_process(delta: float) -> void:
-	_apply_fight_world_gate()
-
 	if NetworkManagerTest.is_authority(self):
 		if _is_local_peer_in_fight():
 			velocity = Vector2.ZERO
