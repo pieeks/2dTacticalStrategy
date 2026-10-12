@@ -18,7 +18,7 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1 (Demo-Quest, Accept/Turn-in,
   - Host-autoritativ: Start / Join / Leave / Destroy + Late-Join-Sync
   - `GridManager` (Hex + AStar2D), Move / Attack / Wait, Enemy-AI
   - Join: E auf kämpfenden Peer **oder** fight-locked NPC → Join-Menü (Ally queued)
-  - Stats aus NPC-JSON + Party-Placeholder; Host-`enemy_roster` (`units[]` / `encounter_id` / `group_size`-Fallback)
+  - Stats aus NPC-JSON + Party; Host-`enemy_roster` + `party_rosters` (Multi-Unit pro Peer, Snapshot-Sync)
   - Free-Cam im Fight (Zoom 0.8); Overworld-Kamera unverändert
   - Absicherung: Request-RPCs Server-only; Broadcasts Host-Sender-Guard; Disconnect-Cleanup
 - **UI**: Charaktererstellung, World Selection, Settings, ESC (Quit + Autosave), PlayerUi

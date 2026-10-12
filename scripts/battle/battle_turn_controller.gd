@@ -57,8 +57,11 @@ func queue_unit_for_next_round(unit_id: String) -> void:
 
 func is_local_unit_queued() -> bool:
 	var my_id := multiplayer.get_unique_id()
-	var u: BattleUnit = units.get("player_%d" % my_id) as BattleUnit
-	return u != null and u.joins_next_round
+	for unit_id in units.keys():
+		var u: BattleUnit = units[unit_id] as BattleUnit
+		if u != null and u.is_player() and u.owner_peer_id == my_id and u.joins_next_round:
+			return true
+	return false
 
 
 func _promote_queued_units() -> void:
@@ -626,7 +629,10 @@ func _rebind_unit_nodes() -> void:
 		if u == null:
 			continue
 		if u.is_player() and players != null:
-			u.node = players.get_node_or_null(str(u.owner_peer_id)) as Node2D
+			# Prefer unit_id node name (player_<peer>_<member>); legacy peer-named node fallback.
+			u.node = players.get_node_or_null(u.unit_id) as Node2D
+			if u.node == null:
+				u.node = players.get_node_or_null(str(u.owner_peer_id)) as Node2D
 			if u.node != null and u.node.has_method("set_turn_controller"):
 				u.node.set_turn_controller(self)
 		elif u.is_enemy() and npcs != null:

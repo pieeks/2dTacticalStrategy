@@ -1,7 +1,7 @@
 class_name BattleCharacter
 extends CharacterBody2D
 ## Kampf-Charakter: komplett freie Kamera (Welt-fest) + WASD-Pan.
-## Kamera am lokalen Fighter (Node-Name == Peer-ID), nicht an Multiplayer-Authority.
+## Kamera am lokalen Leader (Legacy: Name == Peer-ID; §5b: meta is_party_leader).
 ## Pos-Sync weiter authority-gated. Overworld-Kamera unberührt.
 
 @onready var cam: Camera2D = $Camera2D
@@ -19,15 +19,23 @@ var _camera_placed: bool = false
 
 
 func _enter_tree() -> void:
-	# Reliable authority for call_local-spawned fight avatars (name = peer_id).
+	# Legacy: name was peer_id. §5b names are player_<peer>_<member_id> (authority set by spawner).
 	if str(name).is_valid_int():
 		set_multiplayer_authority(int(str(name)))
 
 
+## Local camera/pan owner: legacy peer-named node, or §5b party leader meta.
 func _is_local_fighter() -> bool:
 	if not multiplayer.has_multiplayer_peer():
 		return false
-	return str(name).is_valid_int() and int(str(name)) == multiplayer.get_unique_id()
+	var my_id := multiplayer.get_unique_id()
+	if get_multiplayer_authority() != my_id:
+		return false
+	# Legacy single-avatar name == peer_id.
+	if str(name).is_valid_int():
+		return int(str(name)) == my_id
+	# §5b: only the designated party leader claims the fight camera.
+	return bool(get_meta("is_party_leader", false))
 
 
 func _ready() -> void:

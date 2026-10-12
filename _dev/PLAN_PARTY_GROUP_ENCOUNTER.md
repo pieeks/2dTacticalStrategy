@@ -102,7 +102,7 @@ v1 Scope:
 - [x] `party_data`-Normalizer (`leader_id`, `members`, `max_size`)
 - [x] Query-API an `PlayerPartyState`
 - [x] Charaktererstellung schreibt konsistentes Schema (inkl. `max_size`)
-- [ ] Party-Einheiten im Fight für alle Participants sichtbar (§5b)
+- [x] Party-Einheiten im Fight für alle Participants sichtbar (§5b)
 
 ---
 
@@ -263,8 +263,8 @@ Ziel: Jeder Fight-Teilnehmer (Start, Join, Late-Join) sieht **dieselben Enemies*
 ### 5.1 Ist-Zustand (knapp)
 
 - Encounter wird bei Start/Join/`sync_active_fights_to_peer` mitgeschickt
-- Host reichert `player_appearances` / `player_stats` **pro Peer** an (praktisch 1 Avatar)
-- Enemies: lokal aus Spec/`group_size` — bei Composition **muss** das ein Host-Snapshot werden
+- Host hält `enemy_roster` + `party_rosters` (Client-Snapshot / Host-local / Leader-Fallback)
+- Legacy `player_appearances` / `player_stats` bleiben als Fallback
 
 ### 5.2 Host-Snapshot im Encounter-Dict
 
@@ -334,10 +334,10 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 - [x] `enemy_roster` im Encounter; Spawn nur aus Snapshot
 - [x] Start-/Join-/Late-Join-RPCs: Roster immer mitsenden
 - [ ] Kurztest (≥2 Peers): gleicher Enemy-Count/Looks nach Join
-- [ ] Party-Snapshot RPC Client→Host
-- [ ] `party_rosters` anreichern + Multi-Unit-Spawn pro Peer
+- [x] Party-Snapshot RPC Client→Host
+- [x] `party_rosters` anreichern + Multi-Unit-Spawn pro Peer
 - [ ] Kurztest: Peer A mit ≥2 Members, weiterer Peer joint → alle Participants sehen alle Party-Units + Enemies
-- [ ] Turn-Order / Unit-IDs für Party-Companions stabil
+- [x] Turn-Order / Unit-IDs für Party-Companions stabil
 - [x] Design skaliert mit Lobby-Max (kein Hardcode auf 2 Peers)
 
 ---
@@ -351,7 +351,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 | Quests | Fortschritt in Party-Save | Progress-Share Stub → echt | Kill nach `npc_type` |
 
 - [x] Fight: Roster statt reines `group_size`-Klonscript
-- [ ] Fight: Party-/Enemy-Sync §5 (5a Enemy erledigt; 5b Party offen)
+- [x] Fight: Party-/Enemy-Sync §5 (5a Enemy + 5b Party)
 - [ ] Quest: Group-Membership verdrahten
 - [x] Docs: Kampfplan-Hinweis „Encounter Composition“ auf diesen Plan verlinken
 
@@ -362,7 +362,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 1. Begriffe + dieser Plan (§0–§1) — erledigt
 2. **Party-Normalizer + API** (Datenbasis) — erledigt
 3. **EncounterResolver + `enemy_roster` + MP-Sync 5a** — erledigt
-4. **Party-Roster Sync 5b** (Snapshot + Multi-Unit-Spawn)
+4. **Party-Roster Sync 5b** (Snapshot + Multi-Unit-Spawn) — erledigt
 5. **GroupManager** (Invite/Leave) + Quest-Hook
 6. Kurztest (inkl. Multi-Peer Fight, mind. 2 als Smoke) + README / Status
 
@@ -403,7 +403,7 @@ Overworld: weiter nur Main sichtbar — Sync betrifft **Fight-Instanz**.
 - [x] Encounter-Composition (`units[]`) auflösbar + im Fight gespawnt; `group_size`-Fallback lebt
 - [x] `enemy_roster` host-autoritativ für Start/Join/Late-Join synchron
 - [x] Party-Datenmodell normalisiert + Query-API
-- [ ] `party_rosters` sync + Multi-Unit sichtbar für alle Fight-Peers
+- [x] `party_rosters` sync + Multi-Unit sichtbar für alle Fight-Peers
 - [ ] Group invite/leave spielbar (UI oder F3)
 - [x] Keine Vermischung der drei Konzepte in Code-Namen
 

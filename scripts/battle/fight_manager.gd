@@ -63,12 +63,82 @@ func start_fight_with_encounter(peer_id: int, encounter: Dictionary) -> void:
 		return
 	print("FightManager: start_fight_with_encounter ", peer_id, " ", encounter.get("npc_type", ""))
 	peers_in_fight[peer_id] = true
-	var enriched: Dictionary = _enrich_encounter_player_data(encounter, [peer_id])
+	var enriched: Dictionary = encounter.duplicate(true)
+	_merge_client_party_roster_payload(enriched, peer_id)
+	enriched = _enrich_encounter_player_data(enriched, [peer_id])
+	enriched = _enrich_encounter_party_rosters(enriched, [peer_id])
 	enriched = EncounterResolver.attach_enemy_roster(enriched)
 	rpc_start_fight.rpc(peer_id, enriched)
 	var npc_path := str(enriched.get("npc_path", ""))
 	if npc_path != "":
 		rpc_lock_overworld_npc.rpc(npc_path)
+
+
+## Local party snapshot for Start/Join payloads (clients and host).
+func get_local_party_roster_snapshot() -> Array:
+	return PlayerPartyState.build_party_roster_snapshot()
+
+
+## Merge optional client key `party_roster` into `party_rosters[peer]`.
+func _merge_client_party_roster_payload(encounter: Dictionary, peer_id: int) -> void:
+	var payload: Variant = encounter.get("party_roster", [])
+	encounter.erase("party_roster")
+	if payload is Array and not (payload as Array).is_empty():
+		_set_party_roster_for_peer(encounter, peer_id, payload as Array)
+
+
+func _set_party_roster_for_peer(encounter: Dictionary, peer_id: int, roster: Array) -> void:
+	var map: Dictionary = {}
+	if encounter.get("party_rosters") is Dictionary:
+		map = (encounter["party_rosters"] as Dictionary).duplicate(true)
+	map[str(peer_id)] = roster.duplicate(true)
+	encounter["party_rosters"] = map
+
+
+## Fill missing party_rosters entries (host local snapshot or leader fallback).
+func _enrich_encounter_party_rosters(encounter: Dictionary, peer_ids: Array) -> Dictionary:
+	var enriched: Dictionary = encounter.duplicate(true)
+	var map: Dictionary = {}
+	if enriched.get("party_rosters") is Dictionary:
+		map = (enriched["party_rosters"] as Dictionary).duplicate(true)
+	var local_id := multiplayer.get_unique_id() if multiplayer != null else 0
+	for peer_id in peer_ids:
+		var pid := int(peer_id)
+		var key := str(pid)
+		var existing: Variant = map.get(key, [])
+		if existing is Array and not (existing as Array).is_empty():
+			continue
+		if pid == local_id:
+			var local_roster: Array = PlayerPartyState.build_party_roster_snapshot()
+			if not local_roster.is_empty():
+				map[key] = local_roster
+				continue
+		map[key] = _fallback_party_roster_for_peer(pid, enriched)
+	enriched["party_rosters"] = map
+	return enriched
+
+
+## Single-leader roster from legacy player_appearances / player_stats.
+func _fallback_party_roster_for_peer(peer_id: int, encounter: Dictionary) -> Array:
+	var apps: Variant = encounter.get("player_appearances", {})
+	var stats_map: Variant = encounter.get("player_stats", {})
+	var appearance: Dictionary = {}
+	var stats: Dictionary = {}
+	if apps is Dictionary and (apps as Dictionary).get(str(peer_id), {}) is Dictionary:
+		appearance = ((apps as Dictionary)[str(peer_id)] as Dictionary).duplicate(true)
+	if stats_map is Dictionary and (stats_map as Dictionary).get(str(peer_id), {}) is Dictionary:
+		stats = ((stats_map as Dictionary)[str(peer_id)] as Dictionary).duplicate(true)
+	if appearance.is_empty():
+		appearance = _collect_player_appearance(peer_id)
+	if stats.is_empty():
+		stats = _collect_player_stats(peer_id)
+	return [{
+		"member_id": str(peer_id),
+		"role": "leader",
+		"name": "Player %d" % peer_id,
+		"appearance": appearance,
+		"stats": stats,
+	}]
 
 
 ## Collect current worn look for a peer from Overworld / Save / PartyState.
@@ -153,6 +223,7 @@ func sync_active_fights_to_peer(peer_id: int) -> void:
 			var encounter: Dictionary = {}
 			if child.has_method("get_encounter"):
 				encounter = child.get_encounter()
+			encounter = _enrich_encounter_party_rosters(encounter, participants_list)
 			encounter = EncounterResolver.attach_enemy_roster(encounter)
 			if child.has_method("set_encounter"):
 				child.set_encounter(encounter)
@@ -268,7 +339,10 @@ func _find_nearest_fight_for_requester(requester_id: int) -> Node:
 
 
 func _process_join_request(
-	requester_id: int, target_peer_id: int = 0, side: String = "player"
+	requester_id: int,
+	target_peer_id: int = 0,
+	side: String = "player",
+	party_roster: Array = []
 ) -> void:
 	if is_peer_in_fight(requester_id):
 		return
@@ -299,7 +373,11 @@ func _process_join_request(
 	var encounter: Dictionary = {}
 	if fight.has_method("get_encounter"):
 		encounter = fight.get_encounter()
+	encounter = encounter.duplicate(true)
+	if not party_roster.is_empty():
+		_set_party_roster_for_peer(encounter, requester_id, party_roster)
 	encounter = _enrich_encounter_player_data(encounter, participants_list)
+	encounter = _enrich_encounter_party_rosters(encounter, participants_list)
 	# Keep existing host enemy_roster; only build if somehow missing.
 	encounter = EncounterResolver.attach_enemy_roster(encounter)
 	if fight.has_method("set_encounter"):
@@ -427,22 +505,23 @@ func rpc_request_start_fight_encounter(peer_id: int, encounter: Dictionary) -> v
 
 @rpc("any_peer", "reliable")
 func rpc_request_join_fight(
-	target_peer_id: int = 0, side: String = "player"
+	target_peer_id: int = 0, side: String = "player", party_roster: Array = []
 ) -> void:
 	if not multiplayer.is_server():
 		return
 	var requester_id := multiplayer.get_remote_sender_id()
 	if requester_id <= 0:
 		return
-	_process_join_request(requester_id, target_peer_id, side)
+	_process_join_request(requester_id, target_peer_id, side, party_roster)
 
 
 ## Local/host helper used by UI and debug overlay.
 func request_join_fight_as_local(target_peer_id: int = 0, side: String = "player") -> void:
+	var roster: Array = get_local_party_roster_snapshot()
 	if multiplayer.is_server():
-		_process_join_request(multiplayer.get_unique_id(), target_peer_id, side)
+		_process_join_request(multiplayer.get_unique_id(), target_peer_id, side, roster)
 	else:
-		rpc_id(1, "rpc_request_join_fight", target_peer_id, side)
+		rpc_id(1, "rpc_request_join_fight", target_peer_id, side, roster)
 
 
 @rpc("any_peer", "call_local", "reliable")

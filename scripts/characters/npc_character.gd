@@ -108,6 +108,9 @@ func start_battle_with(player: Node2D) -> void:
 	if not multiplayer.is_server() and not player.is_multiplayer_authority():
 		return
 	var encounter := _build_encounter()
+	# Only attach local PartyState when starting for ourselves (never another peer's).
+	if peer_id == multiplayer.get_unique_id():
+		encounter["party_roster"] = PlayerPartyState.build_party_roster_snapshot()
 	if multiplayer.is_server():
 		if fm.has_method("start_fight_with_encounter"):
 			fm.start_fight_with_encounter(peer_id, encounter)

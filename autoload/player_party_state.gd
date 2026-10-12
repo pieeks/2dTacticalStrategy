@@ -54,6 +54,8 @@ const AUTOSAVE_INTERVAL_SEC := 45.0
 
 var _autosave_enabled: bool = false
 var _autosave_accum: float = 0.0
+## Ensures rapid add_companion calls never collide on the same id.
+var _companion_id_seq: int = 0
 
 
 ## Called when the singleton is initialized.
@@ -312,8 +314,10 @@ func add_companion(data: Dictionary) -> bool:
 	if data.is_empty():
 		return false
 	var entry: Dictionary = data.duplicate(true)
-	if not entry.has("id") or str(entry.get("id", "")).is_empty():
-		entry["id"] = "companion_%d" % Time.get_unix_time_from_system()
+	var new_id := str(entry.get("id", "")).strip_edges()
+	if new_id.is_empty() or _member_id_exists(new_id):
+		new_id = _make_unique_companion_id()
+	entry["id"] = new_id
 	if str(entry.get("role", "")) == "leader":
 		entry["role"] = "companion"
 	elif not entry.has("role"):
@@ -330,6 +334,79 @@ func add_companion(data: Dictionary) -> bool:
 	party_data["members"] = members
 	_normalize_party_data()
 	return true
+
+
+func _member_id_exists(member_id: String) -> bool:
+	for m in party_data.get("members", []):
+		if typeof(m) == TYPE_DICTIONARY and str(m.get("id", "")) == member_id:
+			return true
+	return false
+
+
+func _make_unique_companion_id() -> String:
+	_companion_id_seq += 1
+	var candidate := "companion_%d_%d" % [Time.get_ticks_msec(), _companion_id_seq]
+	while _member_id_exists(candidate):
+		_companion_id_seq += 1
+		candidate = "companion_%d_%d" % [Time.get_ticks_msec(), _companion_id_seq]
+	return candidate
+
+
+## Remove a non-leader member by id. Returns false if missing or target is leader.
+func remove_companion(member_id: String) -> bool:
+	_normalize_party_data()
+	if member_id.is_empty():
+		return false
+	var leader_id := str(party_data.get("leader_id", ""))
+	if member_id == leader_id:
+		return false
+	var members: Array = party_data["members"]
+	for i in range(members.size()):
+		var m: Variant = members[i]
+		if typeof(m) != TYPE_DICTIONARY:
+			continue
+		if str(m.get("id", "")) != member_id:
+			continue
+		if str(m.get("role", "")) == "leader":
+			return false
+		members.remove_at(i)
+		party_data["members"] = members
+		_normalize_party_data()
+		return true
+	return false
+
+
+## Remove the last companion (non-leader). Returns false if none.
+func remove_last_companion() -> bool:
+	_normalize_party_data()
+	var members: Array = party_data["members"]
+	for i in range(members.size() - 1, -1, -1):
+		var m: Variant = members[i]
+		if typeof(m) != TYPE_DICTIONARY:
+			continue
+		if str(m.get("role", "")) == "leader":
+			continue
+		var mid := str(m.get("id", ""))
+		return remove_companion(mid)
+	return false
+
+
+## Remove all non-leader members. Returns how many were removed.
+func clear_companions() -> int:
+	_normalize_party_data()
+	var members: Array = party_data["members"]
+	var kept: Array = []
+	var removed := 0
+	for m in members:
+		if typeof(m) != TYPE_DICTIONARY:
+			continue
+		if str(m.get("role", "")) == "leader":
+			kept.append(m)
+		else:
+			removed += 1
+	party_data["members"] = kept
+	_normalize_party_data()
+	return removed
 
 
 ## True when at least one member has a stats dictionary (fight-ready placeholder).

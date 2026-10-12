@@ -71,6 +71,7 @@ func _ready() -> void:
 	btn_join_selected.pressed.connect(_on_join_selected_pressed)
 	btn_join_cancel.pressed.connect(_hide_fight_select)
 	fight_list.item_activated.connect(func(_index: int) -> void: _on_join_selected_pressed())
+	_setup_party_cheat_buttons()
 	_setup_quest_cheat_buttons()
 	var qm := _qm()
 	if qm != null and qm.has_signal("quests_changed") and not qm.quests_changed.is_connected(_refresh_quest_lists):
@@ -116,6 +117,72 @@ func _get_fight_manager() -> Node:
 
 func _qm() -> Node:
 	return get_tree().root.get_node_or_null("QuestManager")
+
+
+## English-only party smoke helper (no CSV) — stub companion for §5b multi-unit fights.
+func _setup_party_cheat_buttons() -> void:
+	var lbl := Label.new()
+	lbl.text = "Party Cheats"
+	fight_page.add_child(lbl)
+	_add_cheat_button(fight_page, "Add Stub Companion", _on_cheat_add_companion)
+	_add_cheat_button(fight_page, "Remove Last Companion", _on_cheat_remove_last_companion)
+	_add_cheat_button(fight_page, "Clear Companions", _on_cheat_clear_companions)
+	_add_cheat_button(fight_page, "Print Party Roster", _on_cheat_print_party)
+
+
+func _on_cheat_add_companion() -> void:
+	var appearance: Dictionary = {}
+	var app_raw: Variant = PlayerPartyState.player_data.get("appearance", {})
+	if app_raw is Dictionary:
+		appearance = (app_raw as Dictionary).duplicate(true)
+	var ok: bool = PlayerPartyState.add_companion({
+		"name": "Stub Companion",
+		"appearance": appearance,
+		"stats": BattleUnit.DEFAULT_PLAYER_STATS.duplicate(true),
+		"equipment": {},
+	})
+	if ok:
+		PlayerPartyState.try_autosave("f3_add_companion")
+		print(
+			"DebugOverlay: companion added, members=",
+			PlayerPartyState.get_members().size(),
+			"/",
+			PlayerPartyState.get_party_max_size()
+		)
+	else:
+		print("DebugOverlay: add_companion failed (full or invalid)")
+
+
+func _on_cheat_remove_last_companion() -> void:
+	var ok: bool = PlayerPartyState.remove_last_companion()
+	if ok:
+		PlayerPartyState.try_autosave("f3_remove_companion")
+		print(
+			"DebugOverlay: companion removed, members=",
+			PlayerPartyState.get_members().size(),
+			"/",
+			PlayerPartyState.get_party_max_size()
+		)
+	else:
+		print("DebugOverlay: remove_last_companion failed (no companion)")
+
+
+func _on_cheat_clear_companions() -> void:
+	var removed: int = PlayerPartyState.clear_companions()
+	if removed > 0:
+		PlayerPartyState.try_autosave("f3_clear_companions")
+	print(
+		"DebugOverlay: cleared companions=",
+		removed,
+		", members=",
+		PlayerPartyState.get_members().size(),
+		"/",
+		PlayerPartyState.get_party_max_size()
+	)
+
+
+func _on_cheat_print_party() -> void:
+	print("DebugOverlay: party_roster=", PlayerPartyState.build_party_roster_snapshot())
 
 
 ## English-only quest debug controls (no CSV).
@@ -402,9 +469,15 @@ func _request_join(target_peer_id: int) -> void:
 	if fm.has_method("request_join_fight_as_local"):
 		fm.request_join_fight_as_local(target_peer_id, "player")
 	elif multiplayer.is_server():
-		fm._process_join_request(multiplayer.get_unique_id(), target_peer_id, "player")
+		var roster: Array = []
+		if fm.has_method("get_local_party_roster_snapshot"):
+			roster = fm.get_local_party_roster_snapshot()
+		fm._process_join_request(multiplayer.get_unique_id(), target_peer_id, "player", roster)
 	else:
-		fm.rpc_id(1, "rpc_request_join_fight", target_peer_id, "player")
+		var roster2: Array = []
+		if fm.has_method("get_local_party_roster_snapshot"):
+			roster2 = fm.get_local_party_roster_snapshot()
+		fm.rpc_id(1, "rpc_request_join_fight", target_peer_id, "player", roster2)
 
 
 func _on_leave_fight_pressed() -> void:
