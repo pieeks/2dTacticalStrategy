@@ -14,6 +14,7 @@
 extends Control
 
 const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
+const AppearanceCatalogScript := preload("res://scripts/characters/appearance_catalog.gd")
 ## Reference to the CharacterAppearance node used for preview.
 @onready var character: CharacterAppearance = $CanvasLayer/UIRoot/CharacterPreview/CharacterAppearance
 
@@ -54,62 +55,77 @@ func _apply_static_texts() -> void:
 
 ## Cycles race selection backwards and updates preview.
 func _on_race_left_button_pressed() -> void:
-	race_index = (race_index - 1 + character.raceSprites.size()) % character.raceSprites.size()
-	var path = character.raceSprites[race_index].resource_path
-	character.set_race(path)
+	var races: Array = AppearanceCatalogScript.race_sprites()
+	if races.is_empty():
+		return
+	race_index = (race_index - 1 + races.size()) % races.size()
+	character.set_race(races[race_index].resource_path)
 
 ## Cycles race selection forwards and updates preview.
 func _on_race_right_button_pressed() -> void:
-	race_index = (race_index + 1) % character.raceSprites.size()
-	var path = character.raceSprites[race_index].resource_path
-	character.set_race(path)
+	var races: Array = AppearanceCatalogScript.race_sprites()
+	if races.is_empty():
+		return
+	race_index = (race_index + 1) % races.size()
+	character.set_race(races[race_index].resource_path)
 
 
 # --- Hair selection ---
 
 ## Cycles hair selection backwards and updates preview.
 func _on_hair_left_button_pressed() -> void:
-	hair_index = (hair_index - 1 + character.hairSprites.size()) % character.hairSprites.size()
-	var path = character.hairSprites[hair_index].resource_path
-	character.set_hair(path)
+	var hairs: Array = AppearanceCatalogScript.hair_sprites()
+	if hairs.is_empty():
+		return
+	hair_index = (hair_index - 1 + hairs.size()) % hairs.size()
+	character.set_hair(hairs[hair_index].resource_path)
 
 
 ## Cycles hair selection forwards and updates preview.
 func _on_hair_right_button_pressed() -> void:
-	hair_index = (hair_index + 1) % character.hairSprites.size()
-	var path = character.hairSprites[hair_index].resource_path
-	character.set_hair(path)
-
+	var hairs: Array = AppearanceCatalogScript.hair_sprites()
+	if hairs.is_empty():
+		return
+	hair_index = (hair_index + 1) % hairs.size()
+	character.set_hair(hairs[hair_index].resource_path)
 
 
 # --- Body selection ---
 
 ## Cycles body selection backwards and updates preview.
 func _on_body_left_button_pressed() -> void:
-	body_index = (body_index - 1 + character.bodySprites.size()) % character.bodySprites.size()
-	var path = character.bodySprites[body_index].resource_path
-	character.set_body(path)
+	var bodies: Array = AppearanceCatalogScript.body_sprites()
+	if bodies.is_empty():
+		return
+	body_index = (body_index - 1 + bodies.size()) % bodies.size()
+	character.set_body(bodies[body_index].resource_path)
 
 ## Cycles body selection forwards and updates preview.
 func _on_body_right_button_pressed() -> void:
-	body_index = (body_index + 1) % character.bodySprites.size()
-	var path = character.bodySprites[body_index].resource_path
-	character.set_body(path)
+	var bodies: Array = AppearanceCatalogScript.body_sprites()
+	if bodies.is_empty():
+		return
+	body_index = (body_index + 1) % bodies.size()
+	character.set_body(bodies[body_index].resource_path)
 
 
 # --- Leg selection ---
 
 ## Cycles leg selection backwards and updates preview.
 func _on_leg_left_button_pressed() -> void:
-	leg_index = (leg_index - 1 + character.legSprites.size()) % character.legSprites.size()
-	var path = character.legSprites[leg_index].resource_path
-	character.set_leg(path)
+	var legs: Array = AppearanceCatalogScript.leg_sprites()
+	if legs.is_empty():
+		return
+	leg_index = (leg_index - 1 + legs.size()) % legs.size()
+	character.set_leg(legs[leg_index].resource_path)
 
 ## Cycles leg selection forwards and updates preview.
 func _on_leg_right_button_pressed() -> void:
-	leg_index = (leg_index + 1) % character.legSprites.size()
-	var path = character.legSprites[leg_index].resource_path
-	character.set_leg(path)
+	var legs: Array = AppearanceCatalogScript.leg_sprites()
+	if legs.is_empty():
+		return
+	leg_index = (leg_index + 1) % legs.size()
+	character.set_leg(legs[leg_index].resource_path)
 
 
 # --- Character creation ---
@@ -125,11 +141,19 @@ func _on_create_button_pressed() -> void:
 		push_warning("Character creation aborted: name is empty.")
 		return
 
+	var races: Array = AppearanceCatalogScript.race_sprites()
+	var hairs: Array = AppearanceCatalogScript.hair_sprites()
+	var bodies: Array = AppearanceCatalogScript.body_sprites()
+	var legs: Array = AppearanceCatalogScript.leg_sprites()
+	if races.is_empty() or hairs.is_empty() or bodies.is_empty() or legs.is_empty():
+		push_warning("Character creation aborted: appearance catalog incomplete.")
+		return
+
 	var appearance := {
-		"race_path": character.raceSprites[race_index].resource_path,
-		"hair_path": character.hairSprites[hair_index].resource_path,
-		"body_path": character.bodySprites[body_index].resource_path,
-		"leg_path": character.legSprites[leg_index].resource_path,
+		"race_path": races[race_index].resource_path,
+		"hair_path": hairs[hair_index].resource_path,
+		"body_path": bodies[body_index].resource_path,
+		"leg_path": legs[leg_index].resource_path,
 	}
 
 	# Unique folder-safe ID (no display name in path)

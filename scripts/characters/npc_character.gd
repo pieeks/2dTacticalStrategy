@@ -438,7 +438,7 @@ func set_play_animation(anim_name: String) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func play_animation_rpc(anim: String) -> void:
-	if anim == _last_anim and appearance.animation_player.is_playing():
+	if anim == _last_anim and is_instance_valid(appearance) and appearance.is_playing_current():
 		return
 	_last_anim = anim
 	if is_instance_valid(appearance):
