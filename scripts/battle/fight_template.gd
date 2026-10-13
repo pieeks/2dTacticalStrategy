@@ -49,9 +49,19 @@ func _ready() -> void:
 	call_deferred("_try_start_turns")
 
 
+## Truncating non-negative division without int/int or float→int analyzer noise.
+func _idiv(a: int, b: int) -> int:
+	if b == 0:
+		return 0
+	return floori(float(a) / float(b))
+
+
 func _compute_home_position(owner_id: int) -> Vector2:
 	var slot := absi(owner_id) % 64
-	return Vector2(float(slot % 8) * _FIGHT_SLOT_SPACING, float(slot / 8) * _FIGHT_SLOT_SPACING)
+	return Vector2(
+		float(slot % 8) * _FIGHT_SLOT_SPACING,
+		float(_idiv(slot, 8)) * _FIGHT_SLOT_SPACING
+	)
 
 
 func _setup_turn_controller() -> void:
@@ -360,7 +370,7 @@ func _spawn_party_member(peer_id: int, entry: Dictionary, member_index: int) -> 
 	# Left side of the map; leave empty hexes between units so early turns stay mobile.
 	# Peers: columns of 2 with stride 5. Members: every 2nd cell in a short column.
 	var cell_x := 1 + (peer_idx % 2) * 5 + (member_index % 2) * 2
-	var cell_y: int = 2 + int(peer_idx / 2) * 5 + int(member_index / 2) * 2
+	var cell_y: int = 2 + _idiv(peer_idx, 2) * 5 + _idiv(member_index, 2) * 2
 	if grid_manager is GridManager:
 		cell_x = mini(cell_x, maxi((grid_manager as GridManager).width - 2, 0))
 		cell_y = mini(cell_y, maxi((grid_manager as GridManager).height - 2, 0))
@@ -405,7 +415,7 @@ func _spawn_battle_enemies() -> void:
 	if grid_manager is GridManager:
 		spacing = (grid_manager as GridManager).spacing
 		grid_w = maxi((grid_manager as GridManager).width - 1, 0)
-		grid_h = maxi(int((grid_manager as GridManager).height / 2), 0)
+		grid_h = maxi(_idiv((grid_manager as GridManager).height, 2), 0)
 	for i in range(spawn_count):
 		var enemy_name := "Enemy_%d" % i
 		if npc_container.get_node_or_null(enemy_name) != null:
@@ -432,7 +442,7 @@ func _spawn_battle_enemies() -> void:
 			enemy.setup(npc_type, display_name, stats, appearance_data)
 		# Right side; stride 2 so enemies are not adjacent blockers.
 		var cell_x := grid_w - (i % 3) * 2
-		var cell_y: int = grid_h + int(i / 3) * 2
+		var cell_y: int = grid_h + _idiv(i, 3) * 2
 		var local_cell := Vector2(float(cell_x) * spacing, float(cell_y) * spacing * 0.75)
 		if cell_y % 2 == 1:
 			local_cell.x += spacing / 2.0

@@ -166,7 +166,7 @@ func _hex_radius() -> float:
 	# Vertical neighbors are closer (spacing * 0.75) — that limits radius first.
 	var max_from_vert := (spacing * 0.75 - gap) / sqrt(3.0)
 	var max_from_horiz := spacing * 0.5 - gap * 0.5
-	return maxf(mini(max_from_vert, max_from_horiz), 1.0)
+	return maxf(minf(max_from_vert, max_from_horiz), 1.0)
 
 
 ## Six flat-top vertices around a local cell center.

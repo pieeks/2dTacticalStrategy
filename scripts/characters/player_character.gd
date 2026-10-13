@@ -17,6 +17,8 @@ extends CharacterController
 ## - Syncs position and animations across the network
 ## - Integrates with state machine for smooth animation handling
 
+const CameraZoomScript := preload("res://scripts/camera/camera_zoom.gd")
+
 @onready var save: CharacterSave = $CharacterSave                           ## Handles player save/load
 @onready var appearance: CharacterAppearance = $CharacterAppearance         ## Visual representation of the character
 @onready var action: ActionTriggerArea = $ActionArea2D
@@ -24,7 +26,10 @@ extends CharacterController
 @onready var sync: CharacterSync = $CharacterSync                           ## Sync scene responsible for RPCs
 @onready var cam: Camera2D = $Camera2D                                      ## Local camera for authority player
 
-@export var player_name: String 
+@export var player_name: String
+## Overworld camera zoom limits (Godot: smaller = farther out). Default scene zoom is 0.5.
+@export var camera_zoom_min: float = 0.3
+@export var camera_zoom_max: float = 1.0
 
 var is_interacting: bool = false
 var player_ui: CanvasLayer
@@ -278,6 +283,17 @@ func _physics_process(delta: float) -> void:
 	else:
 		# Puppet smoothing (interpolates remote motion)
 		_display_velocity = _display_velocity.lerp(net_input * speed, 1.0 - pow(0.001, delta))
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_multiplayer_authority():
+		return
+	if _is_local_peer_in_fight():
+		return
+	if cam == null or not cam.enabled or not cam.is_current():
+		return
+	if CameraZoomScript.handle_wheel(cam, event, camera_zoom_min, camera_zoom_max):
+		get_viewport().set_input_as_handled()
 
 
 func _input(event: InputEvent) -> void:

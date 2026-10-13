@@ -4,6 +4,7 @@ extends CharacterBody2D
 ## Kamera am lokalen Leader (Legacy: Name == Peer-ID; §5b: meta is_party_leader).
 ## Pos-Sync weiter authority-gated. Overworld-Kamera unberührt.
 
+const CameraZoomScript := preload("res://scripts/camera/camera_zoom.gd")
 const CORPSE_MODULATE := Color(0.62, 0.62, 0.7, 0.95)
 
 @onready var cam: Camera2D = $Camera2D
@@ -11,6 +12,9 @@ const CORPSE_MODULATE := Color(0.62, 0.62, 0.7, 0.95)
 @onready var grid_movement: Node = $GridMovement
 
 @export var free_camera_pan_speed: float = 400.0
+## Fight camera zoom limits (Godot: smaller = farther out).
+@export var camera_zoom_min: float = 0.5
+@export var camera_zoom_max: float = 1.2
 
 var _last_synced_pos: Vector2 = Vector2.INF
 var _network_active: bool = true
@@ -126,14 +130,13 @@ func _place_camera_once() -> void:
 	cam.top_level = true
 	# Prefer grid center for overview; fall back to this unit.
 	var focus := global_position
-	if turn_controller != null and turn_controller.get("grid_manager") != null:
-		var grid: Node2D = turn_controller.grid_manager as Node2D
-		if grid != null and grid.get("width") != null and grid.get("height") != null and grid.get("spacing") != null:
-			var w := int(grid.get("width"))
-			var h := int(grid.get("height"))
-			var sp := float(grid.get("spacing"))
-			var local_center := Vector2(float(w - 1) * sp * 0.5, float(h - 1) * sp * 0.75 * 0.5)
-			focus = grid.to_global(local_center)
+	if turn_controller != null and turn_controller.get("grid_manager") is GridManager:
+		var grid: GridManager = turn_controller.grid_manager as GridManager
+		var local_center := Vector2(
+			float(grid.width - 1) * grid.spacing * 0.5,
+			float(grid.height - 1) * grid.spacing * 0.75 * 0.5
+		)
+		focus = grid.to_global(local_center)
 	cam.global_position = focus
 	_camera_placed = true
 
@@ -182,6 +185,15 @@ func rpc_sync_battle_position(pos: Vector2) -> void:
 	if not _network_active or not is_inside_tree():
 		return
 	global_position = pos
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _network_active or not _is_local_fighter():
+		return
+	if cam == null or not cam.is_current():
+		return
+	if CameraZoomScript.handle_wheel(cam, event, camera_zoom_min, camera_zoom_max):
+		get_viewport().set_input_as_handled()
 
 
 func _process(delta: float) -> void:
