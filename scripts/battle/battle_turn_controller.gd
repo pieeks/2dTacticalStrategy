@@ -312,7 +312,11 @@ func _refresh_local_highlights() -> void:
 	if attack_mode:
 		grid_manager.set_attack_highlights(get_attack_target_positions())
 	else:
-		grid_manager.set_move_highlights(get_reachable_for_active())
+		var origin := Vector2.INF
+		var active_u := get_active_unit()
+		if active_u != null and is_instance_valid(active_u.node):
+			origin = active_u.node.global_position
+		grid_manager.set_move_highlights(get_reachable_for_active(), origin)
 
 
 func set_attack_mode(enabled: bool) -> void:

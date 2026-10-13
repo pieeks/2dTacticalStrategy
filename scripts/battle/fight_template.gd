@@ -51,7 +51,6 @@ func _ready() -> void:
 
 func _compute_home_position(owner_id: int) -> Vector2:
 	var slot := absi(owner_id) % 64
-	@warning_ignore("integer_division")
 	return Vector2(float(slot % 8) * _FIGHT_SLOT_SPACING, float(slot / 8) * _FIGHT_SLOT_SPACING)
 
 
@@ -360,8 +359,7 @@ func _spawn_party_member(peer_id: int, entry: Dictionary, member_index: int) -> 
 		peer_idx = participants.size()
 	# Staffel Members desselben Peers nebeneinander; Peers in Zeilen.
 	var cell_x := (peer_idx % 3) * 2 + (member_index % 2)
-	@warning_ignore("integer_division")
-	var cell_y := (peer_idx / 3) + int(member_index / 2)
+	var cell_y: int = int(peer_idx / 3) + int(member_index / 2)
 	var local_cell := Vector2(float(cell_x) * spacing, float(cell_y) * spacing * 0.75)
 	if cell_y % 2 == 1:
 		local_cell.x += spacing / 2.0
@@ -370,9 +368,14 @@ func _spawn_party_member(peer_id: int, entry: Dictionary, member_index: int) -> 
 	character.global_position = world_pos
 	var appearance_data: Dictionary = {}
 	if entry.get("appearance") is Dictionary and AppearanceDataScript.is_usable(entry["appearance"]):
-		appearance_data = (entry["appearance"] as Dictionary).duplicate(true)
-	else:
-		appearance_data = _get_player_appearance_for_peer(peer_id)
+		appearance_data = AppearanceDataScript.normalize(entry["appearance"])
+	if not AppearanceDataScript.is_usable(appearance_data):
+		appearance_data = AppearanceDataScript.normalize(_get_player_appearance_for_peer(peer_id))
+	if not AppearanceDataScript.is_usable(appearance_data):
+		push_warning(
+			"FightTemplate: no usable appearance for %s — battle scene defaults will show"
+			% unit_id
+		)
 	if character.has_method("apply_appearance"):
 		character.apply_appearance(appearance_data)
 	if character.has_method("setup_for_fight") and grid_manager is GridManager:
@@ -398,8 +401,7 @@ func _spawn_battle_enemies() -> void:
 	if grid_manager is GridManager:
 		spacing = (grid_manager as GridManager).spacing
 		grid_w = maxi((grid_manager as GridManager).width - 1, 0)
-		@warning_ignore("integer_division")
-		grid_h = maxi((grid_manager as GridManager).height / 2, 0)
+		grid_h = maxi(int((grid_manager as GridManager).height / 2), 0)
 	for i in range(spawn_count):
 		var enemy_name := "Enemy_%d" % i
 		if npc_container.get_node_or_null(enemy_name) != null:
@@ -426,8 +428,7 @@ func _spawn_battle_enemies() -> void:
 			enemy.setup(npc_type, display_name, stats, appearance_data)
 		# Offset along columns so multiple enemies do not stack.
 		var cell_x := grid_w - (i % 3)
-		@warning_ignore("integer_division")
-		var cell_y := grid_h + (i / 3)
+		var cell_y: int = grid_h + int(i / 3)
 		var local_cell := Vector2(float(cell_x) * spacing, float(cell_y) * spacing * 0.75)
 		if cell_y % 2 == 1:
 			local_cell.x += spacing / 2.0

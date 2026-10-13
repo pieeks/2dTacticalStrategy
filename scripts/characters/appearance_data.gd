@@ -23,26 +23,44 @@ static func is_usable(data: Dictionary) -> bool:
 	return false
 
 
-## Appearance from an Overworld player node: sync → save → visual.
+## Copy only known path keys (drops unrelated save fields).
+static func normalize(data: Dictionary) -> Dictionary:
+	var out: Dictionary = {}
+	if data.is_empty():
+		return out
+	for key in PATH_KEYS:
+		var path := str(data.get(key, "")).strip_edges()
+		if path != "":
+			out[key] = path
+	return out
+
+
+## Merge `overlay` paths onto `base` (non-empty overlay wins).
+static func merge(base: Dictionary, overlay: Dictionary) -> Dictionary:
+	var out := normalize(base)
+	var add := normalize(overlay)
+	for key in add.keys():
+		out[key] = add[key]
+	return out
+
+
+## Appearance from an Overworld player node: sync → save → visual (merged).
 static func from_player_node(player: Node) -> Dictionary:
 	if player == null or not is_instance_valid(player):
 		return {}
+	var merged: Dictionary = {}
 	var sync_node = player.get("sync")
 	if sync_node != null and sync_node.get("appearance") is Dictionary:
-		var from_sync: Dictionary = sync_node.appearance
-		if is_usable(from_sync):
-			return from_sync.duplicate(true)
+		merged = merge(merged, sync_node.appearance)
 	var save_node = player.get("save")
 	if save_node != null and save_node.get("appearance_data") is Dictionary:
-		var from_save: Dictionary = save_node.appearance_data
-		if is_usable(from_save):
-			return from_save.duplicate(true)
+		merged = merge(merged, save_node.appearance_data)
+	if save_node != null and save_node.get("appearance") is Dictionary:
+		merged = merge(merged, save_node.appearance)
 	var app = player.get("appearance")
 	if app != null and app.has_method("get_full_data"):
-		var from_visual: Dictionary = app.get_full_data()
-		if is_usable(from_visual):
-			return from_visual
-	return {}
+		merged = merge(merged, app.get_full_data())
+	return merged if is_usable(merged) else {}
 
 
 ## Local party leader appearance, then legacy player_data.appearance.

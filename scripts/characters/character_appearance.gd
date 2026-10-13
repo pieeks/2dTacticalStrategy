@@ -164,9 +164,10 @@ func _resync_animation() -> void:
 	play(anim, 1.0, true)
 	if master_frame > 0 or master_progress > 0.0:
 		for layer in _playback_layers():
-			if not _layer_has_clip(layer, resolved):
+			var layer_clip := _resolve_clip_for_layer(layer, resolved)
+			if layer_clip.is_empty():
 				continue
-			var last_frame := layer.sprite_frames.get_frame_count(resolved) - 1
+			var last_frame := layer.sprite_frames.get_frame_count(layer_clip) - 1
 			layer.set_frame_and_progress(mini(master_frame, last_frame), master_progress)
 
 
@@ -176,7 +177,10 @@ func is_playing_current() -> bool:
 	if resolved.is_empty():
 		return false
 	for layer in _playback_layers():
-		if layer != null and layer.is_playing() and String(layer.animation) == resolved:
+		if layer == null or not layer.is_playing():
+			continue
+		var layer_clip := _resolve_clip_for_layer(layer, resolved)
+		if not layer_clip.is_empty() and String(layer.animation) == layer_clip:
 			return true
 	return false
 
@@ -247,14 +251,27 @@ func _resolve_sprite_clip(anim: String) -> String:
 	return ""
 
 
+## Per-layer resolve so kits without `*_battle` (e.g. blue hair) keep the same facing.
+func _resolve_clip_for_layer(layer: AnimatedSprite2D, anim: String) -> String:
+	if anim.is_empty() or layer == null:
+		return ""
+	if _layer_has_clip(layer, anim):
+		return anim
+	if anim.ends_with("_battle"):
+		var base := anim.trim_suffix("_battle")
+		if _layer_has_clip(layer, base):
+			return base
+	return ""
+
+
 func _master_layer_for(anim: String) -> AnimatedSprite2D:
 	if anim.is_empty():
 		return null
 	var race := $Race2DSprite as AnimatedSprite2D
-	if _layer_has_clip(race, anim):
+	if not _resolve_clip_for_layer(race, anim).is_empty():
 		return race
 	for layer in _playback_layers():
-		if _layer_has_clip(layer, anim):
+		if not _resolve_clip_for_layer(layer, anim).is_empty():
 			return layer
 	return null
 
@@ -270,25 +287,29 @@ func _ensure_movement_clip_loops(frames: SpriteFrames, anim: String) -> void:
 
 func _play_layers(anim: String, speed: float, force: bool) -> void:
 	for layer in _playback_layers():
-		if not _layer_has_clip(layer, anim):
+		var layer_clip := _resolve_clip_for_layer(layer, anim)
+		if layer_clip.is_empty():
 			continue
-		_ensure_movement_clip_loops(layer.sprite_frames, anim)
+		_ensure_movement_clip_loops(layer.sprite_frames, layer_clip)
 		layer.speed_scale = speed
 		if force:
 			layer.set_frame_and_progress(0, 0.0)
-		layer.play(anim)
+		layer.play(layer_clip)
 
 
 ## After battle AP reveals Hand, start its SpriteFrames clip if present.
 func _play_hand_if_visible(anim: String, speed: float, force: bool) -> void:
 	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
-	if hand == null or not hand.visible or not _layer_has_clip(hand, anim):
+	if hand == null or not hand.visible:
 		return
-	_ensure_movement_clip_loops(hand.sprite_frames, anim)
+	var layer_clip := _resolve_clip_for_layer(hand, anim)
+	if layer_clip.is_empty():
+		return
+	_ensure_movement_clip_loops(hand.sprite_frames, layer_clip)
 	hand.speed_scale = speed
 	if force:
 		hand.set_frame_and_progress(0, 0.0)
-	hand.play(anim)
+	hand.play(layer_clip)
 
 
 ## Keep Hand/Weapons hidden unless appearance data equipped them (e.g. slime = race only).

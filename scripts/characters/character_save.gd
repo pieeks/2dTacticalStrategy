@@ -1,5 +1,7 @@
 class_name CharacterSave extends Node
 
+const AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
+
 ## Base class that adds save/load functionality on top of CharacterNetworkEntity.
 ## Handles player identification, save data setup, and applying stored state.
 
@@ -52,9 +54,7 @@ func apply_save_data(data: Dictionary, current_player: Node) -> void:
 		player_name = data["name"]
 	if data.has("appearance") and data["appearance"] != null:
 		appearance = data["appearance"]
-		appearance_data = {
-			"race_path": appearance.get("race_path", ""),
-			"hair_path": appearance.get("hair_path", ""),
-			"body_path": appearance.get("body_path", ""),
-			"leg_path": appearance.get("leg_path", "")
-		}
+		# Keep all known layer keys (incl. head/weapons) for fight/sync snapshots.
+		appearance_data = (
+			AppearanceDataScript.normalize(appearance) if appearance is Dictionary else {}
+		)

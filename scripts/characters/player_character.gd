@@ -330,7 +330,10 @@ func _push_state_to_peer_deferred(peer_id: int) -> void:
 	if save != null and not save.appearance_data.is_empty():
 		sync.rpc_id(peer_id, "rpc_sync_full_appearance", save.appearance_data)
 	sync.rpc_id(peer_id, "rpc_sync_pose", global_position)
-	print("PlayerCharacter: resync to peer ", peer_id, " pos=", global_position)
+	# Appearance apply resets remote to idle_front — push facing/anim too.
+	var anim := str(_last_anim) if str(_last_anim) != "" else "idle_front"
+	sync.rpc_id(peer_id, "rpc_sync_animation", anim)
+	print("PlayerCharacter: resync to peer ", peer_id, " pos=", global_position, " anim=", anim)
 
 
 # --- Animation ---
