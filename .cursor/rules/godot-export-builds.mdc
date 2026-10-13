@@ -29,6 +29,11 @@ for file_name in ResourceLoader.list_directory("res://features/character/hair/ba
 - When adding new JSON/data folders: keep [`export_presets.cfg`](../../export_presets.cfg) `include_filter` covering them (currently `*.json` for both presets).
 - Load known paths with `FileAccess` is fine **if** the file is included.
 
+## Never ship production scenes that depend on `_dev/`
+
+- Export excludes `_dev/*`. A packed scene under `scenes/` that instances `_dev/tests/...` **breaks Continue / World start** in the ZIP (missing dep → script/scene load fails; buttons may still hover).
+- Put playable UI/scenes under `scenes/` (e.g. `scenes/ui/player_ui.tscn`), not under `_dev/`.
+
 ## UI that must work outside the Editor
 
 - Menu / dialog roots: full-rect `UIRoot` (like Main Menu), not a tiny centered Control with a 640×360 Panel child (World Selection was unclickable).

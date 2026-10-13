@@ -20,7 +20,8 @@ var _join_cancel: Button
 
 
 func _ready() -> void:
-	level_scene = preload(LEVEL_SCENE_PATH)
+	# load() not preload(): overworld deps must resolve at runtime without killing this script.
+	level_scene = load(LEVEL_SCENE_PATH) as PackedScene
 	if NetworkManagerTest.has_signal("lobby_joined_finished"):
 		NetworkManagerTest.connect("lobby_joined_finished", Callable(self, "_on_lobby_joined"))
 	if NetworkManagerTest.has_signal("lobby_join_failed"):
@@ -132,19 +133,40 @@ func _on_back_to_menu_pressed() -> void:
 
 
 func _on_lobby_joined() -> void:
-	_set_status("")
-	get_tree().change_scene_to_packed(level_scene)
+	_enter_overworld()
 
 
 func _on_lobby_join_failed() -> void:
 	_show_error(GameEntryScript.ERR_JOIN_FAILED)
 
 
+## Switch to overworld; show status if the packed scene is missing/broken.
+func _enter_overworld() -> void:
+	_set_status("")
+	if level_scene == null:
+		level_scene = load(LEVEL_SCENE_PATH) as PackedScene
+	if level_scene == null:
+		_show_error("ui.entry.error_load_failed")
+		return
+	var err := get_tree().change_scene_to_packed(level_scene)
+	if err != OK:
+		_show_error("ui.entry.error_load_failed")
+
+
 func _on_start_world_pressed() -> void:
 	_set_status("")
-	var err := GameEntryScript.start_host(PlayerPartyState.selected_character_id)
+	var char_id := str(PlayerPartyState.selected_character_id).strip_edges()
+	if char_id.is_empty():
+		_show_error(GameEntryScript.ERR_NO_CHARACTER)
+		return
+	var err := GameEntryScript.start_host(char_id)
 	if not err.is_empty():
 		_show_error(err)
+		return
+	# create_lobby emits lobby_joined_finished sync → _on_lobby_joined → overworld.
+	# If the signal was missed, enter explicitly.
+	if get_tree().current_scene == self:
+		_enter_overworld()
 
 
 func _on_join_world_pressed() -> void:
