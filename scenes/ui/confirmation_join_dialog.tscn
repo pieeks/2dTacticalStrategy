@@ -4,6 +4,8 @@
 
 [node name="ConfirmationJoinDialog" type="ConfirmationDialog"]
 title = "Join World"
+visible = false
+exclusive = false
 ok_button_text = "Join"
 dialog_hide_on_ok = true
 script = ExtResource("1_6g2t6")

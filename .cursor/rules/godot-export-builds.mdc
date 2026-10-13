@@ -1,0 +1,42 @@
+---
+description: Keep Godot features working in CI export / playable builds (not only Editor)
+alwaysApply: true
+---
+
+# Godot Export / Playable Builds
+
+CI exports Linux + Windows on `main` ([`.github/workflows/export.yml`](../../.github/workflows/export.yml), presets in [`export_presets.cfg`](../../export_presets.cfg)). Editor-only code is a bug.
+
+## Resource scanning (`res://`)
+
+- Prefer `ResourceLoader.list_directory(path)` + `ResourceLoader.load()` for catalogs of `.tres` / scenes.
+- Do **not** rely on `DirAccess` + `ends_with(".tres")` — exported PCKs expose `.tres.remap`; lists look empty (character creation broke this way).
+
+```gdscript
+# BAD — empty in export
+var dir := DirAccess.open("res://features/character/hair/basic/")
+# … file_name.ends_with(".tres")
+
+# GOOD
+for file_name in ResourceLoader.list_directory("res://features/character/hair/basic/"):
+	if file_name.ends_with(".tres"):
+		var frames = ResourceLoader.load("res://features/character/hair/basic/" + file_name)
+```
+
+## Non-resource files (JSON, raw text, …)
+
+- Plain `*.json` under `res://` (quests, NPCs, encounters) are **not** in the PCK unless listed in export `include_filter`.
+- When adding new JSON/data folders: keep [`export_presets.cfg`](../../export_presets.cfg) `include_filter` covering them (currently `*.json` for both presets).
+- Load known paths with `FileAccess` is fine **if** the file is included.
+
+## UI that must work outside the Editor
+
+- Menu / dialog roots: full-rect `UIRoot` (like Main Menu), not a tiny centered Control with a 640×360 Panel child (World Selection was unclickable).
+- Decorative fullscreen `TextureRect` / empty root: `mouse_filter = Ignore` so clicks reach buttons.
+- Do **not** keep `ConfirmationDialog` / `Window` in the tree from `_ready` under CanvasLayer — embedded exclusive windows can block all menu input in exports. Spawn lazily on Join (or keep `visible=false` + `exclusive=false` until `popup_*`).
+- Test critical flows after export changes: Main Menu → Create/Continue → World Selection → Host/Back.
+
+## Do not
+
+- Assume “works in F5” means “works in Prototype ZIP”.
+- Commit build binaries (`build/`, `dist/` are gitignored); only presets + workflows.
