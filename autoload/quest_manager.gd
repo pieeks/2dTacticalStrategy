@@ -21,6 +21,7 @@ func _ready() -> void:
 
 
 ## Load all JSON quest definitions from resources/quests/.
+## Non-resource JSON must be listed in export include_filter (*.json); DirAccess lists them in PCK.
 func load_definitions() -> void:
 	_definitions.clear()
 	var dir := DirAccess.open(QUESTS_DIR)
@@ -30,8 +31,14 @@ func load_definitions() -> void:
 	dir.list_dir_begin()
 	var file_name := dir.get_next()
 	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".json"):
-			_load_definition_file(QUESTS_DIR + file_name)
+		if dir.current_is_dir():
+			file_name = dir.get_next()
+			continue
+		var load_name := file_name
+		if load_name.ends_with(".remap"):
+			load_name = load_name.trim_suffix(".remap")
+		if load_name.ends_with(".json"):
+			_load_definition_file(QUESTS_DIR + load_name)
 		file_name = dir.get_next()
 	dir.list_dir_end()
 

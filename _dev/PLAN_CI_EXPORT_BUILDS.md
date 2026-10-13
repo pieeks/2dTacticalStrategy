@@ -112,6 +112,7 @@ Reihenfolge: Leitplanken → Export-Presets → Export-Workflow → Continuous R
 - [ ] Windows-ZIP (Windows oder optional Wine)
 - [ ] Host + zweiter Client Join auf `127.0.0.1:4242`
 - [x] Export-Fallen: Templates müssen zu 4.7.stable passen; Preset-Namen exakt `Linux Desktop` / `Windows Desktop`; `.pck` neben Binary im ZIP
+- [x] `res://`-Scans: AppearanceCatalog via `ResourceLoader.list_directory` (nicht DirAccess `.tres`); Export-`include_filter=*.json` für Quests/NPCs/Encounters
 
 ---
 

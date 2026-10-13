@@ -178,11 +178,14 @@ theme_override_colors/font_color = Color(0.95, 0.35, 0.3, 1)
 horizontal_alignment = 1
 
 [node name="RandomizeButton" type="Button" parent="CanvasLayer/UIRoot"]
+custom_minimum_size = Vector2(72, 18)
 layout_mode = 0
-offset_left = 250.0
-offset_top = 280.0
-offset_right = 390.0
-offset_bottom = 305.0
+offset_left = 155.0
+offset_top = 248.0
+offset_right = 227.0
+offset_bottom = 266.0
+scale = Vector2(0.85, 0.85)
+theme_override_font_sizes/font_size = 10
 text = "Randomize"
 
 [node name="CreateButton" type="Button" parent="CanvasLayer/UIRoot"]
