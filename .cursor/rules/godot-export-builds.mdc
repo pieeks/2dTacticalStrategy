@@ -33,7 +33,8 @@ for file_name in ResourceLoader.list_directory("res://features/character/hair/ba
 
 - Menu / dialog roots: full-rect `UIRoot` (like Main Menu), not a tiny centered Control with a 640×360 Panel child (World Selection was unclickable).
 - Decorative fullscreen `TextureRect` / empty root: `mouse_filter = Ignore` so clicks reach buttons.
-- Do **not** keep `ConfirmationDialog` / `Window` in the tree from `_ready` under CanvasLayer — embedded exclusive windows can block all menu input in exports. Spawn lazily on Join (or keep `visible=false` + `exclusive=false` until `popup_*`).
+- Prefer **Control-based** menus/overlays (Panel/ColorRect) over `ConfirmationDialog`/`AcceptDialog`/`Window` in playable exports — embedded windows frequently steal input.
+- Avoid an extra `CanvasLayer` for simple full-screen menus when the root `Control` already fills the viewport (Main-Menu-style layout without Window dialogs).
 - Test critical flows after export changes: Main Menu → Create/Continue → World Selection → Host/Back.
 
 ## Do not
