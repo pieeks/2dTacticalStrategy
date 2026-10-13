@@ -35,6 +35,10 @@ extends Node2D
 ## Currently active animation across all layers (e.g. "idle_front", "walk_left").
 var current_animation : String = "idle_front"
 
+## Equipment intent from apply_full_data — battle AP must not reveal unequipped defaults.
+var _equip_main_weapon: bool = false
+var _equip_off_weapon: bool = false
+
 
 ## Starts the default clip via SpriteFrames (scene autoplay must stay empty).
 func _ready() -> void:
@@ -150,46 +154,63 @@ func _resync_animation() -> void:
 	var anim := current_animation
 	if anim.is_empty():
 		return
-	var master := _master_layer_for(anim)
+	var resolved := _resolve_sprite_clip(anim)
+	var master := _master_layer_for(resolved)
 	var master_frame := 0
 	var master_progress := 0.0
-	if master != null and master.is_playing() and String(master.animation) == anim:
+	if master != null and master.is_playing() and String(master.animation) == resolved:
 		master_frame = master.frame
 		master_progress = master.frame_progress
 	play(anim, 1.0, true)
 	if master_frame > 0 or master_progress > 0.0:
 		for layer in _playback_layers():
-			if not _layer_has_clip(layer, anim):
+			var layer_clip := _resolve_clip_for_layer(layer, resolved)
+			if layer_clip.is_empty():
 				continue
-			var last_frame := layer.sprite_frames.get_frame_count(anim) - 1
+			var last_frame := layer.sprite_frames.get_frame_count(layer_clip) - 1
 			layer.set_frame_and_progress(mini(master_frame, last_frame), master_progress)
 
 
 ## True when the current clip is actively playing on at least one body layer.
 func is_playing_current() -> bool:
-	var anim := current_animation
-	if anim.is_empty():
+	var resolved := _resolve_sprite_clip(current_animation)
+	if resolved.is_empty():
 		return false
 	for layer in _playback_layers():
-		if layer != null and layer.is_playing() and String(layer.animation) == anim:
+		if layer == null or not layer.is_playing():
+			continue
+		var layer_clip := _resolve_clip_for_layer(layer, resolved)
+		if not layer_clip.is_empty() and String(layer.animation) == layer_clip:
 			return true
 	return false
 
 
-## Plays a SpriteFrames clip on all layers that have it (Variante B).
-## @param animation_name String: Clip name (must exist on at least one layer).
+## Plays SpriteFrames on layers; `*_battle` also drives AnimationPlayer attachment pose.
+## Falls back to the non-`_battle` clip when a layer set lacks the battle name.
+## @param animation_name String: Requested clip (e.g. idle_front / idle_front_battle).
 ## @param speed float: Playback speed (default 1.0).
 ## @param force bool: Restart even if already on this clip (after layer swap).
 func play(animation_name: String, speed: float = 1.0, force: bool = false) -> void:
 	if not force and current_animation == animation_name and is_playing_current():
 		return
 	current_animation = animation_name
-	if animation_player != null:
-		animation_player.stop()
-	if not _any_layer_has_clip(animation_name):
+	var resolved := _resolve_sprite_clip(animation_name)
+	var use_battle_pose := (
+		animation_name.ends_with("_battle")
+		and animation_player != null
+		and animation_player.has_animation(animation_name)
+	)
+	if not use_battle_pose:
+		_stop_battle_attachments()
+	if resolved.is_empty():
 		_stop_playback_layers()
 		return
-	_play_layers(animation_name, speed, force)
+	_play_layers(resolved, speed, force)
+	if use_battle_pose:
+		animation_player.play(animation_name)
+		# AP clips force weapon/hand visible — clamp back to equipped layers only.
+		_enforce_equipment_visibility()
+		_play_hand_if_visible(resolved, speed, force)
 
 
 ## Layers that receive movement/idle playback (body layers + visible Hand).
@@ -208,24 +229,54 @@ func _layer_has_clip(layer: AnimatedSprite2D, anim: String) -> bool:
 	return layer != null and layer.sprite_frames != null and layer.sprite_frames.has_animation(anim)
 
 
+## Clip exists on any body layer or Hand (even if Hand is still hidden).
 func _any_layer_has_clip(anim: String) -> bool:
-	for layer in _playback_layers():
+	for layer in layers:
 		if _layer_has_clip(layer, anim):
 			return true
-	return false
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	return _layer_has_clip(hand, anim)
+
+
+## Prefer requested clip; strip `_battle` when SpriteFrames lack it.
+func _resolve_sprite_clip(anim: String) -> String:
+	if anim.is_empty():
+		return ""
+	if _any_layer_has_clip(anim):
+		return anim
+	if anim.ends_with("_battle"):
+		var base := anim.trim_suffix("_battle")
+		if _any_layer_has_clip(base):
+			return base
+	return ""
+
+
+## Per-layer resolve so kits without `*_battle` (e.g. blue hair) keep the same facing.
+func _resolve_clip_for_layer(layer: AnimatedSprite2D, anim: String) -> String:
+	if anim.is_empty() or layer == null:
+		return ""
+	if _layer_has_clip(layer, anim):
+		return anim
+	if anim.ends_with("_battle"):
+		var base := anim.trim_suffix("_battle")
+		if _layer_has_clip(layer, base):
+			return base
+	return ""
 
 
 func _master_layer_for(anim: String) -> AnimatedSprite2D:
+	if anim.is_empty():
+		return null
 	var race := $Race2DSprite as AnimatedSprite2D
-	if _layer_has_clip(race, anim):
+	if not _resolve_clip_for_layer(race, anim).is_empty():
 		return race
 	for layer in _playback_layers():
-		if _layer_has_clip(layer, anim):
+		if not _resolve_clip_for_layer(layer, anim).is_empty():
 			return layer
 	return null
 
 
-## Idle/Walk must loop; many .tres still have loop=false from the AnimationPlayer era.
+## Idle/Walk (incl. `*_battle`) must loop; many .tres still have loop=false from the AP era.
 func _ensure_movement_clip_loops(frames: SpriteFrames, anim: String) -> void:
 	if frames == null or not frames.has_animation(anim):
 		return
@@ -236,13 +287,96 @@ func _ensure_movement_clip_loops(frames: SpriteFrames, anim: String) -> void:
 
 func _play_layers(anim: String, speed: float, force: bool) -> void:
 	for layer in _playback_layers():
-		if not _layer_has_clip(layer, anim):
+		var layer_clip := _resolve_clip_for_layer(layer, anim)
+		if layer_clip.is_empty():
 			continue
-		_ensure_movement_clip_loops(layer.sprite_frames, anim)
+		_ensure_movement_clip_loops(layer.sprite_frames, layer_clip)
 		layer.speed_scale = speed
 		if force:
 			layer.set_frame_and_progress(0, 0.0)
-		layer.play(anim)
+		layer.play(layer_clip)
+
+
+## After battle AP reveals Hand, start its SpriteFrames clip if present.
+func _play_hand_if_visible(anim: String, speed: float, force: bool) -> void:
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	if hand == null or not hand.visible:
+		return
+	var layer_clip := _resolve_clip_for_layer(hand, anim)
+	if layer_clip.is_empty():
+		return
+	_ensure_movement_clip_loops(hand.sprite_frames, layer_clip)
+	hand.speed_scale = speed
+	if force:
+		hand.set_frame_and_progress(0, 0.0)
+	hand.play(layer_clip)
+
+
+## Keep Hand/Weapons hidden unless appearance data equipped them (e.g. slime = race only).
+func _enforce_equipment_visibility() -> void:
+	var main_w := get_node_or_null("MainWeaponAttachmentPoint/MainWeapon2DSprite") as AnimatedSprite2D
+	if main_w != null:
+		main_w.visible = _equip_main_weapon
+	var off_w := get_node_or_null("OffWeaponAttachmentPoint/OffWeapon2DSprite") as AnimatedSprite2D
+	if off_w != null:
+		off_w.visible = _equip_off_weapon
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	if hand != null:
+		hand.visible = _equip_main_weapon or _equip_off_weapon
+
+
+## True when battle idle should show a weapon/hand attachment.
+func has_equipped_weapons() -> bool:
+	return _equip_main_weapon or _equip_off_weapon
+
+
+## Play `death_*` SpriteFrames when present; otherwise freeze current pose for corpse FX.
+## Content can add `death_front` (etc.) later without call-site changes.
+func play_death(facing: String = "front") -> void:
+	_stop_battle_attachments()
+	var candidates: Array[String] = [
+		"death_%s" % facing,
+		"death_front",
+		"death",
+	]
+	var resolved := ""
+	for clip in candidates:
+		if _any_layer_has_clip(clip):
+			resolved = clip
+			break
+	if resolved.is_empty():
+		for layer in _playback_layers():
+			if layer != null and layer.is_playing():
+				layer.pause()
+		return
+	current_animation = resolved
+	for layer in _playback_layers():
+		if not _layer_has_clip(layer, resolved):
+			continue
+		if layer.sprite_frames.get_animation_loop(resolved):
+			layer.sprite_frames.set_animation_loop(resolved, false)
+		layer.speed_scale = 1.0
+		layer.set_frame_and_progress(0, 0.0)
+		layer.play(resolved)
+
+
+## Stop AP and hide battle-only attachments (Overworld Idle/Walk).
+func _stop_battle_attachments() -> void:
+	if animation_player != null:
+		animation_player.stop()
+		if animation_player.has_animation(&"RESET"):
+			animation_player.play(&"RESET")
+			animation_player.seek(0.0, true)
+			animation_player.stop()
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	if hand != null:
+		hand.visible = false
+	var main_w := get_node_or_null("MainWeaponAttachmentPoint/MainWeapon2DSprite") as AnimatedSprite2D
+	if main_w != null:
+		main_w.visible = false
+	var off_w := get_node_or_null("OffWeaponAttachmentPoint/OffWeapon2DSprite") as AnimatedSprite2D
+	if off_w != null:
+		off_w.visible = false
 
 
 func _stop_playback_layers() -> void:
@@ -303,7 +437,30 @@ func apply_full_data(data: Dictionary) -> void:
 		data,
 		"off_weapon_path"
 	)
+	_equip_main_weapon = _data_has_layer_path(data, "main_weapon_path")
+	_equip_off_weapon = _data_has_layer_path(data, "off_weapon_path")
+	# No weapon keys (typical player save): keep scene loadout for humanoids.
+	# Race-only kits (slime) leave body/hair/leg hidden → no default weapons.
+	if not data.has("main_weapon_path") and not data.has("off_weapon_path"):
+		if _has_visible_gear_layers():
+			var main_w := $MainWeaponAttachmentPoint/MainWeapon2DSprite as AnimatedSprite2D
+			var off_w := $OffWeaponAttachmentPoint/OffWeapon2DSprite as AnimatedSprite2D
+			_equip_main_weapon = main_w != null and main_w.sprite_frames != null
+			_equip_off_weapon = off_w != null and off_w.sprite_frames != null
 	_resync_animation()
+
+
+func _data_has_layer_path(data: Dictionary, key: String) -> bool:
+	return data.has(key) and str(data.get(key, "")).strip_edges() != ""
+
+
+## Body/hair/leg/head still shown → humanoid kit (not race-only enemy).
+func _has_visible_gear_layers() -> bool:
+	for node_path in ["Body2DSprite", "Hair2DSprite", "Leg2DSprite", "Head2DSprite"]:
+		var layer := get_node_or_null(node_path) as CanvasItem
+		if layer != null and layer.visible:
+			return true
+	return false
 
 
 func _apply_layer_frames_only(layer: AnimatedSprite2D, data: Dictionary, key: String) -> void:

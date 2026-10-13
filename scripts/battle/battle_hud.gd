@@ -185,11 +185,25 @@ func _refresh() -> void:
 		return
 	var name_str := str(active.display_name)
 	var hp_str := "%d/%d" % [active.hp, active.max_hp]
+	var has_attacked := bool(active.has_attacked)
 	if my_turn:
-		var mode := tr("battle.hud.mode_attack") if bool(turn_controller.get("attack_mode")) else tr("battle.hud.mode_move")
+		var mode: String
+		if has_attacked:
+			mode = tr("battle.hud.mode_attacked")
+		elif bool(turn_controller.get("attack_mode")):
+			mode = tr("battle.hud.mode_attack")
+		else:
+			mode = tr("battle.hud.mode_move")
 		status_label.text = tr("battle.hud.your_turn") % [name_str, hp_str, mode]
 	else:
 		status_label.text = tr("battle.hud.their_turn") % [name_str, hp_str]
-	btn_attack.disabled = not my_turn
+	btn_attack.disabled = not my_turn or has_attacked
 	btn_wait.disabled = not my_turn
-	btn_attack.text = tr("battle.hud.attack_on") if bool(turn_controller.get("attack_mode")) else tr("battle.hud.attack")
+	if has_attacked:
+		btn_attack.text = tr("battle.hud.attack")
+	else:
+		btn_attack.text = (
+			tr("battle.hud.attack_on")
+			if bool(turn_controller.get("attack_mode"))
+			else tr("battle.hud.attack")
+		)

@@ -19,6 +19,8 @@
 class_name CharacterSync
 extends Node
 
+const AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
+
 ## Stores the current appearance dataset (e.g. paths for race, hair, body, legs).
 var appearance: Dictionary = {}
 
@@ -151,13 +153,10 @@ func apply_and_sync_appearance(data: Dictionary) -> void:
 
 
 func _store_appearance_data(data: Dictionary) -> void:
-	appearance = data.duplicate(true)
+	appearance = AppearanceDataScript.normalize(data)
+	if appearance.is_empty():
+		appearance = data.duplicate(true)
 	var save_node := get_parent().get_node_or_null("CharacterSave") if get_parent() else null
 	if save_node != null:
 		save_node.appearance = appearance.duplicate(true)
-		save_node.appearance_data = {
-			"race_path": appearance.get("race_path", ""),
-			"hair_path": appearance.get("hair_path", ""),
-			"body_path": appearance.get("body_path", ""),
-			"leg_path": appearance.get("leg_path", ""),
-		}
+		save_node.appearance_data = appearance.duplicate(true)

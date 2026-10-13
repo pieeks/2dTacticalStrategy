@@ -43,7 +43,7 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter + Cha
 
 ## Nächste sinnvolle Schritte
 
-1. Menü / Settings / Einstieg / Fantasy-Theme: [`PLAN_MENU_SETTINGS_ENTRY.md`](PLAN_MENU_SETTINGS_ENTRY.md)
+1. Kampf-Feel (Battle Idle, Waffen-Pose, Attack-Feedback): [`PLAN_COMBAT_FEEL.md`](PLAN_COMBAT_FEEL.md)
 2. Manuelle Smoke für Appearance-Refactor ([`PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](PLAN_CHARACTER_APPEARANCE_REFACTOR.md) Kurztest)
 3. Kurztest-Checkliste in [`PLAN_QUESTSYSTEM.md`](PLAN_QUESTSYSTEM.md) manuell durchspielen
 4. Optional manuelle Smoke in [`PLAN_CHARACTER_NPC_CLEANUP.md`](PLAN_CHARACTER_NPC_CLEANUP.md) / Party-Encounter-Kurztests
@@ -58,4 +58,5 @@ Stand: Hex-Kampf-Prototyp spielbar; Quest-System v1; Party/Group/Encounter + Cha
 - Character/NPC Cleanup: [`PLAN_CHARACTER_NPC_CLEANUP.md`](PLAN_CHARACTER_NPC_CLEANUP.md)
 - Appearance-Anim-Refactor: [`PLAN_CHARACTER_APPEARANCE_REFACTOR.md`](PLAN_CHARACTER_APPEARANCE_REFACTOR.md)
 - Menü / Settings / Einstieg / Theme: [`PLAN_MENU_SETTINGS_ENTRY.md`](PLAN_MENU_SETTINGS_ENTRY.md)
+- Kampf-Feel: [`PLAN_COMBAT_FEEL.md`](PLAN_COMBAT_FEEL.md)
 - README (aktueller Feature-Überblick)

@@ -2,6 +2,9 @@ extends Control
 
 const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 const GameSettingsScript := preload("res://scripts/ui/game_settings.gd")
+const GameEntryScript := preload("res://scripts/ui/game_entry.gd")
+
+const LEVEL_SCENE_PATH := "res://scenes/world/overworld.tscn"
 
 @onready var settings_popup: Control = $CanvasLayer/SettingsPopup
 @onready var character_list_control: Control = $CanvasLayer/UIRoot/Panel/CharacterListControl
@@ -94,12 +97,29 @@ func _on_start_game_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/world_selection.tscn")
 
 
+## Resume last character: host lobby and enter overworld (skip World Selection).
 func _on_continue_pressed() -> void:
 	var last_id := GameSettingsScript.get_last_character_id()
 	if last_id.is_empty():
 		return
 	PlayerPartyState.selected_character_id = last_id
-	get_tree().change_scene_to_file("res://scenes/ui/world_selection.tscn")
+	var err := GameEntryScript.start_host(last_id)
+	if not err.is_empty():
+		_show_entry_error(err)
+		return
+	get_tree().change_scene_to_file(LEVEL_SCENE_PATH)
+
+
+func _show_entry_error(key: String) -> void:
+	var dialog := AcceptDialog.new()
+	dialog.title = tr("ui.entry.error_title")
+	dialog.dialog_text = tr(key)
+	dialog.ok_button_text = tr("ui.net.ok")
+	add_child(dialog)
+	dialog.confirmed.connect(dialog.queue_free)
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.close_requested.connect(dialog.queue_free)
+	dialog.popup_centered()
 
 
 func _on_create_character_pressed() -> void:

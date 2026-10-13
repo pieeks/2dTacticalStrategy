@@ -422,15 +422,24 @@ func is_party_fight_ready() -> bool:
 
 ## Snapshot for later fight sync (§5b). Does not start fights.
 func build_party_roster_snapshot() -> Array:
+	var AppearanceDataScript := preload("res://scripts/characters/appearance_data.gd")
+	var fallback_app: Dictionary = {}
+	if player_data.get("appearance") is Dictionary:
+		fallback_app = AppearanceDataScript.normalize(player_data["appearance"])
 	var roster: Array = []
 	for m in get_members():
 		if typeof(m) != TYPE_DICTIONARY:
 			continue
+		var app: Dictionary = {}
+		if m.get("appearance") is Dictionary:
+			app = AppearanceDataScript.normalize(m["appearance"])
+		if not AppearanceDataScript.is_usable(app) and AppearanceDataScript.is_usable(fallback_app):
+			app = fallback_app.duplicate(true)
 		roster.append({
 			"member_id": str(m.get("id", "")),
 			"role": str(m.get("role", "companion")),
 			"name": str(m.get("name", "")),
-			"appearance": (m.get("appearance", {}) as Dictionary).duplicate(true) if typeof(m.get("appearance", {})) == TYPE_DICTIONARY else {},
+			"appearance": app,
 			"stats": (m.get("stats", {}) as Dictionary).duplicate(true) if typeof(m.get("stats", {})) == TYPE_DICTIONARY else {},
 		})
 	return roster
@@ -555,17 +564,17 @@ func _remove_dir_recursive(path: String) -> void:
 	if dir == null:
 		return
 	dir.list_dir_begin()
-	var name := dir.get_next()
-	while name != "":
-		if name == "." or name == "..":
-			name = dir.get_next()
+	var entry := dir.get_next()
+	while entry != "":
+		if entry == "." or entry == "..":
+			entry = dir.get_next()
 			continue
-		var child := path.path_join(name)
+		var child := path.path_join(entry)
 		if dir.current_is_dir():
 			_remove_dir_recursive(child)
 		else:
 			DirAccess.remove_absolute(child)
-		name = dir.get_next()
+		entry = dir.get_next()
 	dir.list_dir_end()
 	DirAccess.remove_absolute(path)
 

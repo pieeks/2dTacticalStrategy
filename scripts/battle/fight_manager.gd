@@ -80,6 +80,7 @@ func start_fight_with_encounter(peer_id: int, encounter: Dictionary) -> void:
 	_set_peer_in_fight(peer_id, true)
 	var enriched: Dictionary = encounter.duplicate(true)
 	_merge_client_party_roster_payload(enriched, peer_id)
+	# Appearances first, then rosters (roster patch uses player_appearances).
 	enriched = _enrich_encounter_player_data(enriched, [peer_id])
 	enriched = _enrich_encounter_party_rosters(enriched, [peer_id])
 	enriched = EncounterResolver.attach_enemy_roster(enriched)
@@ -130,7 +131,42 @@ func _enrich_encounter_party_rosters(encounter: Dictionary, peer_ids: Array) -> 
 				continue
 		map[key] = _fallback_party_roster_for_peer(pid, enriched)
 	enriched["party_rosters"] = map
+	_patch_empty_roster_appearances(enriched)
 	return enriched
+
+
+## Fill roster rows that lack usable appearance from player_appearances / live collect.
+func _patch_empty_roster_appearances(encounter: Dictionary) -> void:
+	var map: Variant = encounter.get("party_rosters", {})
+	if not map is Dictionary:
+		return
+	var apps: Dictionary = {}
+	if encounter.get("player_appearances") is Dictionary:
+		apps = encounter["player_appearances"] as Dictionary
+	for peer_key in (map as Dictionary).keys():
+		var roster: Variant = (map as Dictionary)[peer_key]
+		if not roster is Array:
+			continue
+		var peer_app: Dictionary = {}
+		var raw_app: Variant = apps.get(str(peer_key), {})
+		if raw_app is Dictionary and AppearanceDataScript.is_usable(raw_app):
+			peer_app = AppearanceDataScript.normalize(raw_app)
+		elif str(peer_key).is_valid_int():
+			peer_app = AppearanceDataScript.normalize(_collect_player_appearance(int(peer_key)))
+		for i in range((roster as Array).size()):
+			var entry: Variant = (roster as Array)[i]
+			if not entry is Dictionary:
+				continue
+			var row: Dictionary = entry
+			var row_app: Dictionary = {}
+			if row.get("appearance") is Dictionary:
+				row_app = AppearanceDataScript.normalize(row["appearance"])
+			if AppearanceDataScript.is_usable(row_app):
+				row["appearance"] = row_app
+				continue
+			if AppearanceDataScript.is_usable(peer_app):
+				row["appearance"] = peer_app.duplicate(true)
+			(roster as Array)[i] = row
 
 
 ## Single-leader roster from legacy player_appearances / player_stats.
@@ -193,10 +229,14 @@ func _enrich_encounter_player_data(encounter: Dictionary, peer_ids: Array) -> Di
 		var pid := int(peer_id)
 		var key := str(pid)
 		var existing_app: Variant = apps.get(key, {})
-		if not (existing_app is Dictionary and str(existing_app.get("race_path", "")) != ""):
+		if not (
+			existing_app is Dictionary and AppearanceDataScript.is_usable(existing_app as Dictionary)
+		):
 			var collected_app := _collect_player_appearance(pid)
-			if not collected_app.is_empty():
-				apps[key] = collected_app
+			if AppearanceDataScript.is_usable(collected_app):
+				apps[key] = AppearanceDataScript.normalize(collected_app)
+		elif existing_app is Dictionary:
+			apps[key] = AppearanceDataScript.normalize(existing_app)
 		var existing_stats: Variant = stats_map.get(key, {})
 		if not (existing_stats is Dictionary and not (existing_stats as Dictionary).is_empty()):
 			stats_map[key] = _collect_player_stats(pid)
@@ -222,6 +262,7 @@ func sync_active_fights_to_peer(peer_id: int) -> void:
 			var encounter: Dictionary = {}
 			if child.has_method("get_encounter"):
 				encounter = child.get_encounter()
+			encounter = _enrich_encounter_player_data(encounter, participants_list)
 			encounter = _enrich_encounter_party_rosters(encounter, participants_list)
 			encounter = EncounterResolver.attach_enemy_roster(encounter)
 			if child.has_method("set_encounter"):

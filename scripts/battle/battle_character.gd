@@ -4,11 +4,17 @@ extends CharacterBody2D
 ## Kamera am lokalen Leader (Legacy: Name == Peer-ID; §5b: meta is_party_leader).
 ## Pos-Sync weiter authority-gated. Overworld-Kamera unberührt.
 
+const CameraZoomScript := preload("res://scripts/camera/camera_zoom.gd")
+const CORPSE_MODULATE := Color(0.62, 0.62, 0.7, 0.95)
+
 @onready var cam: Camera2D = $Camera2D
 @onready var appearance: CharacterAppearance = $CharacterAppearance
 @onready var grid_movement: Node = $GridMovement
 
 @export var free_camera_pan_speed: float = 400.0
+## Fight camera zoom limits (Godot: smaller = farther out).
+@export var camera_zoom_min: float = 0.5
+@export var camera_zoom_max: float = 1.2
 
 var _last_synced_pos: Vector2 = Vector2.INF
 var _network_active: bool = true
@@ -16,6 +22,8 @@ var turn_controller: Node = null
 var _pending_appearance: Dictionary = {}
 ## Place camera on the character only once when entering the fight.
 var _camera_placed: bool = false
+## True after HP hits 0 — corpse stays visible; unit no longer blocks the grid.
+var is_corpse: bool = false
 
 
 func _enter_tree() -> void:
@@ -64,7 +72,32 @@ func _apply_pending_appearance() -> void:
 		return
 	if not _pending_appearance.is_empty():
 		appearance.apply_full_data(_pending_appearance)
-	appearance.play("idle_front")
+	appearance.play("idle_front_battle")
+
+
+## Death clip (or freeze) + downed look. Idempotent; stays visible on the cell.
+func play_death() -> void:
+	if is_corpse:
+		refresh_corpse_modulate()
+		return
+	is_corpse = true
+	set_meta("is_corpse", true)
+	if appearance == null:
+		appearance = get_node_or_null("CharacterAppearance") as CharacterAppearance
+	if appearance != null and appearance.has_method("play_death"):
+		appearance.play_death("front")
+	if appearance != null:
+		appearance.rotation = deg_to_rad(70.0)
+		appearance.position = Vector2(4.0, 6.0)
+		appearance.modulate = Color(0.85, 0.85, 0.9, 1.0)
+	z_index = 1
+	refresh_corpse_modulate()
+
+
+## Re-apply corpse tint (e.g. after hit-flash tween restores modulate).
+func refresh_corpse_modulate() -> void:
+	modulate = CORPSE_MODULATE
+	visible = true
 
 
 func setup_for_fight(grid_manager: GridManager) -> void:
@@ -95,7 +128,16 @@ func _place_camera_once() -> void:
 	if _camera_placed or not _is_local_fighter() or not is_instance_valid(cam):
 		return
 	cam.top_level = true
-	cam.global_position = global_position
+	# Prefer grid center for overview; fall back to this unit.
+	var focus := global_position
+	if turn_controller != null and turn_controller.get("grid_manager") is GridManager:
+		var grid: GridManager = turn_controller.grid_manager as GridManager
+		var local_center := Vector2(
+			float(grid.width - 1) * grid.spacing * 0.5,
+			float(grid.height - 1) * grid.spacing * 0.75 * 0.5
+		)
+		focus = grid.to_global(local_center)
+	cam.global_position = focus
 	_camera_placed = true
 
 
@@ -143,6 +185,15 @@ func rpc_sync_battle_position(pos: Vector2) -> void:
 	if not _network_active or not is_inside_tree():
 		return
 	global_position = pos
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _network_active or not _is_local_fighter():
+		return
+	if cam == null or not cam.is_current():
+		return
+	if CameraZoomScript.handle_wheel(cam, event, camera_zoom_min, camera_zoom_max):
+		get_viewport().set_input_as_handled()
 
 
 func _process(delta: float) -> void:
