@@ -1055,7 +1055,8 @@ animation = &"idle_front"
 offset = Vector2(0, -30)
 
 [node name="MainWeaponAttachmentPoint" type="Marker2D" parent="." unique_id=1897098415]
-position = Vector2(-1, -12)
+position = Vector2(-14, -14)
+rotation = 0.17453292
 
 [node name="MainWeapon2DSprite" type="AnimatedSprite2D" parent="MainWeaponAttachmentPoint" unique_id=887763300]
 visible = false
@@ -1066,11 +1067,11 @@ animation = &"silver_sword"
 offset = Vector2(0, -15)
 
 [node name="OffWeaponAttachmentPoint" type="Marker2D" parent="." unique_id=1553953222]
-position = Vector2(-6, -18)
+position = Vector2(9, -18)
 
 [node name="OffWeapon2DSprite" type="AnimatedSprite2D" parent="OffWeaponAttachmentPoint" unique_id=1904900004]
 visible = false
-z_index = -5
+z_index = 20
 position = Vector2(7, -12)
 sprite_frames = ExtResource("8_dokhl")
 
