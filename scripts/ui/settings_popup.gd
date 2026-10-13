@@ -32,6 +32,12 @@ func _apply_static_texts() -> void:
 	$UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer/BackToSettingsPopup.text = tr("ui.settings.back_to_settings")
 	$UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/Name.text = tr("ui.settings.audio_title")
 	$UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSliderName.text = tr("ui.settings.volume")
+	var music_lbl := $UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer.get_node_or_null("MusicSliderName") as Label
+	if music_lbl:
+		music_lbl.text = tr("ui.settings.music")
+	var sfx_lbl := $UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer.get_node_or_null("SfxSliderName") as Label
+	if sfx_lbl:
+		sfx_lbl.text = tr("ui.settings.sfx")
 	$UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/BackToSettingsPopup.text = tr("ui.settings.back_to_settings")
 	$UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/Label.text = tr("ui.settings.video_title")
 	$UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDownName.text = tr("ui.settings.resolution")
@@ -42,6 +48,9 @@ func _apply_static_texts() -> void:
 	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer/MoveDownName.text = tr("ui.settings.move_down")
 	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer/MoveLeftName.text = tr("ui.settings.move_left")
 	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer/MoveRightName.text = tr("ui.settings.move_right")
+	var reset_btn := $UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer.get_node_or_null("ResetControls") as Button
+	if reset_btn:
+		reset_btn.text = tr("ui.settings.reset_controls")
 	$UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/BackToSettings.text = tr("ui.settings.back_to_settings")
 
 

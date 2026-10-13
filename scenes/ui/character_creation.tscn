@@ -154,7 +154,6 @@ size_flags_horizontal = 0
 layout_mode = 2
 size_flags_horizontal = 0
 theme = ExtResource("3_cb55y")
-theme_override_fonts/font = ExtResource("3_tqx8g")
 text = "Name: "
 
 [node name="NameLineEdit" type="LineEdit" parent="CanvasLayer/UIRoot/NameHContainer"]
@@ -167,6 +166,24 @@ position = Vector2(333, 185)
 [node name="CharacterAppearance" parent="CanvasLayer/UIRoot/CharacterPreview" instance=ExtResource("5_6jn8k")]
 position = Vector2(-5.9604645e-08, 39)
 scale = Vector2(2.155635, 1.8908207)
+
+[node name="ErrorLabel" type="Label" parent="CanvasLayer/UIRoot"]
+visible = false
+layout_mode = 0
+offset_left = 220.0
+offset_top = 55.0
+offset_right = 420.0
+offset_bottom = 75.0
+theme_override_colors/font_color = Color(0.95, 0.35, 0.3, 1)
+horizontal_alignment = 1
+
+[node name="RandomizeButton" type="Button" parent="CanvasLayer/UIRoot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = 280.0
+offset_right = 390.0
+offset_bottom = 305.0
+text = "Randomize"
 
 [node name="CreateButton" type="Button" parent="CanvasLayer/UIRoot"]
 layout_mode = 1
@@ -202,5 +219,6 @@ text = "Back to Menu"
 [connection signal="pressed" from="CanvasLayer/UIRoot/VBoxContainer/BodyHContainer/BodyRightButton" to="." method="_on_body_right_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/VBoxContainer/LegHContainer/LegLeftButton" to="." method="_on_leg_left_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/VBoxContainer/LegHContainer/LegRightButton" to="." method="_on_leg_right_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/UIRoot/RandomizeButton" to="." method="_on_randomize_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/CreateButton" to="." method="_on_create_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/UIRoot/BackToMenu" to="." method="_on_back_to_menu_pressed"]

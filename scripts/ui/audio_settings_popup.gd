@@ -1,23 +1,49 @@
-## Volume Slider UI
-##
-## This script controls the master audio volume based on a UI slider.
-## It converts the slider's linear percentage value (0–100) into decibels
-## and applies it to the Master audio bus in Godot's AudioServer.
-##
-## Usage:
-## - Attach this script to a Control node with a Slider child.
-## - Connect the slider's `value_changed(float)` signal to `_on_volume_slider_value_changed`.
-## - Adjusting the slider will update the game's master volume.
-
+## Audio settings: Master / Music / SFX volume sliders with persistence.
 extends Control
 
+const GameSettingsScript := preload("res://scripts/ui/game_settings.gd")
 
-## Handles changes to the volume slider.
-##
-## @param value float: The slider value in the range 0–100 (percentage).
-## Converts the linear slider value to decibels before applying it to the Master bus.
+@onready var _master: HSlider = $AudioSettingsButtonContainer/VolumeSlider
+@onready var _music: HSlider = $AudioSettingsButtonContainer/MusicSlider
+@onready var _sfx: HSlider = $AudioSettingsButtonContainer/SfxSlider
+
+var _syncing: bool = false
+
+
+func _ready() -> void:
+	visibility_changed.connect(_on_visibility_changed)
+	_sync_from_store()
+
+
+func _on_visibility_changed() -> void:
+	if visible:
+		_sync_from_store()
+
+
+func _sync_from_store() -> void:
+	_syncing = true
+	if _master:
+		_master.value = GameSettingsScript.get_master_linear() * 100.0
+	if _music:
+		_music.value = GameSettingsScript.get_music_linear() * 100.0
+	if _sfx:
+		_sfx.value = GameSettingsScript.get_sfx_linear() * 100.0
+	_syncing = false
+
+
 func _on_volume_slider_value_changed(value: float) -> void:
-	AudioServer.set_bus_volume_db(
-		AudioServer.get_bus_index("Master"),
-		linear_to_db(value / 100.0)
-	)
+	if _syncing:
+		return
+	GameSettingsScript.set_master_linear(value / 100.0)
+
+
+func _on_music_slider_value_changed(value: float) -> void:
+	if _syncing:
+		return
+	GameSettingsScript.set_music_linear(value / 100.0)
+
+
+func _on_sfx_slider_value_changed(value: float) -> void:
+	if _syncing:
+		return
+	GameSettingsScript.set_sfx_linear(value / 100.0)

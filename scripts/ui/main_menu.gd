@@ -1,34 +1,20 @@
 extends Control
 
 const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
-## Main Menu UI
-##
-## This script manages the main menu of the game, including:
-## - Character list visibility
-## - Settings popup
-## - Starting the game, quitting, or creating a character
-##
-## It also enables or disables world selection depending on whether
-## a character save exists.
+const GameSettingsScript := preload("res://scripts/ui/game_settings.gd")
 
-## Reference to the settings popup window.
 @onready var settings_popup: Control = $CanvasLayer/SettingsPopup
-
-## Reference to the character list control UI.
 @onready var character_list_control: Control = $CanvasLayer/UIRoot/Panel/CharacterListControl
 
 
-## Called when the node enters the scene tree.
-## Disables world selection by default, connects popup signals,
-## and enables world selection if characters exist.
 func _ready() -> void:
+	GameSettingsScript.apply_boot_settings()
 	PlayerPartyState.enable_autosave(false)
 	NetworkManagerTest.reset_session()
-	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = true
+	PlayerPartyState.get_available_character()
 	settings_popup.connect("popup_closed", Callable(self, "_on_back_pressed"))
-	if PlayerPartyState.available_characters.size() > 0:
-		_enable_world_selection()
 	_apply_static_texts()
+	_refresh_continue_and_world()
 	var lm := _LocaleAccess.get_lm(self)
 	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
 		lm.language_changed.connect(_on_language_changed)
@@ -37,6 +23,7 @@ func _ready() -> void:
 
 func _on_language_changed(_locale: String) -> void:
 	_apply_static_texts()
+	_refresh_continue_and_world()
 
 
 func _apply_static_texts() -> void:
@@ -45,9 +32,29 @@ func _apply_static_texts() -> void:
 	$CanvasLayer/UIRoot/Panel/ButtonContainer/CreateCharacter.text = tr("ui.main_menu.new_character")
 	$CanvasLayer/UIRoot/Panel/ButtonContainer/Settings.text = tr("ui.main_menu.settings")
 	$"CanvasLayer/UIRoot/Panel/ButtonContainer/Quit Game".text = tr("ui.main_menu.quit_game")
+	var cont := $CanvasLayer/UIRoot/Panel/ButtonContainer.get_node_or_null("Continue") as Button
+	if cont:
+		cont.text = tr("ui.main_menu.continue")
 
 
-## Shows a one-shot info dialog if NetworkManager left a message (e.g. host quit).
+## Enables Continue / World based on saves and last character id.
+func _refresh_continue_and_world() -> void:
+	var has_saves := PlayerPartyState.available_characters.size() > 0
+	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = not has_saves
+	var cont := $CanvasLayer/UIRoot/Panel/ButtonContainer.get_node_or_null("Continue") as Button
+	if cont == null:
+		return
+	var last_id := GameSettingsScript.get_last_character_id()
+	var last_ok := false
+	if not last_id.is_empty():
+		for entry in PlayerPartyState.available_characters:
+			if str(entry.get("id", "")) == last_id:
+				last_ok = true
+				break
+	cont.visible = last_ok
+	cont.disabled = not last_ok
+
+
 func _show_pending_network_message() -> void:
 	var msg_key := NetworkManagerTest.take_pending_menu_message()
 	if msg_key.is_empty():
@@ -63,15 +70,12 @@ func _show_pending_network_message() -> void:
 	dialog.popup_centered()
 
 
-## Button callback: quits the game application (autosave if a character is loaded).
 func _on_quit_game_pressed() -> void:
 	if PlayerPartyState != null and PlayerPartyState.has_method("try_autosave"):
 		PlayerPartyState.try_autosave("app_quit")
 	get_tree().quit()
 
 
-## Called when returning from the settings popup.
-## Restores visibility of main menu panels and labels.
 func _on_back_pressed() -> void:
 	$CanvasLayer/SettingsPopup.visible = false
 	$CanvasLayer/UIRoot/Panel/ButtonContainer.visible = true
@@ -79,7 +83,6 @@ func _on_back_pressed() -> void:
 	$CanvasLayer/UIRoot/Label.visible = true
 
 
-## Button callback: opens the settings popup and hides the main menu panels.
 func _on_settings_pressed() -> void:
 	$CanvasLayer/SettingsPopup.visible = true
 	$CanvasLayer/UIRoot/Panel/ButtonContainer.visible = false
@@ -87,17 +90,17 @@ func _on_settings_pressed() -> void:
 	$CanvasLayer/UIRoot/Label.visible = false
 
 
-## Enables the world selection button.
-## Called when at least one character save is available.
-func _enable_world_selection() -> void:
-	$CanvasLayer/UIRoot/Panel/ButtonContainer/WorldSelection.disabled = false
-
-
-## Button callback: goes to the world selection screen.
 func _on_start_game_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/world_selection.tscn")
 
 
-## Button callback: goes to the character creation screen.
+func _on_continue_pressed() -> void:
+	var last_id := GameSettingsScript.get_last_character_id()
+	if last_id.is_empty():
+		return
+	PlayerPartyState.selected_character_id = last_id
+	get_tree().change_scene_to_file("res://scenes/ui/world_selection.tscn")
+
+
 func _on_create_character_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/character_creation.tscn")

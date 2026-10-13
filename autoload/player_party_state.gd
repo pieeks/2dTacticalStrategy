@@ -480,7 +480,94 @@ func get_available_character() -> Array:
 						available_characters.append(entry)
 		subfolder = dir.get_next()
 	dir.list_dir_end()
+	available_characters.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("update_unix", 0)) > int(b.get("update_unix", 0))
+	)
 	return available_characters
+
+
+## Creates a new character save from display name + appearance dict. Returns true on success.
+func create_new_character(char_name: String, appearance: Dictionary) -> bool:
+	var now_unix := int(Time.get_unix_time_from_system())
+	player_id = "%d_%d" % [now_unix, randi()]
+	player_data = {
+		"name": char_name,
+		"appearance": appearance.duplicate(true),
+	}
+	meta_data = {
+		"created_unix": now_unix,
+		"updated_unix": now_unix,
+		"game_build": "0.1.0",
+	}
+	party_data = {
+		"leader_id": player_id,
+		"max_size": DEFAULT_PARTY_MAX_SIZE,
+		"members": [
+			{
+				"id": player_id,
+				"name": char_name,
+				"role": "leader",
+				"appearance": appearance.duplicate(true),
+				"stats": {
+					"level": 1,
+					"health": 100,
+					"minDamage": 8,
+					"maxDamage": 14,
+					"initiative": 10,
+					"move": 3,
+					"attack_range": 1,
+				},
+				"equipment": {},
+			}
+		],
+	}
+	ensure_party_data()
+	inventory_data = {"gold": 50, "items": []}
+	position_data = {"x": 0.0, "y": 0.0}
+	quest_data = {"active": {}, "completed": []}
+	if not save_to_disk():
+		return false
+	WorldState.player_id = player_id
+	WorldState.save_to_disk()
+	selected_character_id = player_id
+	return true
+
+
+## Deletes a character save folder. Returns true if removed.
+func delete_character(pid: String) -> bool:
+	var id := pid.strip_edges()
+	if id.is_empty() or id.contains("..") or id.contains("/") or id.contains("\\"):
+		return false
+	var folder := base_path + id
+	if not DirAccess.dir_exists_absolute(folder):
+		return false
+	_remove_dir_recursive(folder)
+	if selected_character_id == id:
+		selected_character_id = ""
+	if player_id == id:
+		player_id = ""
+	get_available_character()
+	return not DirAccess.dir_exists_absolute(folder)
+
+
+func _remove_dir_recursive(path: String) -> void:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var name := dir.get_next()
+	while name != "":
+		if name == "." or name == "..":
+			name = dir.get_next()
+			continue
+		var child := path.path_join(name)
+		if dir.current_is_dir():
+			_remove_dir_recursive(child)
+		else:
+			DirAccess.remove_absolute(child)
+		name = dir.get_next()
+	dir.list_dir_end()
+	DirAccess.remove_absolute(path)
 
 
 ## Updates the stored position for the current player.

@@ -22,3 +22,12 @@ text = "Host IP address"
 layout_mode = 2
 text = "127.0.0.1"
 placeholder_text = "127.0.0.1"
+
+[node name="PortLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Port"
+
+[node name="PortLineEdit" type="LineEdit" parent="VBoxContainer"]
+layout_mode = 2
+text = "4242"
+placeholder_text = "4242"

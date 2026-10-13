@@ -19,6 +19,7 @@ extends Control
 ## - Connect fullscreen toggle's `toggled` to `_on_fullscreen_toggled`
 
 const BASE_SIZE := Vector2i(640, 360)
+const GameSettingsScript := preload("res://scripts/ui/game_settings.gd")
 
 @onready var _dropdown: OptionButton = $VideoSettingsButtonContainer/ResolutionDropDown
 @onready var _fullscreen: CheckBox = $VideoSettingsButtonContainer/Fullscreen
@@ -90,6 +91,7 @@ func _on_resolution_drop_down_item_selected(index: int) -> void:
 		return
 
 	await _apply_windowed_resolution(Vector2i(width, height))
+	_persist_video()
 	_sync_ui_from_window()
 
 
@@ -105,7 +107,17 @@ func _on_fullscreen_toggled(toggled_on: bool) -> void:
 		_refresh_content_scale(window)
 		await get_tree().process_frame
 		_center_window()
+	_persist_video()
 	_sync_ui_from_window()
+
+
+func _persist_video() -> void:
+	var window := get_window()
+	var fullscreen := (
+		window.mode == Window.MODE_EXCLUSIVE_FULLSCREEN
+		or window.mode == Window.MODE_FULLSCREEN
+	)
+	GameSettingsScript.save_video(window.size.x, window.size.y, fullscreen)
 
 
 func _apply_windowed_resolution(target_size: Vector2i) -> void:

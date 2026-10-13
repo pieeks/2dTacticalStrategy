@@ -1,87 +1,92 @@
-## Character Selection UI
-##
-## This script handles the character selection screen.
-## It displays a list of available characters from PlayerPartyState
-## and allows the user to select one by clicking on its row.
-##
-## Features:
-## - Dynamically creates list entries (name + level)
-## - Highlights the selected row
-## - Updates PlayerPartyState.selected_character_id when a character is chosen
-
+## Character selection list with select + delete.
 extends Control
 
-## Container that holds all generated character rows.
+const GameSettingsScript := preload("res://scripts/ui/game_settings.gd")
+const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
+
 @onready var character_list: VBoxContainer = $ScrollContainer/CharacterListVBoxContainer
 
-## Currently selected row in the character list.
 var selected_row: Control = null
+var _delete_dialog: ConfirmationDialog
 
 
-## Called when the node enters the scene tree.
-## Populates the list with all available characters and selects the first one if present.
-func _ready() -> void: 
+func _ready() -> void:
+	_ensure_delete_dialog()
+	refresh_list()
+	var lm := _LocaleAccess.get_lm(self)
+	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
+		lm.language_changed.connect(_on_language_changed)
+
+
+func _on_language_changed(_locale: String) -> void:
+	refresh_list()
+
+
+## Rebuild the list from PlayerPartyState.available_characters.
+func refresh_list() -> void:
+	PlayerPartyState.get_available_character()
+	for child in character_list.get_children():
+		child.queue_free()
+	selected_row = null
 	for char_entry in PlayerPartyState.available_characters:
 		_add_character_entry(char_entry)
-	
-	if character_list.get_child_count() > 0:
+	if character_list.get_child_count() > 0 and not PlayerPartyState.available_characters.is_empty():
 		var first_row: Control = character_list.get_child(0)
-		var first_data: Dictionary = PlayerPartyState.available_characters[0]
-		_select_first_item(first_row, first_data)
+		_select_row(first_row, PlayerPartyState.available_characters[0])
 
 
-## Adds a new row to the character list UI.
-##
-## @param data Dictionary: character information from PlayerPartyState.
-## Expected keys:
-## - "id": unique character identifier
-## - "name": character name
-## - "level": character level
+func _ensure_delete_dialog() -> void:
+	_delete_dialog = ConfirmationDialog.new()
+	_delete_dialog.ok_button_text = tr("ui.character_list.delete_confirm_ok")
+	add_child(_delete_dialog)
+	_delete_dialog.confirmed.connect(_on_delete_confirmed)
+
+
 func _add_character_entry(data: Dictionary) -> void:
-	var row = HBoxContainer.new()
-	var name_label = Label.new()
-	var lvl_label = Label.new()
-	
-	name_label.text = data.get("name", "Unknown")
-	lvl_label.text = "lvl: " + str(data.get("level", 1))
-	
+	var row := HBoxContainer.new()
+	var name_label := Label.new()
+	var lvl_label := Label.new()
+	var delete_btn := Button.new()
+	name_label.text = str(data.get("name", tr("ui.character_list.unknown")))
+	lvl_label.text = tr("ui.character_list.level") % [int(data.get("level", 1))]
+	delete_btn.text = tr("ui.character_list.delete")
+	delete_btn.pressed.connect(_on_delete_pressed.bind(data))
 	row.add_child(name_label)
 	row.add_child(lvl_label)
-	# Connect mouse input to row click handler
+	row.add_child(delete_btn)
 	row.gui_input.connect(_on_character_row_clicked.bind(row, data))
-	
 	character_list.add_child(row)
 
 
-## Handles clicks on a character row.
-## Highlights the clicked row and updates PlayerPartyState with the selected ID.
-##
-## @param event InputEvent: The input event received (mouse button press).
-## @param row Control: The clicked row container.
-## @param data Dictionary: Character data associated with the row.
 func _on_character_row_clicked(event: InputEvent, row: Control, data: Dictionary) -> void:
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
-		# Reset previous selection highlight
-		if selected_row: 
-			selected_row.modulate = Color(1, 1, 1) 
-		# Highlight current row
-		selected_row = row 
-		selected_row.modulate = Color(0.6, 0.8, 1)
-		
-		# Update global selection
-		PlayerPartyState.selected_character_id = data.get("id", "")
-		print("Character selected: ", PlayerPartyState.selected_character_id)
+		_select_row(row, data)
 
 
-## Highlights and selects the first available character row.
-## Called automatically on _ready() if list is not empty.
-##
-## @param row Control: The row to select.
-## @param data Dictionary: The associated character data.
-func _select_first_item(row: Control, data: Dictionary) -> void:
-	if selected_row: 
-		selected_row.modulate = Color(1, 1, 1) 
-	selected_row = row 
-	selected_row.modulate = Color(0.6, 0.8, 1)
-	PlayerPartyState.selected_character_id = data.get("id", "")
-	print("Character selected: ", PlayerPartyState.selected_character_id)
+func _select_row(row: Control, data: Dictionary) -> void:
+	if selected_row:
+		selected_row.modulate = Color(1, 1, 1)
+	selected_row = row
+	selected_row.modulate = Color(0.85, 0.75, 0.45)
+	PlayerPartyState.selected_character_id = str(data.get("id", ""))
+	GameSettingsScript.set_last_character_id(PlayerPartyState.selected_character_id)
+
+
+func _on_delete_pressed(data: Dictionary) -> void:
+	_delete_dialog.set_meta("pending_id", str(data.get("id", "")))
+	_delete_dialog.title = tr("ui.character_list.delete_title")
+	_delete_dialog.dialog_text = tr("ui.character_list.delete_confirm") % [str(data.get("name", ""))]
+	_delete_dialog.ok_button_text = tr("ui.character_list.delete_confirm_ok")
+	_delete_dialog.popup_centered()
+
+
+func _on_delete_confirmed() -> void:
+	var pid := str(_delete_dialog.get_meta("pending_id", ""))
+	if pid.is_empty():
+		return
+	if PlayerPartyState.delete_character(pid):
+		GameSettingsScript.clear_last_character_id_if(pid)
+	refresh_list()
+	var menu := get_tree().current_scene
+	if menu != null and menu.has_method("_refresh_continue_and_world"):
+		menu._refresh_continue_and_world()

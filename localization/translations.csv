@@ -1,6 +1,7 @@
 keys,en,de
 ui.main_menu.title,Main Menu,Hauptmenü
 ui.main_menu.world_selection,World Selection,Weltauswahl
+ui.main_menu.continue,Continue,Fortsetzen
 ui.main_menu.new_character,New Character,Neuer Charakter
 ui.main_menu.settings,Settings,Einstellungen
 ui.main_menu.quit_game,Quit Game,Spiel beenden
@@ -11,6 +12,7 @@ ui.world_selection.back,Back to Menu,Zurück zum Menü
 ui.join.title,Join World,Welt beitreten
 ui.join.ok,Join,Beitreten
 ui.join.host_ip,Host IP address,Host-IP-Adresse
+ui.join.port,Port,Port
 ui.character_creation.title,Character Creation,Charaktererstellung
 ui.character_creation.race,Race,Rasse
 ui.character_creation.hair,Hair,Frisur
@@ -19,6 +21,21 @@ ui.character_creation.leg,Leg,Beine
 ui.character_creation.name,Name:,Name:
 ui.character_creation.create,Create Character,Charakter erstellen
 ui.character_creation.back,Back to Menu,Zurück zum Menü
+ui.character_creation.randomize,Randomize,Zufällig
+ui.character_creation.name_required,Please enter a name.,Bitte einen Namen eingeben.
+ui.character_creation.catalog_incomplete,Appearance options missing.,Aussehens-Optionen fehlen.
+ui.character_creation.save_failed,Could not save character.,Charakter konnte nicht gespeichert werden.
+ui.character_list.unknown,Unknown,Unbekannt
+ui.character_list.level,lvl: %s,Lvl: %s
+ui.character_list.delete,Delete,Löschen
+ui.character_list.delete_title,Delete character,Charakter löschen
+ui.character_list.delete_confirm,Delete "%s"? This cannot be undone.,"%s" löschen? Das kann nicht rückgängig gemacht werden.
+ui.character_list.delete_confirm_ok,Delete,Löschen
+ui.entry.error_title,Could not start,Start fehlgeschlagen
+ui.entry.error_no_character,No character selected.,Kein Charakter ausgewählt.
+ui.entry.error_load_failed,Could not load save.,Spielstand konnte nicht geladen werden.
+ui.entry.error_join_failed,Could not join host.,Beitritt zum Host fehlgeschlagen.
+ui.entry.connecting,Connecting…,Verbinde…
 ui.settings.title,Settings,Einstellungen
 ui.settings.general,General,Allgemein
 ui.settings.audio,Audio,Audio
@@ -29,7 +46,10 @@ ui.settings.back_to_settings,Back to Settings,Zurück zu Einstellungen
 ui.settings.general_title,General,Allgemein
 ui.settings.language,Language,Sprache
 ui.settings.audio_title,Audio Settings,Audio-Einstellungen
-ui.settings.volume,Volume:,Lautstärke:
+ui.settings.volume,Master:,Master:
+ui.settings.music,Music:,Musik:
+ui.settings.sfx,SFX:,SFX:
+ui.settings.reset_controls,Reset Controls,Steuerung zurücksetzen
 ui.settings.video_title,Video Settings,Video-Einstellungen
 ui.settings.resolution,Resolution,Auflösung
 ui.settings.fullscreen,Fullscreen,Vollbild

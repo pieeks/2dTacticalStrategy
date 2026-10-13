@@ -20,6 +20,7 @@ extends Node
 
 ## Emitted when lobby creation or join finishes successfully.
 signal lobby_joined_finished
+signal lobby_join_failed
 ## Emitted when a new peer connects to the session.
 signal peer_connected(peer_id: int)
 ## Emitted when a peer disconnects from the session.
@@ -90,7 +91,8 @@ func _disconnect_multiplayer_signals() -> void:
 
 ## Creates a new ENet lobby as host.
 ## Initializes server peer, sets multiplayer peer, connects signals.
-func create_lobby() -> void:
+## @return bool: False if the server could not bind.
+func create_lobby() -> bool:
 	# Always tear down any previous peer so port bind cannot collide with a stale host.
 	reset_session()
 	is_host = true
@@ -103,13 +105,14 @@ func create_lobby() -> void:
 		)
 		pending_menu_message = "ui.net.host_port_busy"
 		reset_session()
-		return
+		return false
 	multiplayer.multiplayer_peer = network
 	network.peer_connected.connect(_on_peer_connected_server)
 	network.peer_disconnected.connect(_on_peer_disconnected_server)
 	emit_signal("lobby_joined_finished")
 	# Host is immediately ready
 	_mark_ready(multiplayer.get_unique_id())
+	return true
 
 
 ## Joins an existing ENet lobby as client.
@@ -117,7 +120,8 @@ func create_lobby() -> void:
 ##
 ## @param ip String: IP address of the host (default = 127.0.0.1).
 ## @param p int: Port of the host (default = 4242).
-func join_lobby(ip: String = "127.0.0.1", p: int = 4242) -> void:
+## @return bool: False if the client peer could not be created.
+func join_lobby(ip: String = "127.0.0.1", p: int = 4242) -> bool:
 	if multiplayer.has_multiplayer_peer():
 		reset_session()
 	else:
@@ -128,12 +132,14 @@ func join_lobby(ip: String = "127.0.0.1", p: int = 4242) -> void:
 	if err != OK:
 		push_error("Failed to join ENet server")
 		reset_session()
-		return
+		lobby_join_failed.emit()
+		return false
 	network = cli
 	multiplayer.multiplayer_peer = cli
 	multiplayer.connected_to_server.connect(_on_connected_client)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	return true
 
 
 ## Called when client connects successfully to host.
@@ -145,6 +151,7 @@ func _on_connected_client() -> void:
 func _on_connection_failed() -> void:
 	push_error("Connect failed")
 	reset_session()
+	lobby_join_failed.emit()
 
 
 ## Called when the server disconnects (client side).
