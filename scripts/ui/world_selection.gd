@@ -19,7 +19,10 @@ func _ready() -> void:
 		NetworkManagerTest.connect("lobby_join_failed", Callable(self, "_on_lobby_join_failed"))
 
 	_join_dialog = JOIN_DIALOG_SCENE.instantiate()
-	add_child(_join_dialog)
+	# Keep dialog under CanvasLayer so it doesn't sit under/over broken Control layouts.
+	$CanvasLayer.add_child(_join_dialog)
+	if _join_dialog is Window:
+		(_join_dialog as Window).visible = false
 	_join_dialog.connect("join_confirmed", Callable(self, "_on_join_confirmed"))
 	_status_label = $CanvasLayer/UIRoot.get_node_or_null("StatusLabel") as Label
 	_apply_static_texts()
