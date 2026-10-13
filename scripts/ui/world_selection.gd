@@ -163,9 +163,9 @@ func _on_start_world_pressed() -> void:
 	if not err.is_empty():
 		_show_error(err)
 		return
-	# create_lobby emits lobby_joined_finished sync → _on_lobby_joined → overworld.
-	# If the signal was missed, enter explicitly.
-	if get_tree().current_scene == self:
+	# create_lobby emits lobby_joined_finished sync → _on_lobby_joined → overworld
+	# (this node may already be freed; only fallback while still in the tree).
+	if is_inside_tree() and get_tree().current_scene == self:
 		_enter_overworld()
 
 
