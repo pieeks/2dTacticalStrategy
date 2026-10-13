@@ -86,7 +86,6 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 ### Geplant / in Arbeit
 
-- Menü / Settings / Einstieg + Fantasy-UI-Theme: [`_dev/PLAN_MENU_SETTINGS_ENTRY.md`](_dev/PLAN_MENU_SETTINGS_ENTRY.md)
 - Encounter-Symbol über Gegner; Loot-UI
 - Group Auto-Fight-Start; Quest Progress-Relay an Group
 - Story-/Klassen-Quests und Biom-Gates (Kategorie + `has_completed` vorbereitet)
@@ -95,15 +94,20 @@ Jeder Spieler steuert eine eigene Gruppe (Quests, Inventar, Fortschritt). Geplan
 
 ## CI
 
-GitHub Actions auf `main`: GDScript-Lint (`gdtoolkit`) und Headless-Projektcheck mit Godot 4.7.
+GitHub Actions auf `main`:
 
-## Voraussetzungen
-
-- [Godot 4.7](https://godotengine.org/) (Projekt-Feature-String: `4.7`)
+- **Prüfen:** GDScript-Lint (`gdtoolkit`) + Headless-Projektcheck (Godot 4.7) — [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+- **Bauen / Veröffentlichen:** Linux- + Windows-Export → Rolling-Release **Prototype v1 — Latest playable** (`continuous`) — [`.github/workflows/export.yml`](.github/workflows/export.yml), Plan: [`_dev/PLAN_CI_EXPORT_BUILDS.md`](_dev/PLAN_CI_EXPORT_BUILDS.md)
 
 ## Starten
 
-1. Godot 4.7 öffnen und den Projektordner importieren bzw. öffnen.
+Zwei Wege: **mit Godot** (Entwicklung) oder **ohne Godot** (fertiger Build vom Latest-Release).
+
+### Mit Godot (Entwicklung)
+
+**Voraussetzung:** [Godot 4.7](https://godotengine.org/) (Projekt-Feature-String: `4.7`).
+
+1. Repo clonen und in Godot 4.7 den Projektordner öffnen bzw. importieren.
 2. Mit **F5** / Play starten. Main Scene: `scenes/ui/main_menu.tscn`.
 3. Ablauf: Hauptmenü → Charakter erstellen/wählen → World Selection → Host oder Join → Overworld.
 
@@ -111,6 +115,22 @@ Lokal joinen: `127.0.0.1:4242`.
 
 Kampf testen: Hostile NPC (z. B. Slime) berühren (Force-Fight) oder F3 → Start/Join/Leave Fight.  
 Zweiter Peer: an kämpfenden Spieler heran, **E** → „Spieler joinen“ (Zug ab nächster Runde).
+
+### Ohne Godot (fertigen Build spielen)
+
+Kein Editor nötig. Nach jedem Merge auf `main` aktualisiert Actions den Build unter **Prototype v1 — Latest playable** (Linux + Windows).
+
+1. Release öffnen: [Prototype v1 — Latest playable](https://github.com/pieeks/2dTaticalStrategy/releases/tag/continuous)  
+   (Fallback: [Releases](https://github.com/pieeks/2dTaticalStrategy/releases) → Tag `continuous`)
+2. ZIP für dein System laden:
+   - **Linux:** `game-linux-x86_64.zip`
+   - **Windows:** `game-windows-x86_64.zip`
+3. Entpacken und starten:
+   - Linux: `2DStrategyTacticalGame.x86_64` ausführbar machen (`chmod +x …`) und starten
+   - Windows: `2DStrategyTacticalGame.exe` starten
+4. Im Spiel: Hauptmenü → Charakter / Continue → Host oder Join (Port `4242`).
+
+Der Release-Link bleibt gleich und zeigt immer den aktuellen Stand von `main` (Anzeige-Label: Prototype v1).
 
 ## Steuerung
 
@@ -146,7 +166,7 @@ Tasten können in den Control-Settings neu belegt werden (`left_click` für Grid
 - **Vorbereitet:** GodotSteam und [steam-multiplayer-peer](addons/steam-multiplayer-peer/) (noch nicht angebunden)
 - **Steam-WIP-Skripte:** [`_dev/steam_wip/`](_dev/steam_wip/) (nicht als Autoload aktiv)
 
-Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md), Quests: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md), Party/Group/Encounter: [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md), Character-Cleanup: [`_dev/PLAN_CHARACTER_NPC_CLEANUP.md`](_dev/PLAN_CHARACTER_NPC_CLEANUP.md), Menü/Theme: [`_dev/PLAN_MENU_SETTINGS_ENTRY.md`](_dev/PLAN_MENU_SETTINGS_ENTRY.md).
+Status und Roadmap: [`_dev/project_current_state_v_2.md`](_dev/project_current_state_v_2.md), Design: [`_dev/rpg_multiplayer_design_v_2.md`](_dev/rpg_multiplayer_design_v_2.md), Kampf: [`_dev/PLAN_KAMPFSYSTEM_GRID.md`](_dev/PLAN_KAMPFSYSTEM_GRID.md), Quests: [`_dev/PLAN_QUESTSYSTEM.md`](_dev/PLAN_QUESTSYSTEM.md), Party/Group/Encounter: [`_dev/PLAN_PARTY_GROUP_ENCOUNTER.md`](_dev/PLAN_PARTY_GROUP_ENCOUNTER.md), Character-Cleanup: [`_dev/PLAN_CHARACTER_NPC_CLEANUP.md`](_dev/PLAN_CHARACTER_NPC_CLEANUP.md), Menü/Theme: [`_dev/PLAN_MENU_SETTINGS_ENTRY.md`](_dev/PLAN_MENU_SETTINGS_ENTRY.md), CI Export: [`_dev/PLAN_CI_EXPORT_BUILDS.md`](_dev/PLAN_CI_EXPORT_BUILDS.md).
 
 ## Lizenz
 

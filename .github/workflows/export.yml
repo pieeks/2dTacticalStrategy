@@ -1,0 +1,94 @@
+name: Export
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: export-continuous-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    name: Export Linux + Windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+          include-templates: true
+
+      - name: Import project
+        run: godot --headless --path . --import
+        continue-on-error: true
+
+      - name: Prepare build directories
+        run: mkdir -p build/linux build/windows dist
+
+      - name: Export Linux Desktop
+        run: |
+          godot --headless --path . --export-release "Linux Desktop" \
+            build/linux/2DStrategyTacticalGame.x86_64
+
+      - name: Export Windows Desktop
+        run: |
+          godot --headless --path . --export-release "Windows Desktop" \
+            build/windows/2DStrategyTacticalGame.exe
+
+      - name: Pack ZIPs
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zip
+          chmod +x build/linux/2DStrategyTacticalGame.x86_64 || true
+          (
+            cd build/linux
+            zip -9r ../../dist/game-linux-x86_64.zip .
+          )
+          (
+            cd build/windows
+            zip -9r ../../dist/game-windows-x86_64.zip .
+          )
+          ls -lah dist/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: playable-builds
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish Latest playable release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: continuous
+          name: Prototype v1 — Latest playable
+          body: |
+            **Prototype v1 — Latest playable**
+
+            Rolling build from `main` @ `${{ github.sha }}`.
+            Download the ZIP for your OS, extract, and run — no Godot install required.
+
+            - Linux: `game-linux-x86_64.zip` → run `2DStrategyTacticalGame.x86_64` (`chmod +x` if needed)
+            - Windows: `game-windows-x86_64.zip` → run `2DStrategyTacticalGame.exe`
+
+            Host/Join port: `4242`.
+          files: |
+            dist/game-linux-x86_64.zip
+            dist/game-windows-x86_64.zip
+          fail_on_unmatched_files: true
+          overwrite_files: true
+          make_latest: true
+          target_commitish: ${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

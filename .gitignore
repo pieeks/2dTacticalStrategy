@@ -4,7 +4,10 @@
 # Godot-specific ignores
 .import/
 export.cfg
-export_presets.cfg
+
+# Local / CI export output (presets are tracked)
+build/
+dist/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
