@@ -41,11 +41,11 @@ Reihenfolge: Leitplanken → Battle-Idle + Waffen-Pose → Attack-Clip + Hit-Fee
 
 ## 1. Ist-Kurzlage
 
-- Attack: Schaden + HP-Label + Grid-Highlight — **keine** Anim/VFX.
-- Battle startet `play("idle_front")` (Overworld-Idle), nicht `idle_front_battle`.
-- AP enthält noch `idle_*_battle` mit Marker-Tracks; Runtime stoppt AP bei jedem `play`.
-- Teil der Layer-`.tres` hat `idle_*_battle`; Beine `blue` / manche Varianten fehlen — Fallback auf `idle_*` nötig.
-- Keine `attack_*` SpriteFrames, kein Slash/Shader, kein Hit-Flash.
+- Attack: Schaden + HP-Label + Grid-Highlight + kosmetisches Feel (`rpc_play_attack_fx`: Lunge + Hit-Flash).
+- Battle startet `play("idle_front_battle")` (SpriteFrames + AP-Attachment-Pose; Fallback ohne `_battle`).
+- AP-`idle_*_battle` nur noch Marker/visible/z_index (keine Frame-/animation-Tracks); Overworld-`play` stoppt AP + hide Hand/Waffen.
+- Teil der Layer-`.tres` hat `idle_*_battle`; fehlende Clips → Fallback auf `idle_*`.
+- Keine `attack_*` SpriteFrames / kein Slash (v1 Interim: Tween + Flash).
 
 ---
 
@@ -63,23 +63,23 @@ play("idle_front_battle"):
 
 **Entscheidung v1:** Attachment über **bestehende AP-Clips** `idle_*_battle` (nur Non-Frame nutzen — Frame-Tracks ignorieren oder Clips auf Marker-Tracks reduzieren). Alternativ Pose-Dict, wenn AP-Pflege zu schwer — dann AP-Idle-Battle-Frame-Tracks löschen.
 
-- [ ] `CharacterAppearance.play`: nach SpriteFrames optional Attachment-Pose anwenden
-- [ ] Fallback: fehlt `*_battle` auf Layer → Basis-`idle_*` / `walk_*`
-- [ ] `is_playing_current` / Resync bleiben konsistent
+- [x] `CharacterAppearance.play`: nach SpriteFrames optional Attachment-Pose anwenden
+- [x] Fallback: fehlt `*_battle` auf Layer → Basis-`idle_*` / `walk_*`
+- [x] `is_playing_current` / Resync bleiben konsistent
 
 ### 2.2 Battle Idle beim Spawn
 
-- [ ] `BattleCharacter` / `BattleEnemy`: nach `apply_full_data` → `play("idle_front_battle")` (statt `idle_front`)
-- [ ] Hand/Waffe sichtbar laut Pose (wenn Appearance Weapon-Pfade hat oder Battle-Default-Pose sie zeigt)
-- [ ] Slime/nur-Race: kein Crash wenn Battle-Clip fehlt (Fallback)
+- [x] `BattleCharacter` / `BattleEnemy`: nach `apply_full_data` → `play("idle_front_battle")` (statt `idle_front`)
+- [x] Hand/Waffe sichtbar laut Pose (wenn Appearance Weapon-Pfade hat oder Battle-Default-Pose sie zeigt)
+- [x] Slime/nur-Race: kein Crash wenn Battle-Clip fehlt (Fallback)
 
 ### 2.3 Attack-Feel
 
 Beim erfolgreichen Host-Attack (vor/nach Damage, kurze Timeline):
 
-- [ ] Angreifer: `play("attack_front")` oder Wiederverwendung kurzer Clip; fehlt Content → kurzer **lunge** (Position-Tween am Unit) als Interim
-- [ ] Ziel: Hit-Feedback — `modulate` Flash (weiß/rot) 0.1–0.2 s, synced oder lokal auf allen Peers via bestehendem HP-RPC / kleinem Anim-RPC
-- [ ] Turn erst nach kurzem Delay advancen **oder** Feedback parallel ohne Stall > ~0.25 s (Solo: parallel + Flash, kein langes Warten)
+- [x] Angreifer: `play("attack_front")` oder Wiederverwendung kurzer Clip; fehlt Content → kurzer **lunge** (Position-Tween am Unit) als Interim
+- [x] Ziel: Hit-Feedback — `modulate` Flash (weiß/rot) 0.1–0.2 s, synced oder lokal auf allen Peers via bestehendem HP-RPC / kleinem Anim-RPC
+- [x] Turn erst nach kurzem Delay advancen **oder** Feedback parallel ohne Stall > ~0.25 s (Solo: parallel + Flash, kein langes Warten)
 
 **Entscheidung v1 Attack-Content:** Wenn noch kein Aseprite-`attack_front` existiert → **Interim:** Battle-Idle beibehalten + Angreifer-Tween + Ziel-Flash. Sobald Frames da: SpriteFrames-Clip einhängen ohne API-Wechsel.
 
@@ -93,7 +93,7 @@ Beim erfolgreichen Host-Attack (vor/nach Damage, kurze Timeline):
 
 ## 3. Content / Aseprite (Solo-Checkliste)
 
-- [ ] Mindestens Race (oder Body) `idle_front_battle` vorhanden prüfen; Lücken dokumentieren / Fallback
+- [x] Mindestens Race (oder Body) `idle_front_battle` vorhanden prüfen; Lücken dokumentieren / Fallback
 - [ ] Eine Waffe: Anker-Pose für `idle_front_battle` im AP feinjustieren (Pos/Rot/Spiegel)
 - [ ] Optional: 3–5 Frames `attack_front` auf Race/Body; gleiche Frame-Counts wo gelayert
 - [ ] Slash-Strip optional separat
@@ -102,18 +102,18 @@ Beim erfolgreichen Host-Attack (vor/nach Damage, kurze Timeline):
 
 ## 4. Netz / Autorität
 
-- [ ] Feel-Trigger an Host-Attack koppeln; Clients sehen Feedback über RPC (erweitere `rpc_apply_unit_hp` oder `rpc_play_attack(attacker_id, target_id)`)
-- [ ] Keine Gameplay-Abweichung: Schaden bleibt host-autoritativ; Feel ist kosmetisch
-- [ ] Late-Join: Units wieder `idle_*_battle`, kein hängender Attack-State
+- [x] Feel-Trigger an Host-Attack koppeln; Clients sehen Feedback über RPC (erweitere `rpc_apply_unit_hp` oder `rpc_play_attack(attacker_id, target_id)`)
+- [x] Keine Gameplay-Abweichung: Schaden bleibt host-autoritativ; Feel ist kosmetisch
+- [x] Late-Join: Units wieder `idle_*_battle`, kein hängender Attack-State
 
 ---
 
 ## 5. Empfohlene Slice-Reihenfolge
 
 1. Leitplanken + dieser Plan  
-2. **`play` + Attachment-Pose** + Battle-Spawn `idle_front_battle`  
-3. **Hit-Flash + Angreifer-Feedback** (Tween und/oder Attack-Clip) + Sync  
-4. AP-Battle-Clips auf Marker-Tracks entschlacken (Frame-Duplikate raus)  
+2. **`play` + Attachment-Pose** + Battle-Spawn `idle_front_battle` — erledigt  
+3. **Hit-Flash + Angreifer-Feedback** (Tween und/oder Attack-Clip) + Sync — erledigt  
+4. AP-Battle-Clips auf Marker-Tracks entschlacken (Frame-Duplikate raus) — erledigt  
 5. Optional Slash-VFX  
 6. Kurztest + Status/README  
 
@@ -132,11 +132,11 @@ Beim erfolgreichen Host-Attack (vor/nach Damage, kurze Timeline):
 
 ## Definition of Done
 
-- [ ] Kampf startet in Battle-Pose (nicht reines Overworld-Idle)
-- [ ] Waffen-Anker werden zur Laufzeit für Battle-Idle gesetzt
-- [ ] Jeder erfolgreiche Angriff hat sichtbares Feedback (mind. Hit-Flash)
-- [ ] Public Appearance-`play` bleibt Call-Site-freundlich
-- [ ] Plan-Checkboxen + Status/README aktuell
+- [x] Kampf startet in Battle-Pose (nicht reines Overworld-Idle)
+- [x] Waffen-Anker werden zur Laufzeit für Battle-Idle gesetzt
+- [x] Jeder erfolgreiche Angriff hat sichtbares Feedback (mind. Hit-Flash)
+- [x] Public Appearance-`play` bleibt Call-Site-freundlich
+- [x] Plan-Checkboxen + Status/README aktuell
 
 ---
 

@@ -150,46 +150,58 @@ func _resync_animation() -> void:
 	var anim := current_animation
 	if anim.is_empty():
 		return
-	var master := _master_layer_for(anim)
+	var resolved := _resolve_sprite_clip(anim)
+	var master := _master_layer_for(resolved)
 	var master_frame := 0
 	var master_progress := 0.0
-	if master != null and master.is_playing() and String(master.animation) == anim:
+	if master != null and master.is_playing() and String(master.animation) == resolved:
 		master_frame = master.frame
 		master_progress = master.frame_progress
 	play(anim, 1.0, true)
 	if master_frame > 0 or master_progress > 0.0:
 		for layer in _playback_layers():
-			if not _layer_has_clip(layer, anim):
+			if not _layer_has_clip(layer, resolved):
 				continue
-			var last_frame := layer.sprite_frames.get_frame_count(anim) - 1
+			var last_frame := layer.sprite_frames.get_frame_count(resolved) - 1
 			layer.set_frame_and_progress(mini(master_frame, last_frame), master_progress)
 
 
 ## True when the current clip is actively playing on at least one body layer.
 func is_playing_current() -> bool:
-	var anim := current_animation
-	if anim.is_empty():
+	var resolved := _resolve_sprite_clip(current_animation)
+	if resolved.is_empty():
 		return false
 	for layer in _playback_layers():
-		if layer != null and layer.is_playing() and String(layer.animation) == anim:
+		if layer != null and layer.is_playing() and String(layer.animation) == resolved:
 			return true
 	return false
 
 
-## Plays a SpriteFrames clip on all layers that have it (Variante B).
-## @param animation_name String: Clip name (must exist on at least one layer).
+## Plays SpriteFrames on layers; `*_battle` also drives AnimationPlayer attachment pose.
+## Falls back to the non-`_battle` clip when a layer set lacks the battle name.
+## @param animation_name String: Requested clip (e.g. idle_front / idle_front_battle).
 ## @param speed float: Playback speed (default 1.0).
 ## @param force bool: Restart even if already on this clip (after layer swap).
 func play(animation_name: String, speed: float = 1.0, force: bool = false) -> void:
 	if not force and current_animation == animation_name and is_playing_current():
 		return
 	current_animation = animation_name
-	if animation_player != null:
-		animation_player.stop()
-	if not _any_layer_has_clip(animation_name):
+	var resolved := _resolve_sprite_clip(animation_name)
+	var use_battle_pose := (
+		animation_name.ends_with("_battle")
+		and animation_player != null
+		and animation_player.has_animation(animation_name)
+	)
+	if not use_battle_pose:
+		_stop_battle_attachments()
+	if resolved.is_empty():
 		_stop_playback_layers()
 		return
-	_play_layers(animation_name, speed, force)
+	_play_layers(resolved, speed, force)
+	if use_battle_pose:
+		animation_player.play(animation_name)
+		# AP may reveal Hand; play the resolved clip on it once visible.
+		_play_hand_if_visible(resolved, speed, force)
 
 
 ## Layers that receive movement/idle playback (body layers + visible Hand).
@@ -208,14 +220,31 @@ func _layer_has_clip(layer: AnimatedSprite2D, anim: String) -> bool:
 	return layer != null and layer.sprite_frames != null and layer.sprite_frames.has_animation(anim)
 
 
+## Clip exists on any body layer or Hand (even if Hand is still hidden).
 func _any_layer_has_clip(anim: String) -> bool:
-	for layer in _playback_layers():
+	for layer in layers:
 		if _layer_has_clip(layer, anim):
 			return true
-	return false
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	return _layer_has_clip(hand, anim)
+
+
+## Prefer requested clip; strip `_battle` when SpriteFrames lack it.
+func _resolve_sprite_clip(anim: String) -> String:
+	if anim.is_empty():
+		return ""
+	if _any_layer_has_clip(anim):
+		return anim
+	if anim.ends_with("_battle"):
+		var base := anim.trim_suffix("_battle")
+		if _any_layer_has_clip(base):
+			return base
+	return ""
 
 
 func _master_layer_for(anim: String) -> AnimatedSprite2D:
+	if anim.is_empty():
+		return null
 	var race := $Race2DSprite as AnimatedSprite2D
 	if _layer_has_clip(race, anim):
 		return race
@@ -225,7 +254,7 @@ func _master_layer_for(anim: String) -> AnimatedSprite2D:
 	return null
 
 
-## Idle/Walk must loop; many .tres still have loop=false from the AnimationPlayer era.
+## Idle/Walk (incl. `*_battle`) must loop; many .tres still have loop=false from the AP era.
 func _ensure_movement_clip_loops(frames: SpriteFrames, anim: String) -> void:
 	if frames == null or not frames.has_animation(anim):
 		return
@@ -243,6 +272,37 @@ func _play_layers(anim: String, speed: float, force: bool) -> void:
 		if force:
 			layer.set_frame_and_progress(0, 0.0)
 		layer.play(anim)
+
+
+## After battle AP reveals Hand, start its SpriteFrames clip if present.
+func _play_hand_if_visible(anim: String, speed: float, force: bool) -> void:
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	if hand == null or not hand.visible or not _layer_has_clip(hand, anim):
+		return
+	_ensure_movement_clip_loops(hand.sprite_frames, anim)
+	hand.speed_scale = speed
+	if force:
+		hand.set_frame_and_progress(0, 0.0)
+	hand.play(anim)
+
+
+## Stop AP and hide battle-only attachments (Overworld Idle/Walk).
+func _stop_battle_attachments() -> void:
+	if animation_player != null:
+		animation_player.stop()
+		if animation_player.has_animation(&"RESET"):
+			animation_player.play(&"RESET")
+			animation_player.seek(0.0, true)
+			animation_player.stop()
+	var hand := get_node_or_null("HandSprite2D") as AnimatedSprite2D
+	if hand != null:
+		hand.visible = false
+	var main_w := get_node_or_null("MainWeaponAttachmentPoint/MainWeapon2DSprite") as AnimatedSprite2D
+	if main_w != null:
+		main_w.visible = false
+	var off_w := get_node_or_null("OffWeaponAttachmentPoint/OffWeapon2DSprite") as AnimatedSprite2D
+	if off_w != null:
+		off_w.visible = false
 
 
 func _stop_playback_layers() -> void:

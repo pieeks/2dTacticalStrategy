@@ -22,4 +22,4 @@ func setup(npc_type: String, display_name: String, stats: Dictionary, appearance
 	if not appearance_data.is_empty() and appearance.has_method("apply_full_data"):
 		appearance.call_deferred("apply_full_data", appearance_data)
 	if appearance.has_method("play"):
-		appearance.call_deferred("play", "idle_front")
+		appearance.call_deferred("play", "idle_front_battle")

@@ -64,7 +64,7 @@ func _apply_pending_appearance() -> void:
 		return
 	if not _pending_appearance.is_empty():
 		appearance.apply_full_data(_pending_appearance)
-	appearance.play("idle_front")
+	appearance.play("idle_front_battle")
 
 
 func setup_for_fight(grid_manager: GridManager) -> void:

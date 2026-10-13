@@ -429,10 +429,11 @@ func _host_try_attack(unit_id: String, target_unit_id: String, sender_id: int) -
 		return
 	var dmg := randi_range(u.atk_min, u.atk_max)
 	target.hp = maxi(target.hp - dmg, 0)
+	rpc_play_attack_fx.rpc(unit_id, target_unit_id)
 	rpc_apply_unit_hp.rpc(target_unit_id, target.hp)
 	_broadcast_state()
 	turn_state_changed.emit()
-	# Attack ends the turn.
+	# Attack ends the turn (feel tweens run in parallel; no extra delay).
 	_advance_turn()
 
 
@@ -561,6 +562,51 @@ func rpc_apply_unit_hp(unit_id: String, hp: int) -> void:
 	u.hp = hp
 	_update_enemy_label(u)
 	turn_state_changed.emit()
+
+
+## Cosmetic attack feedback on all peers: attacker lunge + target hit flash.
+@rpc("authority", "call_local", "reliable")
+func rpc_play_attack_fx(attacker_id: String, target_id: String) -> void:
+	var attacker := get_unit(attacker_id)
+	var target := get_unit(target_id)
+	var attacker_node: Node2D = null
+	var target_node: Node2D = null
+	if attacker != null:
+		attacker_node = attacker.node
+	if target != null:
+		target_node = target.node
+	if is_instance_valid(attacker_node):
+		_play_attack_lunge(attacker_node, target_node)
+	if is_instance_valid(target_node):
+		_play_hit_flash(target_node)
+
+
+## Short position lunge toward the target (~10px); tween dies with the node.
+func _play_attack_lunge(attacker: Node2D, target: Node2D) -> void:
+	if not is_instance_valid(attacker):
+		return
+	var origin := attacker.position
+	var dir := Vector2.RIGHT
+	if is_instance_valid(target):
+		var delta := target.global_position - attacker.global_position
+		if delta.length_squared() > 0.0001:
+			dir = delta.normalized()
+	var peak := origin + dir * 10.0
+	var tw := attacker.create_tween()
+	tw.set_parallel(false)
+	tw.tween_property(attacker, "position", peak, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(attacker, "position", origin, 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+
+
+## Brief red modulate flash on the hit target; tween dies with the node.
+func _play_hit_flash(target: Node2D) -> void:
+	if not is_instance_valid(target):
+		return
+	var base := target.modulate
+	var tw := target.create_tween()
+	tw.set_parallel(false)
+	tw.tween_property(target, "modulate", Color(1.6, 0.45, 0.45, base.a), 0.06)
+	tw.tween_property(target, "modulate", base, 0.09)
 
 
 func _update_enemy_label(u: BattleUnit) -> void:
