@@ -357,9 +357,13 @@ func _spawn_party_member(peer_id: int, entry: Dictionary, member_index: int) -> 
 	var peer_idx := participants.find(peer_id)
 	if peer_idx < 0:
 		peer_idx = participants.size()
-	# Staffel Members desselben Peers nebeneinander; Peers in Zeilen.
-	var cell_x := (peer_idx % 3) * 2 + (member_index % 2)
-	var cell_y: int = int(peer_idx / 3) + int(member_index / 2)
+	# Left side of the map; leave empty hexes between units so early turns stay mobile.
+	# Peers: columns of 2 with stride 5. Members: every 2nd cell in a short column.
+	var cell_x := 1 + (peer_idx % 2) * 5 + (member_index % 2) * 2
+	var cell_y: int = 2 + int(peer_idx / 2) * 5 + int(member_index / 2) * 2
+	if grid_manager is GridManager:
+		cell_x = mini(cell_x, maxi((grid_manager as GridManager).width - 2, 0))
+		cell_y = mini(cell_y, maxi((grid_manager as GridManager).height - 2, 0))
 	var local_cell := Vector2(float(cell_x) * spacing, float(cell_y) * spacing * 0.75)
 	if cell_y % 2 == 1:
 		local_cell.x += spacing / 2.0
@@ -426,9 +430,9 @@ func _spawn_battle_enemies() -> void:
 		npc_container.add_child(enemy)
 		if enemy.has_method("setup"):
 			enemy.setup(npc_type, display_name, stats, appearance_data)
-		# Offset along columns so multiple enemies do not stack.
-		var cell_x := grid_w - (i % 3)
-		var cell_y: int = grid_h + int(i / 3)
+		# Right side; stride 2 so enemies are not adjacent blockers.
+		var cell_x := grid_w - (i % 3) * 2
+		var cell_y: int = grid_h + int(i / 3) * 2
 		var local_cell := Vector2(float(cell_x) * spacing, float(cell_y) * spacing * 0.75)
 		if cell_y % 2 == 1:
 			local_cell.x += spacing / 2.0

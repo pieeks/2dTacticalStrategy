@@ -3,12 +3,12 @@ extends Node2D
 ## Hex-Grid (AStar2D), Pfadfindung, Reachable-Set und Highlights.
 
 @export_group("Grid Settings")
-@export var width: int = 14:
+@export var width: int = 18:
 	set(v):
 		width = v
 		if is_inside_tree():
 			setup_grid()
-@export var height: int = 11:
+@export var height: int = 14:
 	set(v):
 		height = v
 		if is_inside_tree():

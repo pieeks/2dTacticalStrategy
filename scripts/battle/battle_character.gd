@@ -124,7 +124,17 @@ func _place_camera_once() -> void:
 	if _camera_placed or not _is_local_fighter() or not is_instance_valid(cam):
 		return
 	cam.top_level = true
-	cam.global_position = global_position
+	# Prefer grid center for overview; fall back to this unit.
+	var focus := global_position
+	if turn_controller != null and turn_controller.get("grid_manager") != null:
+		var grid: Node2D = turn_controller.grid_manager as Node2D
+		if grid != null and grid.get("width") != null and grid.get("height") != null and grid.get("spacing") != null:
+			var w := int(grid.get("width"))
+			var h := int(grid.get("height"))
+			var sp := float(grid.get("spacing"))
+			var local_center := Vector2(float(w - 1) * sp * 0.5, float(h - 1) * sp * 0.75 * 0.5)
+			focus = grid.to_global(local_center)
+	cam.global_position = focus
 	_camera_placed = true
 
 
