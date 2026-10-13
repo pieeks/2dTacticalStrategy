@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://m7uorttvbn2l" path="res://assets/art/pictures/Background_test_2.png" id="1_2rluv"]
 [ext_resource type="Script" uid="uid://dp5v174rs4tjl" path="res://scripts/ui/world_selection.gd" id="1_44pcd"]
-[ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="2_rbxe0"]
+[ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://resources/themes/default_theme.tres" id="3_theme"]
 
 [node name="WorldSelection" type="Control"]
 layout_mode = 3
@@ -22,6 +22,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("1_2rluv")
 expand_mode = 1
 stretch_mode = 6
@@ -30,72 +31,90 @@ stretch_mode = 6
 
 [node name="UIRoot" type="Control" parent="CanvasLayer"]
 layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("2_rbxe0")
-
-[node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
-layout_mode = 0
-offset_left = -54.0
-offset_top = -116.0
-offset_right = 93.0
-offset_bottom = -93.0
-size_flags_horizontal = 4
-text = "World selection"
-horizontal_alignment = 1
-
-[node name="StatusLabel" type="Label" parent="CanvasLayer/UIRoot"]
-visible = false
-layout_mode = 0
-offset_left = -100.0
-offset_top = 60.0
-offset_right = 100.0
-offset_bottom = 80.0
-horizontal_alignment = 1
-
-[node name="Panel" type="Panel" parent="CanvasLayer/UIRoot"]
-custom_minimum_size = Vector2(640, 360)
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/Panel"]
+[node name="Label" type="Label" parent="CanvasLayer/UIRoot"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -41.0
-offset_top = -41.5
-offset_right = 41.0
-offset_bottom = 41.5
+offset_left = -90.0
+offset_top = -130.0
+offset_right = 90.0
+offset_bottom = -100.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
+theme_override_font_sizes/font_size = 20
+text = "World selection"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="CanvasLayer/UIRoot"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = 70.0
+offset_right = 120.0
+offset_bottom = 94.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+horizontal_alignment = 1
+
+[node name="Panel" type="Panel" parent="CanvasLayer/UIRoot"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -90.0
+offset_top = -50.0
+offset_right = 90.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UIRoot/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
 
 [node name="StartWorld" type="Button" parent="CanvasLayer/UIRoot/Panel/VBoxContainer"]
 layout_mode = 2
-text = "Start World
-"
+theme = ExtResource("3_theme")
+text = "Start World"
 
 [node name="JoinWorld" type="Button" parent="CanvasLayer/UIRoot/Panel/VBoxContainer"]
 layout_mode = 2
+theme = ExtResource("3_theme")
 text = "Join World"
 
 [node name="BackToMenu" type="Button" parent="CanvasLayer/UIRoot/Panel/VBoxContainer"]
 layout_mode = 2
+theme = ExtResource("3_theme")
 text = "Back to Menu"
 
 [connection signal="pressed" from="CanvasLayer/UIRoot/Panel/VBoxContainer/StartWorld" to="." method="_on_start_world_pressed"]
