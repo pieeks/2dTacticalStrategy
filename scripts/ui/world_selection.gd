@@ -7,7 +7,7 @@ const LEVEL_SCENE_PATH := "res://scenes/world/overworld.tscn"
 const JOIN_DIALOG_SCENE := preload("res://scenes/ui/confirmation_join_dialog.tscn")
 
 var level_scene: PackedScene
-var _join_dialog: Node
+var _join_dialog: ConfirmationDialog
 var _status_label: Label
 
 
@@ -18,18 +18,39 @@ func _ready() -> void:
 	if NetworkManagerTest.has_signal("lobby_join_failed"):
 		NetworkManagerTest.connect("lobby_join_failed", Callable(self, "_on_lobby_join_failed"))
 
-	_join_dialog = JOIN_DIALOG_SCENE.instantiate()
-	# Keep dialog under CanvasLayer so it doesn't sit under/over broken Control layouts.
-	$CanvasLayer.add_child(_join_dialog)
-	if _join_dialog is Window:
-		(_join_dialog as Window).visible = false
-	_join_dialog.connect("join_confirmed", Callable(self, "_on_join_confirmed"))
+	# Do not spawn ConfirmationDialog (Window) here — embedded windows can block all UI input in exports.
 	_status_label = $CanvasLayer/UIRoot.get_node_or_null("StatusLabel") as Label
+	_connect_menu_buttons()
 	_apply_static_texts()
 	_set_status("")
 	var lm := _LocaleAccess.get_lm(self)
 	if lm != null and not lm.language_changed.is_connected(_on_language_changed):
 		lm.language_changed.connect(_on_language_changed)
+
+
+## Wire buttons in code (scene connections remain; connect is idempotent via is_connected).
+func _connect_menu_buttons() -> void:
+	var start_btn := $CanvasLayer/UIRoot/Panel/VBoxContainer/StartWorld as Button
+	var join_btn := $CanvasLayer/UIRoot/Panel/VBoxContainer/JoinWorld as Button
+	var back_btn := $CanvasLayer/UIRoot/Panel/VBoxContainer/BackToMenu as Button
+	if start_btn and not start_btn.pressed.is_connected(_on_start_world_pressed):
+		start_btn.pressed.connect(_on_start_world_pressed)
+	if join_btn and not join_btn.pressed.is_connected(_on_join_world_pressed):
+		join_btn.pressed.connect(_on_join_world_pressed)
+	if back_btn and not back_btn.pressed.is_connected(_on_back_to_menu_pressed):
+		back_btn.pressed.connect(_on_back_to_menu_pressed)
+
+
+## Create join dialog on first use; parent to this scene root (not CanvasLayer).
+func _ensure_join_dialog() -> ConfirmationDialog:
+	if _join_dialog != null and is_instance_valid(_join_dialog):
+		return _join_dialog
+	_join_dialog = JOIN_DIALOG_SCENE.instantiate() as ConfirmationDialog
+	add_child(_join_dialog)
+	_join_dialog.hide()
+	if not _join_dialog.is_connected("join_confirmed", _on_join_confirmed):
+		_join_dialog.connect("join_confirmed", _on_join_confirmed)
+	return _join_dialog
 
 
 func _on_language_changed(_locale: String) -> void:
@@ -85,10 +106,11 @@ func _on_start_world_pressed() -> void:
 
 func _on_join_world_pressed() -> void:
 	_set_status("")
-	if _join_dialog and _join_dialog.has_method("popup_join"):
-		_join_dialog.popup_join()
-	elif _join_dialog:
-		_join_dialog.popup_centered()
+	var dialog := _ensure_join_dialog()
+	if dialog.has_method("popup_join"):
+		dialog.popup_join()
+	else:
+		dialog.popup_centered()
 
 
 func _on_join_confirmed(ip: String, port: int = 4242) -> void:
