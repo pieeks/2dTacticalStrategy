@@ -1,6 +1,7 @@
 class_name AppearanceCatalog
 extends RefCounted
 ## Loads SpriteFrames catalogs used by character creation (not by ingame Appearance).
+## Uses ResourceLoader.list_directory so exported builds see original .tres names (not .remap).
 
 const RACE_DIR := "res://features/character/race/"
 const HAIR_DIR := "res://features/character/hair/basic/"
@@ -51,16 +52,17 @@ static func _ensure_loaded() -> void:
 ## Loads all SpriteFrames resources in a directory matching a file extension.
 static func load_files(path: String, end_with: String) -> Array:
 	var files: Array = []
-	var dir := DirAccess.open(path)
-	if dir == null:
-		return files
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if file_name.ends_with(end_with):
-			var frames = load(path + file_name)
-			if frames is SpriteFrames:
-				files.append(frames)
-		file_name = dir.get_next()
-	dir.list_dir_end()
+	var dir_path := path if path.ends_with("/") else path + "/"
+	for file_name in ResourceLoader.list_directory(dir_path):
+		if file_name.ends_with("/"):
+			continue
+		# Exported DirAccess fallback would see "*.tres.remap"; list_directory returns "*.tres".
+		var load_name := file_name
+		if load_name.ends_with(".remap"):
+			load_name = load_name.trim_suffix(".remap")
+		if not load_name.ends_with(end_with):
+			continue
+		var frames = ResourceLoader.load(dir_path + load_name)
+		if frames is SpriteFrames:
+			files.append(frames)
 	return files
