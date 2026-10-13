@@ -3,12 +3,12 @@ extends Node2D
 ## Hex-Grid (AStar2D), Pfadfindung, Reachable-Set und Highlights.
 
 @export_group("Grid Settings")
-@export var width: int = 10:
+@export var width: int = 18:
 	set(v):
 		width = v
 		if is_inside_tree():
 			setup_grid()
-@export var height: int = 8:
+@export var height: int = 14:
 	set(v):
 		height = v
 		if is_inside_tree():
@@ -18,6 +18,8 @@ extends Node2D
 		spacing = v
 		if is_inside_tree():
 			setup_grid()
+## Visual inset so hex outlines leave ~1–2 px gap (does not affect A* spacing).
+@export var hex_gap_px: float = 2.0
 
 var astar := AStar2D.new()
 var _preview_path: PackedVector2Array = PackedVector2Array()
@@ -142,7 +144,7 @@ func clear_preview_path() -> void:
 	queue_redraw()
 
 
-func set_move_highlights(positions: PackedVector2Array) -> void:
+func set_move_highlights(positions: PackedVector2Array, _origin_world: Vector2 = Vector2.INF) -> void:
 	_highlight_move = positions
 	queue_redraw()
 
@@ -158,27 +160,88 @@ func clear_action_highlights() -> void:
 	queue_redraw()
 
 
+## Flat-top hex radius with a small visual gap to neighbors (layout spacing unchanged).
+func _hex_radius() -> float:
+	var gap := maxf(hex_gap_px, 0.0)
+	# Vertical neighbors are closer (spacing * 0.75) — that limits radius first.
+	var max_from_vert := (spacing * 0.75 - gap) / sqrt(3.0)
+	var max_from_horiz := spacing * 0.5 - gap * 0.5
+	return maxf(minf(max_from_vert, max_from_horiz), 1.0)
+
+
+## Six flat-top vertices around a local cell center.
+func _hex_polygon(center: Vector2, radius: float = -1.0) -> PackedVector2Array:
+	var r := radius if radius > 0.0 else _hex_radius()
+	var pts := PackedVector2Array()
+	for i in 6:
+		var angle := TAU * float(i) / 6.0
+		pts.append(center + Vector2(cos(angle), sin(angle)) * r)
+	return pts
+
+
+func _draw_hex(
+	center: Vector2,
+	fill: Color,
+	outline: Color,
+	outline_width: float = 1.5,
+	radius: float = -1.0
+) -> void:
+	var pts := _hex_polygon(center, radius)
+	if fill.a > 0.001:
+		draw_colored_polygon(pts, fill)
+	if outline.a > 0.001:
+		var loop := pts.duplicate()
+		loop.append(pts[0])
+		draw_polyline(loop, outline, outline_width, true)
+
+
 func _draw() -> void:
 	if not astar:
 		return
+	var r := _hex_radius()
+	# Base field: hex outline per cell (no debug dots / full connection mesh).
 	for id in astar.get_point_ids():
-		var pos := astar.get_point_position(id)
-		draw_circle(pos, 3.0, Color.CYAN)
-		for connection_id in astar.get_point_connections(id):
-			var target_pos := astar.get_point_position(connection_id)
-			draw_line(pos, target_pos, Color(1, 1, 1, 0.1), 1.0)
+		_draw_hex(
+			astar.get_point_position(id),
+			Color(0.15, 0.35, 0.55, 0.08),
+			Color(0.55, 0.75, 0.95, 0.35),
+			1.0,
+			r
+		)
+	# Move-reachable: green hexes only (path links stay on yellow hover preview).
 	for world_p in _highlight_move:
-		var lp := to_local(world_p)
-		draw_circle(lp, 14.0, Color(0.1, 0.95, 0.35, 0.35))
-		draw_circle(lp, 7.0, Color(0.2, 1.0, 0.4, 0.75))
+		_draw_hex(
+			to_local(world_p),
+			Color(0.1, 0.95, 0.35, 0.28),
+			Color(0.25, 1.0, 0.45, 0.9),
+			2.0,
+			r
+		)
+	# Attack targets: red hexes (no link mesh).
 	for world_p in _highlight_attack:
-		var ap := to_local(world_p)
-		draw_circle(ap, 14.0, Color(0.95, 0.2, 0.15, 0.4))
-		draw_circle(ap, 8.0, Color(1.0, 0.3, 0.2, 0.8))
+		_draw_hex(
+			to_local(world_p),
+			Color(0.95, 0.2, 0.15, 0.32),
+			Color(1.0, 0.35, 0.25, 0.95),
+			2.0,
+			r
+		)
+	# Hover path preview (unchanged feel: path line + waypoints).
 	if _preview_path.size() > 0:
 		for i in range(_preview_path.size()):
-			var world_p: Vector2 = _preview_path[i]
-			var local_p := to_local(world_p)
-			draw_circle(local_p, 6.0, Color(1.0, 0.9, 0.15, 0.95))
+			var local_p := to_local(_preview_path[i])
+			_draw_hex(
+				local_p,
+				Color(1.0, 0.9, 0.15, 0.22),
+				Color(1.0, 0.85, 0.2, 0.95),
+				2.0,
+				r * 0.92
+			)
 			if i + 1 < _preview_path.size():
-				draw_line(local_p, to_local(_preview_path[i + 1]), Color(1.0, 0.85, 0.2, 0.85), 3.0)
+				draw_line(
+					local_p,
+					to_local(_preview_path[i + 1]),
+					Color(1.0, 0.85, 0.2, 0.9),
+					3.0,
+					true
+				)
