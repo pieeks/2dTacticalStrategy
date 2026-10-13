@@ -18,6 +18,7 @@ var attack_mode: bool = false
 
 const _ENEMY_AI_DELAY := 0.35
 const _ENEMY_AI_WATCHDOG := 2.0
+const _ACTIVE_TURN_MARKER := "ActiveTurnMarker"
 
 var _ai_watchdog_token: int = 0
 
@@ -141,8 +142,9 @@ func _begin_active_turn() -> void:
 		u.reset_turn_flags()
 	_broadcast_state()
 	turn_state_changed.emit()
-	# Defer highlights one frame so unit nodes/cameras are ready.
+	# Defer highlights/markers one frame so unit nodes/cameras are ready.
 	call_deferred("_refresh_local_highlights")
+	call_deferred("_update_active_turn_visuals")
 	if u != null and u.is_enemy() and multiplayer.is_server():
 		_schedule_enemy_ai(u.unit_id)
 
@@ -275,7 +277,7 @@ func get_blocked_point_ids(except_unit_id: String = "") -> Array:
 
 func get_reachable_for_active() -> PackedVector2Array:
 	var u := get_active_unit()
-	if u == null or u.node == null or grid_manager == null or u.has_moved:
+	if u == null or u.node == null or grid_manager == null or u.has_moved or u.has_attacked:
 		return PackedVector2Array()
 	return grid_manager.get_reachable_positions(
 		u.node.global_position, u.move_range, get_blocked_point_ids(u.unit_id)
@@ -284,7 +286,7 @@ func get_reachable_for_active() -> PackedVector2Array:
 
 func get_attack_target_positions() -> PackedVector2Array:
 	var u := get_active_unit()
-	if u == null or u.node == null or grid_manager == null:
+	if u == null or u.node == null or grid_manager == null or u.has_attacked:
 		return PackedVector2Array()
 	var result := PackedVector2Array()
 	for unit_id in units.keys():
@@ -300,6 +302,7 @@ func get_attack_target_positions() -> PackedVector2Array:
 
 
 func _refresh_local_highlights() -> void:
+	_update_active_turn_visuals()
 	if grid_manager == null:
 		return
 	grid_manager.clear_action_highlights()
@@ -315,14 +318,18 @@ func _refresh_local_highlights() -> void:
 func set_attack_mode(enabled: bool) -> void:
 	if not is_local_players_turn():
 		return
-	attack_mode = enabled
+	var u := get_active_unit()
+	if u != null and u.has_attacked:
+		attack_mode = false
+	else:
+		attack_mode = enabled
 	_refresh_local_highlights()
 	turn_state_changed.emit()
 
 
 func request_move_to(target_world: Vector2) -> void:
 	var u := get_active_unit()
-	if u == null or not is_local_players_turn() or u.has_moved or attack_mode:
+	if u == null or not is_local_players_turn() or u.has_moved or u.has_attacked or attack_mode:
 		return
 	if multiplayer.is_server():
 		_host_try_move(u.unit_id, target_world, multiplayer.get_unique_id())
@@ -332,7 +339,7 @@ func request_move_to(target_world: Vector2) -> void:
 
 func request_attack_unit(target_unit_id: String) -> void:
 	var u := get_active_unit()
-	if u == null or not is_local_players_turn():
+	if u == null or not is_local_players_turn() or u.has_attacked:
 		return
 	if multiplayer.is_server():
 		_host_try_attack(u.unit_id, target_unit_id, multiplayer.get_unique_id())
@@ -389,7 +396,7 @@ func _host_try_move(unit_id: String, target_world: Vector2, sender_id: int) -> v
 		return
 	if u.is_player() and u.owner_peer_id != sender_id:
 		return
-	if u.has_moved or u.node == null or grid_manager == null:
+	if u.has_moved or u.has_attacked or u.node == null or grid_manager == null:
 		return
 	var snap_world := grid_manager.get_snap_global_position(target_world)
 	var target_id := grid_manager.get_point_id_at_world(snap_world)
@@ -410,31 +417,44 @@ func _host_try_move(unit_id: String, target_world: Vector2, sender_id: int) -> v
 	_refresh_local_highlights()
 
 
-func _host_try_attack(unit_id: String, target_unit_id: String, sender_id: int) -> void:
+## Returns true when damage was applied. Does not end the turn — player Wait / enemy AI advances.
+func _host_try_attack(unit_id: String, target_unit_id: String, sender_id: int) -> bool:
 	if phase != Phase.ACTIVE:
-		return
+		return false
 	var u := get_unit(unit_id)
 	var target := get_unit(target_unit_id)
 	var active := get_active_unit()
 	if u == null or target == null or active == null or u.unit_id != active.unit_id:
-		return
+		return false
 	if u.is_player() and u.owner_peer_id != sender_id:
-		return
+		return false
+	if u.has_attacked:
+		return false
 	if not target.is_alive() or u.node == null or target.node == null or grid_manager == null:
-		return
+		return false
 	if u.side == target.side:
-		return
+		return false
 	var steps := grid_manager.get_path_step_count(u.node.global_position, target.node.global_position)
 	if steps <= 0 or steps > u.attack_range:
-		return
+		return false
 	var dmg := randi_range(u.atk_min, u.atk_max)
 	target.hp = maxi(target.hp - dmg, 0)
+	u.has_attacked = true
+	attack_mode = false
 	rpc_play_attack_fx.rpc(unit_id, target_unit_id)
 	rpc_apply_unit_hp.rpc(target_unit_id, target.hp)
+	var end_result := _check_battle_end()
+	if end_result != "":
+		phase = Phase.ENDED
+		_broadcast_state()
+		turn_state_changed.emit()
+		_update_active_turn_visuals()
+		battle_ended.emit(end_result)
+		return true
 	_broadcast_state()
 	turn_state_changed.emit()
-	# Attack ends the turn (feel tweens run in parallel; no extra delay).
-	_advance_turn()
+	_refresh_local_highlights()
+	return true
 
 
 func _host_try_wait(unit_id: String, sender_id: int) -> void:
@@ -470,13 +490,16 @@ func _run_enemy_ai(expected_unit_id: String) -> void:
 			continue
 		var steps := grid_manager.get_path_step_count(u.node.global_position, other.node.global_position)
 		if steps > 0 and steps <= u.attack_range:
-			_host_try_attack(u.unit_id, other.unit_id, 1)
+			if _host_try_attack(u.unit_id, other.unit_id, 1):
+				_advance_turn()
+			else:
+				_host_try_wait(u.unit_id, 1)
 			return
 		if steps > 0 and steps < best_steps:
 			best_steps = steps
 			best_target = other
 	# Move closer if possible.
-	if best_target != null and not u.has_moved:
+	if best_target != null and not u.has_moved and not u.has_attacked:
 		var reachable := grid_manager.get_reachable_positions(
 			u.node.global_position, u.move_range, get_blocked_point_ids(u.unit_id)
 		)
@@ -530,7 +553,10 @@ func _enemy_ai_after_move(enemy_unit_id: String, token: int) -> void:
 			again.node.global_position, other2.node.global_position
 		)
 		if steps2 > 0 and steps2 <= again.attack_range:
-			_host_try_attack(again.unit_id, other2.unit_id, 1)
+			if _host_try_attack(again.unit_id, other2.unit_id, 1):
+				_advance_turn()
+			else:
+				_host_try_wait(enemy_unit_id, 1)
 			return
 	_host_try_wait(enemy_unit_id, 1)
 
@@ -559,9 +585,24 @@ func rpc_apply_unit_hp(unit_id: String, hp: int) -> void:
 	var u := get_unit(unit_id)
 	if u == null:
 		return
+	var was_alive := u.is_alive()
 	u.hp = hp
 	_update_enemy_label(u)
+	if was_alive and not u.is_alive():
+		_apply_unit_death_visual(u)
+		# Dead units no longer block — refresh move/attack highlights.
+		call_deferred("_refresh_local_highlights")
 	turn_state_changed.emit()
+
+
+## Play death/corpse presentation on the unit node (all peers).
+func _apply_unit_death_visual(u: BattleUnit) -> void:
+	if u == null or not is_instance_valid(u.node):
+		return
+	if u.node.has_method("play_death"):
+		u.node.play_death()
+	_update_enemy_label(u)
+	_update_active_turn_visuals()
 
 
 ## Cosmetic attack feedback on all peers: attacker lunge + target hit flash.
@@ -607,6 +648,14 @@ func _play_hit_flash(target: Node2D) -> void:
 	tw.set_parallel(false)
 	tw.tween_property(target, "modulate", Color(1.6, 0.45, 0.45, base.a), 0.06)
 	tw.tween_property(target, "modulate", base, 0.09)
+	tw.finished.connect(_on_hit_flash_finished.bind(target), CONNECT_ONE_SHOT)
+
+
+func _on_hit_flash_finished(target: Node2D) -> void:
+	if not is_instance_valid(target):
+		return
+	if bool(target.get_meta("is_corpse", false)) and target.has_method("refresh_corpse_modulate"):
+		target.refresh_corpse_modulate()
 
 
 func _update_enemy_label(u: BattleUnit) -> void:
@@ -614,7 +663,11 @@ func _update_enemy_label(u: BattleUnit) -> void:
 		return
 	for child in u.node.get_children():
 		if child is Label:
-			(child as Label).text = "%s (%d)" % [u.display_name, u.hp]
+			var label := child as Label
+			if not u.is_alive():
+				label.text = tr("battle.unit.dead") % [u.display_name]
+			else:
+				label.text = "%s (%d)" % [u.display_name, u.hp]
 
 
 func _broadcast_state() -> void:
@@ -649,12 +702,15 @@ func rpc_sync_turn_state(
 			existing.hp = synced.hp
 			existing.max_hp = synced.max_hp
 			existing.has_moved = synced.has_moved
+			existing.has_attacked = synced.has_attacked
 			existing.joins_next_round = synced.joins_next_round
 			existing.initiative = synced.initiative
 			existing.move_range = synced.move_range
 			existing.attack_range = synced.attack_range
 			existing.display_name = synced.display_name
 			_update_enemy_label(existing)
+			if not existing.is_alive():
+				_apply_unit_death_visual(existing)
 			BattleUnit.sync_position_from_dict(existing, data)
 		else:
 			units[synced.unit_id] = synced
@@ -735,7 +791,7 @@ func update_hover_preview(world_pos: Vector2) -> void:
 		grid_manager.clear_preview_path()
 		return
 	var u := get_active_unit()
-	if u == null or u.node == null or u.has_moved:
+	if u == null or u.node == null or u.has_moved or u.has_attacked:
 		grid_manager.clear_preview_path()
 		return
 	var reachable := get_reachable_for_active()
@@ -789,6 +845,80 @@ func handle_world_click(world_pos: Vector2) -> bool:
 		return true
 	_refresh_local_highlights()
 	return false
+
+
+## Show a clear floating marker above the living unit whose turn it is.
+func _update_active_turn_visuals() -> void:
+	var active := get_active_unit()
+	var active_id := ""
+	if phase == Phase.ACTIVE and active != null and active.is_alive():
+		active_id = active.unit_id
+	for unit_id in units.keys():
+		var u: BattleUnit = units[unit_id]
+		if u == null or not is_instance_valid(u.node):
+			continue
+		_set_unit_active_marker(u.node, u.unit_id == active_id)
+
+
+func _set_unit_active_marker(unit_node: Node2D, is_active: bool) -> void:
+	var marker := unit_node.get_node_or_null(_ACTIVE_TURN_MARKER) as Node2D
+	if not is_active:
+		if marker != null:
+			marker.visible = false
+			if unit_node.has_meta("_active_turn_tween"):
+				var old: Variant = unit_node.get_meta("_active_turn_tween")
+				if old is Tween and is_instance_valid(old):
+					(old as Tween).kill()
+				unit_node.remove_meta("_active_turn_tween")
+		return
+	if marker == null:
+		marker = _create_active_turn_marker(unit_node)
+	marker.visible = true
+	marker.modulate = Color(1, 1, 1, 1)
+	if unit_node.has_meta("_active_turn_tween"):
+		var existing: Variant = unit_node.get_meta("_active_turn_tween")
+		if existing is Tween and is_instance_valid(existing):
+			return
+	var tw := unit_node.create_tween()
+	tw.set_loops()
+	tw.tween_property(marker, "position:y", -58.0, 0.4).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(marker, "position:y", -48.0, 0.4).set_trans(Tween.TRANS_SINE)
+	unit_node.set_meta("_active_turn_tween", tw)
+
+
+## Bright chevron above the unit (above sprites) so turn ownership is obvious.
+func _create_active_turn_marker(unit_node: Node2D) -> Node2D:
+	var root := Node2D.new()
+	root.name = _ACTIVE_TURN_MARKER
+	root.z_index = 200
+	root.position = Vector2(0, -48)
+	var arrow := Polygon2D.new()
+	arrow.color = Color(1.0, 0.92, 0.15, 1.0)
+	arrow.polygon = PackedVector2Array([
+		Vector2(0, 14),
+		Vector2(-12, -6),
+		Vector2(-5, -6),
+		Vector2(-5, -16),
+		Vector2(5, -16),
+		Vector2(5, -6),
+		Vector2(12, -6),
+	])
+	root.add_child(arrow)
+	var outline := Polygon2D.new()
+	outline.color = Color(0.15, 0.1, 0.0, 0.85)
+	outline.z_index = -1
+	outline.polygon = PackedVector2Array([
+		Vector2(0, 17),
+		Vector2(-15, -8),
+		Vector2(-7, -8),
+		Vector2(-7, -18),
+		Vector2(7, -18),
+		Vector2(7, -8),
+		Vector2(15, -8),
+	])
+	root.add_child(outline)
+	unit_node.add_child(root)
+	return root
 
 
 func _find_unit_at_world(world_pos: Vector2) -> String:

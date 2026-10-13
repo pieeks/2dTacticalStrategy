@@ -89,6 +89,12 @@ Beim erfolgreichen Host-Attack (vor/nach Damage, kurze Timeline):
 - [ ] Spawn/Play bei Attack; Facing front zuerst
 - [ ] Kein Pflicht-Asset-Blocker für DoD v1
 
+### 2.5 Death / Corpse (vorbereitet)
+
+- [x] `CharacterAppearance.play_death(facing)` — nutzt `death_front` / `death` wenn vorhanden, sonst Freeze
+- [x] Bei HP≤0: sichtbare Leiche (Collapse + Tint + Label „tot“); blockiert Grid nicht mehr (`is_alive`)
+- [ ] Content: `death_front` Frames für Slime/Race nachziehen
+
 ---
 
 ## 3. Content / Aseprite (Solo-Checkliste)

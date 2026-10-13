@@ -4,6 +4,8 @@ extends CharacterBody2D
 ## Kamera am lokalen Leader (Legacy: Name == Peer-ID; §5b: meta is_party_leader).
 ## Pos-Sync weiter authority-gated. Overworld-Kamera unberührt.
 
+const CORPSE_MODULATE := Color(0.62, 0.62, 0.7, 0.95)
+
 @onready var cam: Camera2D = $Camera2D
 @onready var appearance: CharacterAppearance = $CharacterAppearance
 @onready var grid_movement: Node = $GridMovement
@@ -16,6 +18,8 @@ var turn_controller: Node = null
 var _pending_appearance: Dictionary = {}
 ## Place camera on the character only once when entering the fight.
 var _camera_placed: bool = false
+## True after HP hits 0 — corpse stays visible; unit no longer blocks the grid.
+var is_corpse: bool = false
 
 
 func _enter_tree() -> void:
@@ -65,6 +69,31 @@ func _apply_pending_appearance() -> void:
 	if not _pending_appearance.is_empty():
 		appearance.apply_full_data(_pending_appearance)
 	appearance.play("idle_front_battle")
+
+
+## Death clip (or freeze) + downed look. Idempotent; stays visible on the cell.
+func play_death() -> void:
+	if is_corpse:
+		refresh_corpse_modulate()
+		return
+	is_corpse = true
+	set_meta("is_corpse", true)
+	if appearance == null:
+		appearance = get_node_or_null("CharacterAppearance") as CharacterAppearance
+	if appearance != null and appearance.has_method("play_death"):
+		appearance.play_death("front")
+	if appearance != null:
+		appearance.rotation = deg_to_rad(70.0)
+		appearance.position = Vector2(4.0, 6.0)
+		appearance.modulate = Color(0.85, 0.85, 0.9, 1.0)
+	z_index = 1
+	refresh_corpse_modulate()
+
+
+## Re-apply corpse tint (e.g. after hit-flash tween restores modulate).
+func refresh_corpse_modulate() -> void:
+	modulate = CORPSE_MODULATE
+	visible = true
 
 
 func setup_for_fight(grid_manager: GridManager) -> void:

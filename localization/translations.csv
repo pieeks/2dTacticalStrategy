@@ -93,10 +93,12 @@ battle.hud.waiting,Waiting… (%s; units=%d; order=%d),Warten… (%s; units=%d; 
 battle.hud.your_turn,"Your turn: %s (%s)\n%s","Dein Zug: %s (%s)\n%s"
 battle.hud.their_turn,Turn: %s (%s),Zug: %s (%s)
 battle.hud.mode_attack,Attack mode,Angriffsmodus
+battle.hud.mode_attacked,Attack used — press Wait,Angegriffen — Warten drücken
 battle.hud.mode_move,Move — click green tiles,Bewegen — grüne Felder klicken
 battle.hud.not_your_turn,Not your turn,Nicht dein Zug
 battle.hud.move_flash,Move…,Bewegen…
 battle.hud.invalid_target,No valid target (green tiles),Kein gültiges Ziel (grüne Felder)
+battle.unit.dead,%s (dead),%s (tot)
 quest.accept,Accept,Annehmen
 quest.decline,Decline,Ablehnen
 quest.turn_in,Turn in,Abgeben
