@@ -87,11 +87,11 @@ Schrift:
 
 ### 2.2 Umsetzung Theme
 
-- [ ] [`default_theme.tres`](../resources/themes/default_theme.tres) ausbauen: `Button` (normal/hover/pressed/disabled/focus), `Panel`/`PanelContainer`, `Label`, `LineEdit`, `HSlider`, `CheckBox`/`OptionButton` soweit genutzt
-- [ ] StyleBoxFlat-Farben als nachvollziehbare Palette (Kommentar im Plan / kurze Notiz in Theme oder `_dev`); keine per-Scene Farb-Overrides außer Ausnahme-Hintergründe
-- [ ] Redundant `theme_override_fonts/font = Playfair` in UI-Scenes entfernen, wo Theme greift ([`main_menu.tscn`](../scenes/ui/main_menu.tscn), [`settings_popup.tscn`](../scenes/ui/settings_popup.tscn), Creation, …)
-- [ ] Main-Menu-Titel: größere Font-Size / eigener Label-Theme-Type; Buttons einheitlich ohne `scale`-Hacks wo möglich
-- [ ] Settings-/ESC-/Join-Dialoge: gleiches Theme (bereits global — nach Theme-Update optisch mitziehen)
+- [x] [`default_theme.tres`](../resources/themes/default_theme.tres) ausbauen: `Button` (normal/hover/pressed/disabled/focus), `Panel`/`PanelContainer`, `Label`, `LineEdit`, `HSlider`, `CheckBox`/`OptionButton` soweit genutzt
+- [x] StyleBoxFlat-Farben als nachvollziehbare Palette (Kommentar im Plan / kurze Notiz in Theme oder `_dev`); keine per-Scene Farb-Overrides außer Ausnahme-Hintergründe
+- [x] Redundant `theme_override_fonts/font = Playfair` in UI-Scenes entfernen, wo Theme greift ([`main_menu.tscn`](../scenes/ui/main_menu.tscn), [`settings_popup.tscn`](../scenes/ui/settings_popup.tscn), Creation, …)
+- [x] Main-Menu-Titel: größere Font-Size / eigener Label-Theme-Type; Buttons einheitlich ohne `scale`-Hacks wo möglich
+- [x] Settings-/ESC-/Join-Dialoge: gleiches Theme (bereits global — nach Theme-Update optisch mitziehen)
 - [ ] Optional v1.1: dezentes Panel-Background-Texture (9-patch) statt nur Flat — nur wenn Flat nicht „fantasy genug“ wirkt
 
 ### 2.3 Nicht-Ziele Theme
@@ -106,24 +106,24 @@ Schrift:
 
 ### 3.1 Bugs / Fundament
 
-- [ ] Move-Up-Rebind: `metadata/action_name` → `walk_up`
-- [ ] Control-Buttons beim Open aus aktueller `InputMap` beschriften
-- [ ] Audio/Video/Input beim Open aus CFG laden und UI syncen
+- [x] Move-Up-Rebind: `metadata/action_name` → `walk_up`
+- [x] Control-Buttons beim Open aus aktueller `InputMap` beschriften
+- [x] Audio/Video/Input beim Open aus CFG laden und UI syncen
 
 ### 3.2 Persistenz
 
-- [ ] `user://settings.cfg` erweitern (neben Locale):
+- [x] `user://settings.cfg` erweitern (neben Locale):
   - `[audio]` master_linear / bus
   - `[video]` width, height, fullscreen
   - `[input]` Event-Serialisierung für rebindbare Actions (mindestens Walk)
-- [ ] Apply on change + Save; ESC/Main teilen dieselbe Logik (kleines Helper-Script oder LocaleManager → `GameSettings`/`SettingsStore`)
+- [x] Apply on change + Save; ESC/Main teilen dieselbe Logik (kleines Helper-Script oder LocaleManager → `GameSettings`/`SettingsStore`)
 
 ### 3.3 Erweiterungen (nach Persistenz)
 
-- [ ] Music- + SFX-Slider (Bus-Layout falls noch flach: Master/Music/SFX anlegen)
+- [x] Music- + SFX-Slider (Bus-Layout falls noch flach: Master/Music/SFX anlegen)
 - [ ] Mute-Toggle optional
-- [ ] „Reset Controls“ auf Projekt-Defaults
-- [ ] Video: Werte beim Start der App aus CFG anwenden (nicht erst wenn Settings geöffnet)
+- [x] „Reset Controls“ auf Projekt-Defaults
+- [x] Video: Werte beim Start der App aus CFG anwenden (nicht erst wenn Settings geöffnet)
 
 ---
 
@@ -131,16 +131,16 @@ Schrift:
 
 ### 4.1 Festigen
 
-- [ ] Sichtbarer Fehler bei leerem Namen (`tr("ui.character_creation.name_required")` o. ä.)
-- [ ] Namenslänge + Sanitize (keine Pfadzeichen)
-- [ ] Preview in `_ready` auf Katalog-Index 0 (oder Random) setzen
-- [ ] Bootstrap aus UI → `PlayerPartyState.create_new_character(...)` (oder kleiner Helper); UI nur Input/Preview/Validation
+- [x] Sichtbarer Fehler bei leerem Namen (`tr("ui.character_creation.name_required")` o. ä.)
+- [x] Namenslänge + Sanitize (keine Pfadzeichen)
+- [x] Preview in `_ready` auf Katalog-Index 0 (oder Random) setzen
+- [x] Bootstrap aus UI → `PlayerPartyState.create_new_character(...)` (oder kleiner Helper); UI nur Input/Preview/Validation
 
 ### 4.2 Erweitern
 
-- [ ] Randomize-Appearance-Button
+- [x] Randomize-Appearance-Button
 - [ ] Optional: „Create & Play“ (nach Save direkt Host → Overworld)
-- [ ] Character-List: Level-String `tr()`; Sortierung nach `updated_unix`
+- [x] Character-List: Level-String `tr()`; Sortierung nach `updated_unix`
 
 ---
 
@@ -148,20 +148,20 @@ Schrift:
 
 ### 5.1 Festigen
 
-- [ ] `load_from_disk` Return prüfen + Fail-Dialog (`tr`)
-- [ ] Guard leeres `selected_character_id`
-- [ ] Join-Fail als UI-Meldung; optional Port im Dialog (Default 4242)
-- [ ] `WorldState.load_from_disk` im Host/Join-Pfad wo sinnvoll
+- [x] `load_from_disk` Return prüfen + Fail-Dialog (`tr`)
+- [x] Guard leeres `selected_character_id`
+- [x] Join-Fail als UI-Meldung; optional Port im Dialog (Default 4242)
+- [x] `WorldState.load_from_disk` im Host/Join-Pfad wo sinnvoll
 
 ### 5.2 Erweitern
 
-- [ ] **Continue:** letzte `selected_character_id` in Settings speichern; Main-Menu-Button wenn Save existiert
-- [ ] Delete Save + ConfirmDialog in Character-List
-- [ ] Kurzer „Connecting…“-Zustand beim Join
+- [x] **Continue:** letzte `selected_character_id` in Settings speichern; Main-Menu-Button wenn Save existiert
+- [x] Delete Save + ConfirmDialog in Character-List
+- [x] Kurzer „Connecting…“-Zustand beim Join
 
 ### 5.3 Optional (später / eigener Slice)
 
-- [ ] Dünner `GameEntry`/`SessionBootstrap`-Helper (Load Party+World → Lobby → Scene), Menü-Scripts entlasten
+- [x] Dünner `GameEntry`/`SessionBootstrap`-Helper (Load Party+World → Lobby → Scene), Menü-Scripts entlasten
 
 ---
 
@@ -192,11 +192,11 @@ Commits empfohlen pro Slice.
 
 ## Definition of Done
 
-- [ ] Fantasy-Theme global wirksam; UI wirkt nicht mehr wie Default-Engine-Widgets
-- [ ] Settings Audio/Video/Controls persistieren; Controls-Bug behoben
-- [ ] Creation mit Validation-Feedback; Save-Bootstrap nicht mehr nur im UI-Script verdoppelt
-- [ ] Entry meldet Load/Join-Fehler spielersichtbar
-- [ ] Plan-Checkboxen + Status/README aktuell
+- [x] Fantasy-Theme global wirksam; UI wirkt nicht mehr wie Default-Engine-Widgets
+- [x] Settings Audio/Video/Controls persistieren; Controls-Bug behoben
+- [x] Creation mit Validation-Feedback; Save-Bootstrap nicht mehr nur im UI-Script verdoppelt
+- [x] Entry meldet Load/Join-Fehler spielersichtbar
+- [x] Plan-Checkboxen + Status/README aktuell
 
 ---
 

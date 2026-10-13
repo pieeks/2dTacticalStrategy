@@ -1,9 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://ca0m0d0f41cfi"]
+[gd_scene load_steps=8 format=3 uid="uid://ca0m0d0f41cfi"]
 
 [ext_resource type="Theme" uid="uid://dd3i1234cxqaw" path="res://resources/themes/default_theme.tres" id="1_d402b"]
 [ext_resource type="Script" uid="uid://mdubw1dkn0ul" path="res://scripts/ui/settings_popup.gd" id="1_yjfti"]
 [ext_resource type="Script" uid="uid://ddl7inmkc2jkc" path="res://scripts/ui/ui_scaler.gd" id="2_1bpm1"]
-[ext_resource type="FontFile" uid="uid://bovvij5pwirmt" path="res://assets/ui/PlayfairDisplay-Medium.ttf" id="2_yjfti"]
 [ext_resource type="Script" uid="uid://cpvsh4w4w0hks" path="res://scripts/ui/audio_settings_popup.gd" id="3_1bpm1"]
 [ext_resource type="Script" uid="uid://bnva65ig66nbn" path="res://scripts/ui/video_settings_popup.gd" id="4_h7ats"]
 [ext_resource type="Script" uid="uid://205mp8k6f18p" path="res://scripts/ui/control_settings_popup.gd" id="5_kqam1"]
@@ -37,7 +36,6 @@ offset_right = 342.0
 offset_bottom = 53.0
 size_flags_horizontal = 4
 size_flags_vertical = 0
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Settings"
 
 [node name="Panel" type="Panel" parent="UIRoot"]
@@ -69,27 +67,22 @@ theme = ExtResource("1_d402b")
 
 [node name="GeneralSettings" type="Button" parent="UIRoot/Panel/SettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "General"
 
 [node name="AudioSettings" type="Button" parent="UIRoot/Panel/SettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Audio"
 
 [node name="VideoSettings" type="Button" parent="UIRoot/Panel/SettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Video"
 
 [node name="Controls" type="Button" parent="UIRoot/Panel/SettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Controls"
 
 [node name="Back" type="Button" parent="UIRoot/Panel/SettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Back"
 
 [node name="GeneralSettingsPopup" type="Control" parent="UIRoot/Panel"]
@@ -121,21 +114,17 @@ grow_vertical = 2
 
 [node name="Name" type="Label" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "General"
 
 [node name="LanguageLabel" type="Label" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Language"
 
 [node name="LanguageDropDown" type="OptionButton" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 
 [node name="BackToSettingsPopup" type="Button" parent="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Back to Settings"
 
 [node name="AudioSettingsPopup" type="Control" parent="UIRoot/Panel"]
@@ -167,21 +156,37 @@ grow_vertical = 2
 
 [node name="Name" type="Label" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Audio Settings"
 
 [node name="VolumeSliderName" type="Label" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Volume:"
 
 [node name="VolumeSlider" type="HSlider" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
 layout_mode = 2
+max_value = 100.0
 value = 20.0
+
+[node name="MusicSliderName" type="Label" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+text = "Music:"
+
+[node name="MusicSlider" type="HSlider" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+max_value = 100.0
+value = 80.0
+
+[node name="SfxSliderName" type="Label" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+text = "SFX:"
+
+[node name="SfxSlider" type="HSlider" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
+layout_mode = 2
+max_value = 100.0
+value = 80.0
 
 [node name="BackToSettingsPopup" type="Button" parent="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Back to Settings"
 
 [node name="VideoSettingsPopup" type="Control" parent="UIRoot/Panel"]
@@ -213,17 +218,14 @@ grow_vertical = 2
 [node name="Label" type="Label" parent="UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Video Settings"
 
 [node name="ResolutionDropDownName" type="Label" parent="UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Resolution"
 
 [node name="ResolutionDropDown" type="OptionButton" parent="UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 item_count = 4
 popup/item_0/text = "640x360"
 popup/item_0/id = 0
@@ -240,7 +242,6 @@ text = "Fullscreen"
 
 [node name="BackToSettingsPopup" type="Button" parent="UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Back to Settings"
 
 [node name="ControlSettingsPopup" type="Control" parent="UIRoot/Panel"]
@@ -271,7 +272,6 @@ grow_vertical = 2
 
 [node name="Name" type="Label" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Control Settings"
 
 [node name="MoveUPContainer" type="HBoxContainer" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer"]
@@ -280,14 +280,13 @@ layout_mode = 2
 [node name="MoveUpName" type="Label" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveUPContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Move Up"
 
 [node name="MoveUpKey" type="Button" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveUPContainer"]
 layout_mode = 2
 size_flags_horizontal = 10
 text = "w"
-metadata/action_name = "walk_down"
+metadata/action_name = "walk_up"
 
 [node name="MoveDownContainer" type="HBoxContainer" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer"]
 layout_mode = 2
@@ -295,7 +294,6 @@ layout_mode = 2
 [node name="MoveDownName" type="Label" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Move Down"
 
 [node name="MoveDownKey" type="Button" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveDownContainer"]
@@ -310,7 +308,6 @@ layout_mode = 2
 [node name="MoveLeftName" type="Label" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Move Left"
 
 [node name="MoveLeftKey" type="Button" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveLeftContainer"]
@@ -325,14 +322,17 @@ layout_mode = 2
 [node name="MoveRightName" type="Label" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("2_yjfti")
 text = "Move Right"
 
 [node name="MoveRightKey" type="Button" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer/MoveRightContainer"]
 layout_mode = 2
 size_flags_horizontal = 10
-text = "f"
+text = "d"
 metadata/action_name = "walk_right"
+
+[node name="ResetControls" type="Button" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer"]
+layout_mode = 2
+text = "Reset Controls"
 
 [node name="BackToSettings" type="Button" parent="UIRoot/Panel/ControlSettingsPopup/ControlSettingsButtonContainer"]
 layout_mode = 2
@@ -345,6 +345,8 @@ text = "Back to Settings"
 [connection signal="pressed" from="UIRoot/Panel/SettingsButtonContainer/Back" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="UIRoot/Panel/GeneralSettingsPopup/GeneralSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_pressed"]
 [connection signal="value_changed" from="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/VolumeSlider" to="UIRoot/Panel/AudioSettingsPopup" method="_on_volume_slider_value_changed"]
+[connection signal="value_changed" from="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/MusicSlider" to="UIRoot/Panel/AudioSettingsPopup" method="_on_music_slider_value_changed"]
+[connection signal="value_changed" from="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/SfxSlider" to="UIRoot/Panel/AudioSettingsPopup" method="_on_sfx_slider_value_changed"]
 [connection signal="pressed" from="UIRoot/Panel/AudioSettingsPopup/AudioSettingsButtonContainer/BackToSettingsPopup" to="." method="_on_back_to_settings_pressed"]
 [connection signal="item_selected" from="UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/ResolutionDropDown" to="UIRoot/Panel/VideoSettingsPopup" method="_on_resolution_drop_down_item_selected"]
 [connection signal="toggled" from="UIRoot/Panel/VideoSettingsPopup/VideoSettingsButtonContainer/Fullscreen" to="UIRoot/Panel/VideoSettingsPopup" method="_on_fullscreen_toggled"]
