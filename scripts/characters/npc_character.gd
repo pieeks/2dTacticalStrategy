@@ -417,7 +417,11 @@ func _initialize_npc() -> void:
 	if _initialization_data.has("initial_position"):
 		global_position = _initialization_data["initial_position"]
 	if _initialization_data.has("patrol_points"):
-		self.patrol_points = _initialization_data["patrol_points"]
+		var pts: Array[Vector2] = []
+		for p in _initialization_data["patrol_points"]:
+			if p is Vector2:
+				pts.append(p as Vector2)
+		self.patrol_points = pts
 	if _initialization_data.has("patrol_behavior"):
 		self.patrol_behavior = _initialization_data["patrol_behavior"]
 	if _initialization_data.has("spawn_id"):

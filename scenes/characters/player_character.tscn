@@ -18,7 +18,7 @@ radius = 900.0
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 4
-collision_mask = 10
+collision_mask = 2
 script = ExtResource("1_hfyxy")
 
 [node name="ActionArea2D" parent="." instance=ExtResource("2_6prti")]

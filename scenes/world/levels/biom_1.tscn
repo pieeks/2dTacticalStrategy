@@ -37,6 +37,9 @@ curve = SubResource("Curve2D_xgcw2")
 position = Vector2(170, 305)
 rotates = false
 
+[node name="RoadCornerQuestGiver" type="Marker2D" parent="NPCSpawnDefinition"]
+position = Vector2(1320, 280)
+
 [node name="TestSpawnArea" type="Area2D" parent="NPCSpawnDefinition"]
 script = ExtResource("4_demgq")
 

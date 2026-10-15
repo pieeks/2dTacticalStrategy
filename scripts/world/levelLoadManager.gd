@@ -103,3 +103,11 @@ func spawn_all_npcs() -> void:
 					custom_data["initial_position"] = spawn_node.global_position
 
 				multiplayer_spawner.spawn(custom_data)
+
+			elif spawn_node is Node2D:
+				# Marker2D / plain Node2D: stationary NPC (no patrol points → Idle).
+				custom_data["patrol_behavior"] = NPCCharacter.PatrolBehavior.LOOP
+				custom_data["initial_position"] = spawn_node.global_position
+				var empty_pts: Array[Vector2] = []
+				custom_data["patrol_points"] = empty_pts
+				multiplayer_spawner.spawn(custom_data)

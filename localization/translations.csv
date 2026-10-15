@@ -115,3 +115,6 @@ quest.reward_gold,%d Gold,%d Gold
 quest.q_intro_slime.title,Slime Problem,Schleim-Problem
 quest.q_intro_slime.desc,A slime is causing trouble nearby. Defeat it and return.,In der Nähe treibt ein Schleim Unwesen. Besiege ihn und kehre zurück.
 quest.q_intro_slime.obj.kill,Defeat 1 slime,Besiege 1 Schleim
+quest.q_road_watch.title,Road Watch,Straßenwache
+quest.q_road_watch.desc,Slimes threaten travelers at the bend. Clear two of them and report back.,An der Kurve bedrohen Schleime Reisende. Besiege zwei und melde dich zurück.
+quest.q_road_watch.obj.kill,Defeat 2 slimes,Besiege 2 Schleime
