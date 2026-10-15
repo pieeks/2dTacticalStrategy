@@ -191,12 +191,21 @@ func restore_from_fight() -> void:
 		cam.make_current()
 
 
+## ActionArea exit: close local interaction UI and release the target on the host.
 func end_interaction(target: Node) -> void:
-	if target.is_in_group("NPCs") && target.is_interacting == true:
-		target.end_interaction.rpc_id(1)
-	elif target.is_in_group("Players") && target.is_interacting == true:
-		target.sync.end_interaction.rpc_id(1)
-	print("end interaction")
+	if not is_instance_valid(target):
+		return
+	if target.is_in_group("NPCs"):
+		if player_ui != null and player_ui.has_method("close_interaction_for_target"):
+			player_ui.close_interaction_for_target(target)
+		elif target.get("is_interacting") == true:
+			target.end_interaction.rpc_id(1)
+		return
+	if target.is_in_group("Players"):
+		if player_ui != null:
+			player_ui.hide_group_menu()
+		if target.get("is_interacting") == true and target.get("sync") != null:
+			target.sync.end_interaction.rpc_id(1)
 
 
 func _try_interact_with_player(target: Node) -> void:

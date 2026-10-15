@@ -86,8 +86,9 @@ func start_fight_with_encounter(peer_id: int, encounter: Dictionary) -> void:
 	enriched = EncounterResolver.attach_enemy_roster(enriched)
 	rpc_start_fight.rpc(peer_id, enriched)
 	var npc_path := str(enriched.get("npc_path", ""))
-	if npc_path != "":
-		rpc_lock_overworld_npc.rpc(npc_path)
+	var spawn_id := str(enriched.get("spawn_id", ""))
+	if npc_path != "" or spawn_id != "":
+		rpc_lock_overworld_npc.rpc(npc_path, spawn_id)
 
 
 ## Local party snapshot for Start/Join payloads (clients and host).
@@ -442,6 +443,7 @@ func _on_fight_ready_to_remove(owner_peer_id: int) -> void:
 	if fight_node.has_method("get_encounter"):
 		encounter = fight_node.get_encounter()
 	var npc_path := str(encounter.get("npc_path", ""))
+	var spawn_id := str(encounter.get("spawn_id", ""))
 	var participants_snapshot: Array = []
 	if fight_node.get("participants") != null:
 		for p in fight_node.participants:
@@ -450,8 +452,8 @@ func _on_fight_ready_to_remove(owner_peer_id: int) -> void:
 		rpc_end_fight_for_peer.rpc(p)
 	fight_node.queue_free()
 	rpc_destroy_fight_instance.rpc(owner_peer_id)
-	if npc_path != "":
-		rpc_unlock_overworld_npc.rpc(npc_path)
+	if npc_path != "" or spawn_id != "":
+		rpc_unlock_overworld_npc.rpc(npc_path, spawn_id)
 	if fight_layer.get_child_count() == 0:
 		is_fight_active = false
 
@@ -516,8 +518,9 @@ func rpc_create_existing_fight(
 	for p in participants_list:
 		_set_peer_in_fight(int(p), true)
 	var npc_path := str(encounter.get("npc_path", ""))
-	if npc_path != "":
-		_lock_npc_by_path(npc_path)
+	var spawn_id := str(encounter.get("spawn_id", ""))
+	if npc_path != "" or spawn_id != "":
+		_lock_npc(npc_path, spawn_id)
 
 
 @rpc("any_peer", "reliable")
@@ -643,24 +646,24 @@ func rpc_destroy_fight_instance(owner_peer_id: int) -> void:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func rpc_lock_overworld_npc(npc_path: String) -> void:
+func rpc_lock_overworld_npc(npc_path: String, spawn_id: String = "") -> void:
 	if not _accept_host_broadcast():
 		return
-	_lock_npc_by_path(npc_path)
+	_lock_npc(npc_path, spawn_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
-func rpc_unlock_overworld_npc(npc_path: String) -> void:
+func rpc_unlock_overworld_npc(npc_path: String, spawn_id: String = "") -> void:
 	if not _accept_host_broadcast():
 		return
-	_unlock_npc_by_path(npc_path)
+	_unlock_npc(npc_path, spawn_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
-func rpc_remove_overworld_npc(npc_path: String) -> void:
+func rpc_remove_overworld_npc(npc_path: String, spawn_id: String = "") -> void:
 	if not _accept_host_broadcast():
 		return
-	var npc := get_tree().root.get_node_or_null(npc_path)
+	var npc := _find_overworld_npc(npc_path, spawn_id)
 	if npc == null:
 		return
 	# Do not exit_fight_lock (that resumes patrol) — stop quietly, then free.
@@ -669,13 +672,27 @@ func rpc_remove_overworld_npc(npc_path: String) -> void:
 	npc.queue_free()
 
 
-func _lock_npc_by_path(npc_path: String) -> void:
-	var npc := get_tree().root.get_node_or_null(npc_path)
+## Resolve Overworld NPC by path, falling back to stable spawn_id meta.
+func _find_overworld_npc(npc_path: String, spawn_id: String = "") -> Node:
+	if npc_path != "":
+		var by_path := get_tree().root.get_node_or_null(npc_path)
+		if by_path != null:
+			return by_path
+	if spawn_id.is_empty():
+		return null
+	for n in get_tree().get_nodes_in_group("NPCs"):
+		if str(n.get_meta("spawn_id", "")) == spawn_id:
+			return n
+	return null
+
+
+func _lock_npc(npc_path: String, spawn_id: String = "") -> void:
+	var npc := _find_overworld_npc(npc_path, spawn_id)
 	if npc != null and npc.has_method("enter_fight_lock"):
 		npc.enter_fight_lock()
 
 
-func _unlock_npc_by_path(npc_path: String) -> void:
-	var npc := get_tree().root.get_node_or_null(npc_path)
+func _unlock_npc(npc_path: String, spawn_id: String = "") -> void:
+	var npc := _find_overworld_npc(npc_path, spawn_id)
 	if npc != null and npc.has_method("exit_fight_lock"):
 		npc.exit_fight_lock()

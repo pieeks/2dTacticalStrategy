@@ -136,6 +136,17 @@ func show_interaction_menu(npc_data: Dictionary, npc_path: String) -> void:
 	_update_quest_button_visibility()
 
 
+## Close Talk/Quest/Leave UI if the player left this NPC's ActionArea.
+func close_interaction_for_target(target: Node) -> void:
+	if not is_instance_valid(target):
+		return
+	if current_interaction_npc_path.is_empty():
+		return
+	if str(target.get_path()) != current_interaction_npc_path:
+		return
+	_on_leave_pressed()
+
+
 ## Overworld peer interaction: Invite / Accept / Decline / Leave.
 func show_group_menu(target_peer_id: int) -> void:
 	hide_fight_join_menu()

@@ -12,8 +12,9 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if body == actor:
 		return
+	if current_target.has(body):
+		return
 	current_target.append(body)
-	print("in body action area:" , body.name )
 
 
 func _on_body_exited(body: Node2D) -> void:
