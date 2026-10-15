@@ -164,6 +164,8 @@ func _apply_fight_world_gate() -> void:
 		player_ui.visible = not in_fight
 		if in_fight and player_ui.has_method("hide_fight_join_menu"):
 			player_ui.hide_fight_join_menu()
+		if in_fight and player_ui.has_method("hide_encounter_prompt"):
+			player_ui.hide_encounter_prompt()
 	if in_fight:
 		cam.enabled = false
 		velocity = Vector2.ZERO

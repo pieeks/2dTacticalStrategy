@@ -83,6 +83,12 @@ battle.join.player,Join player,Spieler joinen
 battle.join.enemy,Join enemy,Gegner joinen
 battle.join.neutral,Join neutral,Neutral eingreifen
 battle.join.cancel,Cancel,Abbrechen
+battle.encounter.title,Ambush!,Überfall!
+battle.encounter.fight,Fight,Kämpfen
+battle.encounter.flee,Flee,Flüchten
+battle.encounter.unit_count,%d× %s,%d× %s
+battle.encounter.escaped,Escaped!,Entkommen!
+battle.encounter.flee_failed,Could not escape!,Flucht gescheitert!
 battle.hud.attack,Attack,Angriff
 battle.hud.attack_on,Attack (on),Angriff (an)
 battle.hud.wait,Wait,Warten

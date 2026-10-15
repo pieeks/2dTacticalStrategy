@@ -89,21 +89,33 @@ func _disconnect_multiplayer_signals() -> void:
 			network.peer_disconnected.disconnect(_on_peer_disconnected_server)
 
 
+## Returns true if UDP `bind_port` can be bound (no other local host).
+func _is_udp_port_free(bind_port: int) -> bool:
+	var probe := PacketPeerUDP.new()
+	var bind_err := probe.bind(bind_port)
+	probe.close()
+	return bind_err == OK
+
+
 ## Creates a new ENet lobby as host.
 ## Initializes server peer, sets multiplayer peer, connects signals.
 ## @return bool: False if the server could not bind.
 func create_lobby() -> bool:
 	# Always tear down any previous peer so port bind cannot collide with a stale host.
 	reset_session()
+	# Probe first — ENet create_server always logs "Couldn't create an ENet host" on failure.
+	if not _is_udp_port_free(port):
+		pending_menu_message = "ui.net.host_port_busy"
+		is_host = false
+		return false
 	is_host = true
 	network = ENetMultiplayerPeer.new()
 	var err := network.create_server(port, lobby_members_max)
 	if err != OK:
-		push_error(
-			"Failed to start ENet server on port %d (err=%s). Is another instance already hosting?"
-			% [port, error_string(err)]
-		)
 		pending_menu_message = "ui.net.host_port_busy"
+		if is_instance_valid(network):
+			network.close()
+		network = null
 		reset_session()
 		return false
 	multiplayer.multiplayer_peer = network

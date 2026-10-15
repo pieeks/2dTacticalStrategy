@@ -3,6 +3,7 @@ extends CanvasLayer
 
 const _LocaleAccess = preload("res://scripts/ui/locale_access.gd")
 const QUEST_OFFER_PANEL_SCENE := preload("res://scenes/ui/quest/quest_offer_panel.tscn")
+const EncounterFleeChanceScript := preload("res://scripts/battle/encounter_flee_chance.gd")
 
 var current_interaction_npc_path: String
 var current_npc_data: Dictionary
@@ -26,6 +27,16 @@ var _group_invite_accept: Button = null
 var _group_invite_decline: Button = null
 var _group_invite_from: int = 0
 
+## Pre-fight ambush prompt (Fight / Flee).
+var _encounter_menu: PanelContainer = null
+var _encounter_title: Label = null
+var _encounter_composition: Label = null
+var _encounter_status: Label = null
+var _encounter_btn_fight: Button = null
+var _encounter_btn_flee: Button = null
+var _pending_encounter: Dictionary = {}
+var _pending_encounter_npc_path: String = ""
+
 
 func _ready() -> void:
 	if has_node("FightJoinMenu"):
@@ -42,6 +53,7 @@ func _ready() -> void:
 	_ensure_quest_panel()
 	_ensure_group_menu()
 	_ensure_group_invite_dialog()
+	_ensure_encounter_menu()
 	_apply_static_texts()
 	_refresh_quest_log()
 	var lm := _LocaleAccess.get_lm(self)
@@ -121,11 +133,13 @@ func _apply_static_texts() -> void:
 	if _group_btn_cancel != null:
 		_group_btn_cancel.text = tr("group.cancel")
 	_refresh_group_invite_dialog_texts()
+	_refresh_encounter_menu_texts()
 
 
 func show_interaction_menu(npc_data: Dictionary, npc_path: String) -> void:
 	hide_fight_join_menu()
 	hide_group_menu()
+	hide_encounter_prompt()
 	if _quest_panel != null and _quest_panel.has_method("hide_panel"):
 		_quest_panel.hide_panel()
 	current_interaction_npc_path = npc_path
@@ -165,6 +179,7 @@ func hide_group_menu() -> void:
 
 func show_fight_join_menu(target_peer_id: int) -> void:
 	_on_leave_pressed_ui_only()
+	hide_encounter_prompt()
 	_fight_join_target_peer_id = target_peer_id
 	if not has_node("FightJoinMenu"):
 		push_warning("PlayerUI: FightJoinMenu fehlt in der Scene.")
@@ -506,3 +521,161 @@ func _on_group_invite_dialog_decline() -> void:
 	var gm := _gm()
 	if gm != null:
 		gm.decline_invite()
+
+
+# --- Pre-fight encounter prompt (Fight / Flee) ---
+
+func _ensure_encounter_menu() -> void:
+	if _encounter_menu != null:
+		return
+	_encounter_menu = PanelContainer.new()
+	_encounter_menu.name = "EncounterPrompt"
+	_encounter_menu.visible = false
+	_encounter_menu.set_anchors_preset(Control.PRESET_CENTER)
+	_encounter_menu.offset_left = -140
+	_encounter_menu.offset_top = -90
+	_encounter_menu.offset_right = 140
+	_encounter_menu.offset_bottom = 90
+	var vbox := VBoxContainer.new()
+	_encounter_menu.add_child(vbox)
+	_encounter_title = Label.new()
+	_encounter_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_encounter_title)
+	_encounter_composition = Label.new()
+	_encounter_composition.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_encounter_composition.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(_encounter_composition)
+	_encounter_status = Label.new()
+	_encounter_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_encounter_status.visible = false
+	vbox.add_child(_encounter_status)
+	_encounter_btn_fight = Button.new()
+	_encounter_btn_fight.pressed.connect(_on_encounter_fight_pressed)
+	vbox.add_child(_encounter_btn_fight)
+	_encounter_btn_flee = Button.new()
+	_encounter_btn_flee.pressed.connect(_on_encounter_flee_pressed)
+	vbox.add_child(_encounter_btn_flee)
+	add_child(_encounter_menu)
+	_refresh_encounter_menu_texts()
+
+
+func _refresh_encounter_menu_texts() -> void:
+	if _encounter_title != null:
+		_encounter_title.text = tr("battle.encounter.title")
+	if _encounter_btn_fight != null:
+		_encounter_btn_fight.text = tr("battle.encounter.fight")
+	if _encounter_btn_flee != null:
+		_encounter_btn_flee.text = tr("battle.encounter.flee")
+	if _encounter_menu != null and _encounter_menu.visible and not _pending_encounter.is_empty():
+		_update_encounter_composition_label()
+
+
+## Show ambush UI for a resolved encounter (enemy_roster preferred).
+func show_encounter_prompt(encounter: Dictionary, npc_path: String) -> void:
+	_ensure_encounter_menu()
+	if _encounter_menu.visible and _pending_encounter_npc_path == npc_path:
+		return
+	hide_fight_join_menu()
+	hide_group_menu()
+	_on_leave_pressed_ui_only()
+	_pending_encounter = encounter.duplicate(true)
+	_pending_encounter_npc_path = npc_path
+	_encounter_status.visible = false
+	_encounter_status.text = ""
+	_encounter_btn_fight.disabled = false
+	_encounter_btn_flee.disabled = false
+	_refresh_encounter_menu_texts()
+	_update_encounter_composition_label()
+	_encounter_menu.show()
+
+
+func hide_encounter_prompt() -> void:
+	_pending_encounter = {}
+	_pending_encounter_npc_path = ""
+	if _encounter_menu != null:
+		_encounter_menu.hide()
+	if _encounter_status != null:
+		_encounter_status.visible = false
+		_encounter_status.text = ""
+
+
+func _update_encounter_composition_label() -> void:
+	if _encounter_composition == null:
+		return
+	var roster: Array = []
+	var raw: Variant = _pending_encounter.get("enemy_roster", [])
+	if raw is Array:
+		roster = raw as Array
+	_encounter_composition.text = EncounterFleeChanceScript.composition_text(roster)
+
+
+func _on_encounter_fight_pressed() -> void:
+	if _pending_encounter.is_empty():
+		hide_encounter_prompt()
+		return
+	var enc := _pending_encounter.duplicate(true)
+	var npc_path := _pending_encounter_npc_path
+	hide_encounter_prompt()
+	_start_pending_encounter_fight(enc, npc_path)
+
+
+func _on_encounter_flee_pressed() -> void:
+	if _pending_encounter.is_empty():
+		hide_encounter_prompt()
+		return
+	_encounter_btn_fight.disabled = true
+	_encounter_btn_flee.disabled = true
+
+	var roster: Array = []
+	var raw: Variant = _pending_encounter.get("enemy_roster", [])
+	if raw is Array:
+		roster = raw as Array
+	var ctx := EncounterFleeChanceScript.build_context(
+		EncounterFleeChanceScript.player_level_from_party(),
+		EncounterFleeChanceScript.enemy_levels_from_roster(roster),
+		{}
+	)
+	var chance := EncounterFleeChanceScript.compute_chance(ctx)
+	var escaped := EncounterFleeChanceScript.roll(chance)
+
+	if escaped:
+		_encounter_status.text = tr("battle.encounter.escaped")
+		_encounter_status.visible = true
+		var npc_path := _pending_encounter_npc_path
+		var npc := get_node_or_null(npc_path)
+		if is_instance_valid(npc) and npc.has_method("confirm_encounter_flee_success"):
+			npc.confirm_encounter_flee_success(multiplayer.get_unique_id())
+		await get_tree().create_timer(0.85).timeout
+		if is_inside_tree():
+			hide_encounter_prompt()
+		return
+
+	_encounter_status.text = tr("battle.encounter.flee_failed")
+	_encounter_status.visible = true
+	var enc := _pending_encounter.duplicate(true)
+	var path := _pending_encounter_npc_path
+	await get_tree().create_timer(0.65).timeout
+	if not is_inside_tree():
+		return
+	hide_encounter_prompt()
+	_start_pending_encounter_fight(enc, path)
+
+
+func _start_pending_encounter_fight(encounter: Dictionary, npc_path: String) -> void:
+	var npc := get_node_or_null(npc_path)
+	if is_instance_valid(npc) and npc.has_method("confirm_encounter_fight"):
+		npc.confirm_encounter_fight(encounter)
+		return
+	# Fallback if NPC path is stale: ask FightManager directly.
+	var fm := _get_fight_manager()
+	if fm == null:
+		return
+	var peer_id := multiplayer.get_unique_id()
+	var enc := encounter.duplicate(true)
+	if not enc.has("party_roster"):
+		enc["party_roster"] = PlayerPartyState.build_party_roster_snapshot()
+	if multiplayer.is_server():
+		if fm.has_method("start_fight_with_encounter"):
+			fm.start_fight_with_encounter(peer_id, enc)
+	else:
+		fm.rpc_id(1, "rpc_request_start_fight_encounter", peer_id, enc)
