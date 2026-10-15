@@ -140,6 +140,7 @@ func suppress_force_fight_for_player(player: Node2D) -> void:
 func _build_encounter() -> Dictionary:
 	var enc: Dictionary = {
 		"npc_path": str(get_path()),
+		"spawn_id": str(get_meta("spawn_id", "")),
 		"npc_type": "",
 		"npc_name": name,
 		"stats": {},
@@ -288,6 +289,8 @@ func _initialize_npc() -> void:
 		self.patrol_points = _initialization_data["patrol_points"]
 	if _initialization_data.has("patrol_behavior"):
 		self.patrol_behavior = _initialization_data["patrol_behavior"]
+	if _initialization_data.has("spawn_id"):
+		set_meta("spawn_id", str(_initialization_data["spawn_id"]))
 	if _initialization_data.has("npc_type") and _initialization_data.has("spawn_index"):
 		var npc_type = _initialization_data['npc_type']
 		var spawn_index = _initialization_data['spawn_index']
@@ -340,12 +343,18 @@ func go_to_sleep():
 
 
 ## Puts the NPC to sleep without changing active_player_bubbles.
+## Authority stops AI + outbound sync; puppets keep the synchronizer receiving.
 func _force_sleep() -> void:
 	is_awake = false
 	state_machine.transition_to("IdleNPC")
 	set_physics_process(false)
-	multiplayer_synchronizer.set_process(false)
 	state_machine.set_physics_process(false)
+	if multiplayer_synchronizer == null:
+		return
+	if NetworkManagerTest.is_authority(self):
+		multiplayer_synchronizer.set_process(false)
+	else:
+		multiplayer_synchronizer.set_process(true)
 
 
 # --- Patrouillen-Werkzeuge für States ---
@@ -365,7 +374,7 @@ func start_patrol_pause():
 	# Nur der Host soll den Pausen-Timer starten.
 	if not is_multiplayer_authority():
 		return
-	if not is_inside_tree() or _fight_locked:
+	if not is_inside_tree() or _fight_locked or is_interacting:
 		return
 	if patrol_pause_timer == null or not is_instance_valid(patrol_pause_timer):
 		return
@@ -375,7 +384,7 @@ func start_patrol_pause():
 
 
 func _on_patrol_pause_finished():
-	if not is_inside_tree() or _fight_locked:
+	if not is_inside_tree() or _fight_locked or is_interacting:
 		return
 	if state_machine == null or not is_instance_valid(state_machine):
 		return
@@ -392,11 +401,11 @@ func prepare_for_removal() -> void:
 		if patrol_pause_timer.is_inside_tree():
 			patrol_pause_timer.stop()
 	set_physics_process(false)
-	if multiplayer_synchronizer:
-		multiplayer_synchronizer.set_process(false)
 	if state_machine:
 		state_machine.set_physics_process(false)
 		state_machine.transition_to("IdleNPC")
+	if multiplayer_synchronizer and NetworkManagerTest.is_authority(self):
+		multiplayer_synchronizer.set_process(false)
 
 
 func update_next_patrol_index():
@@ -463,30 +472,26 @@ func request_interaction(player_name: String):
 	var dist_sq: float = player_node.global_position.distance_squared_to(global_position)
 	
 	if dist_sq <= interaction_range * interaction_range:
-		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " genehmigt.")
 		is_interacting = true
+		stop_patrol()
 		state_machine.transition_to('IdleNPC')
 		var peer_id_to_reply_to = player_node.get_multiplayer_authority()
 		player_node.sync.interaction_approved.rpc_id(peer_id_to_reply_to, self.npc_data, self.get_path())
-	else:
-		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " abgelehnt (Distanz).")
 
 
 @rpc("any_peer", "call_local", "reliable")
 func end_interaction():
 	if not multiplayer.is_server():
 		return
-		
+
 	if not is_interacting:
 		return
-		
-	print("Host: ", self.name, " beendet Interaktion.")
-	is_interacting = false 
-	
+
+	is_interacting = false
+
 	if active_player_bubbles <= 0:
 		_force_sleep()
 	elif not patrol_points.is_empty() or is_instance_valid(path_follower):
-		print("Host: ", self.name, " setzt Patrouille fort.")
 		state_machine.transition_to("WalkNPC")
 	else:
 		state_machine.transition_to("IdleNPC")
