@@ -463,10 +463,11 @@ func _on_battle_ended(result: String) -> void:
 	if result == "victory":
 		_credit_kills_from_roster()
 		var npc_path := str(encounter.get("npc_path", ""))
-		if npc_path != "":
+		var spawn_id := str(encounter.get("spawn_id", ""))
+		if npc_path != "" or spawn_id != "":
 			var fm := _get_fight_manager()
 			if fm != null and fm.has_method("rpc_remove_overworld_npc"):
-				fm.rpc_remove_overworld_npc.rpc(npc_path)
+				fm.rpc_remove_overworld_npc.rpc(npc_path, spawn_id)
 	request_end_fight()
 
 

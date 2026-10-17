@@ -1,0 +1,28 @@
+{
+	"name": "road_watcher",
+	"group_size": 1,
+	"appearance": {
+		"body_path": "res://features/character/body/basic/blue.tres",
+		"hair_path": "res://features/character/hair/basic/brown_basic.tres",
+		"leg_path": "res://features/character/leg/basic/blue.tres",
+		"race_path": "res://features/character/race/elf_basic.tres"
+	},
+	"stats": {
+		"level": 1,
+		"health": 100,
+		"minDamage": 2,
+		"maxDamage": 8,
+		"initiative": 5,
+		"move": 2,
+		"attack_range": 1
+	},
+	"loot": {
+		"minGold": 0,
+		"maxGold": 0
+	},
+	"is_hostile": false,
+	"quests": {
+		"offer": ["q_road_watch"],
+		"turn_in": ["q_road_watch"]
+	}
+}

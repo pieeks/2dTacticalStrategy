@@ -27,23 +27,21 @@ func _on_physics_process(_delta: float) -> void:
 		
 		if _npc.path_follower.progress_ratio >= 1.0 or _npc.path_follower.progress_ratio <= 0.0:
 			_npc.patrol_direction *= -1
-			_npc.path_follower.progress_ratio = clampf(_npc.path_follower.progress_ratio, 0.0, _npc.path_follower.get_parent().curve.get_baked_length())
-			
+			_npc.path_follower.progress_ratio = clampf(_npc.path_follower.progress_ratio, 0.0, 1.0)
 			_npc.velocity = Vector2.ZERO
-			_npc.start_patrol_pause()
+			# IdleNPC starts the pause timer (skipped while interacting / fight-locked).
 			request_transition("IdleNPC")
-		else: 
+		else:
 			_npc.facing_direction = _npc.path_follower.transform.x.normalized()
-	else: 
+	else:
 		if _npc.patrol_points.is_empty():
 			request_transition("IdleNPC")
 			return
-	
+
 		var target_pos = _npc.patrol_points[_npc.current_patrol_index]
-	
+
 		if _npc.global_position.distance_to(target_pos) < 5.0:
 			_npc.velocity = Vector2.ZERO
-			print("DEBUG: WalkState -> Ziel erreicht. Wechsle zu Idle.") 
 			request_transition("IdleNPC")
 		else:
 			var direction = (target_pos - _npc.global_position).normalized()

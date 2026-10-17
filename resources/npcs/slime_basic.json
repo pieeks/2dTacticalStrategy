@@ -6,6 +6,7 @@
 		"race_path": "res://features/enemy/slime/slime_basic.tres"
 	},
 	"stats": {
+		"level": 1,
 		"health": 80,
 		"minDamage": 2,
 		"maxDamage": 10,

@@ -1,0 +1,21 @@
+{
+	"id": "q_road_watch",
+	"category": "side",
+	"title_key": "quest.q_road_watch.title",
+	"description_key": "quest.q_road_watch.desc",
+	"giver_npc": "road_corner_quest_npc",
+	"turn_in_npc": "road_corner_quest_npc",
+	"objectives": [
+		{
+			"id": "kill_2",
+			"type": "kill",
+			"target": "slime_basic",
+			"count": 2,
+			"text_key": "quest.q_road_watch.obj.kill"
+		}
+	],
+	"rewards": {
+		"gold": 15,
+		"items": []
+	}
+}

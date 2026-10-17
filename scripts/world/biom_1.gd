@@ -6,7 +6,8 @@ extends LevelLoadManager
 # Diese wird für jedes Level (Biom, Dungeon etc.) einzigartig sein.
 @export var level_npc_spawn_information: Dictionary = {
 	"TestPath": {"count": 1, "type": "test_npc_basic"},
-	"TestSpawnArea": {"count": 4, "type": "slime_basic"}
+	"TestSpawnArea": {"count": 4, "type": "slime_basic"},
+	"RoadCornerQuestGiver": {"count": 1, "type": "road_corner_quest_npc"},
 }
 
 

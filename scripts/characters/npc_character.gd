@@ -86,7 +86,7 @@ func set_force_fight_area(force_fight_area_node: Area2D) -> void:
 	self.force_fight_area = force_fight_area_node
 
 
-## Force-Fight entry: request Host-authoritative fight with encounter payload.
+## Force-Fight entry: open encounter prompt (fight/flee) instead of instant combat.
 func start_battle_with(player: Node2D) -> void:
 	if _fight_locked or _awaiting_force_fight_rearm:
 		return
@@ -106,20 +106,151 @@ func start_battle_with(player: Node2D) -> void:
 		return
 	if fm.has_method("is_peer_on_fight_cooldown") and fm.is_peer_on_fight_cooldown(peer_id):
 		return
-	# Avoid duplicate starts: server always may; clients only for their own player.
-	if not multiplayer.is_server() and not player.is_multiplayer_authority():
+	# Clients only report their own player; host owns the prompt flow (avoids double UI).
+	if not multiplayer.is_server():
+		if not player.is_multiplayer_authority():
+			return
+		var seed_enc := _build_encounter()
+		seed_enc["party_roster"] = PlayerPartyState.build_party_roster_snapshot()
+		rpc_id(1, "rpc_request_encounter_prompt", peer_id, seed_enc)
 		return
-	var encounter := _build_encounter()
-	# Only attach local PartyState when starting for ourselves (never another peer's).
-	if peer_id == multiplayer.get_unique_id():
+
+	_open_encounter_prompt_for_peer(peer_id, player, {})
+
+
+## Host: open prompt for peer (optional client seed with party_roster).
+func _open_encounter_prompt_for_peer(peer_id: int, player: Node2D, client_seed: Dictionary) -> void:
+	if _fight_locked or _awaiting_force_fight_rearm:
+		return
+	if _force_fight_suppressed_peers.get(peer_id, false):
+		return
+	_begin_encounter_prompt_pending(peer_id)
+
+	var encounter := EncounterResolver.attach_enemy_roster(_build_encounter())
+	if client_seed.get("party_roster") is Array:
+		encounter["party_roster"] = (client_seed["party_roster"] as Array).duplicate(true)
+	elif peer_id == multiplayer.get_unique_id():
 		encounter["party_roster"] = PlayerPartyState.build_party_roster_snapshot()
+
+	if peer_id == multiplayer.get_unique_id():
+		if is_instance_valid(player):
+			_deliver_encounter_prompt(player, encounter)
+		else:
+			_deliver_encounter_prompt(_find_player_by_peer(peer_id), encounter)
+	else:
+		rpc_id(peer_id, "rpc_show_encounter_prompt", encounter)
+
+
+@rpc("any_peer", "reliable")
+func rpc_request_encounter_prompt(peer_id: int, client_seed: Dictionary) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender := multiplayer.get_remote_sender_id()
+	if sender > 0 and sender != peer_id:
+		return
+	var player := _find_player_by_peer(peer_id)
+	if player == null:
+		return
+	var fm := _get_fight_manager()
+	if fm != null:
+		if fm.has_method("is_peer_in_fight") and fm.is_peer_in_fight(peer_id):
+			return
+		if fm.has_method("is_peer_on_fight_cooldown") and fm.is_peer_on_fight_cooldown(peer_id):
+			return
+	_open_encounter_prompt_for_peer(peer_id, player, client_seed)
+
+
+func _find_player_by_peer(peer_id: int) -> Node2D:
+	var players := get_tree().get_root().get_node_or_null("Overworld/Players")
+	if players == null:
+		return null
+	for child in players.get_children():
+		if child is Node2D and child.get_multiplayer_authority() == peer_id:
+			return child as Node2D
+	return null
+
+
+## Soft-lock peer while the encounter prompt is open (no re-trigger / chase).
+func _begin_encounter_prompt_pending(peer_id: int) -> void:
+	_force_fight_suppressed_peers[peer_id] = true
+	_ensure_force_fight_exit_connected()
+	stop_patrol()
+	var aggro_ctrl: Node = get_node_or_null("AggroController")
+	if aggro_ctrl != null and aggro_ctrl.has_method("stop_chase"):
+		aggro_ctrl.stop_chase()
+	if state_machine and NetworkManagerTest.is_authority(self):
+		state_machine.transition_to("IdleNPC")
+
+
+func _deliver_encounter_prompt(player: Node2D, encounter: Dictionary) -> void:
+	if not is_instance_valid(player):
+		return
+	var ui: Node = player.get("player_ui") as Node
+	if ui == null:
+		var overworld := get_tree().get_root().get_node_or_null("Overworld")
+		if overworld:
+			ui = overworld.get_node_or_null("PlayerUi")
+	if ui != null and ui.has_method("show_encounter_prompt"):
+		ui.show_encounter_prompt(encounter, str(get_path()))
+	else:
+		# Fallback: no UI → start fight immediately.
+		_start_fight_from_prompt(encounter)
+
+
+## Host → target peer: show local encounter prompt for this NPC.
+@rpc("any_peer", "reliable")
+func rpc_show_encounter_prompt(encounter: Dictionary) -> void:
+	var sender := multiplayer.get_remote_sender_id()
+	if sender != 1 and sender != 0:
+		return
+	var local_player := _find_player_by_peer(multiplayer.get_unique_id())
+	if local_player == null:
+		return
+	var enc: Dictionary = encounter.duplicate(true)
+	if not enc.has("party_roster"):
+		enc["party_roster"] = PlayerPartyState.build_party_roster_snapshot()
+	_deliver_encounter_prompt(local_player, enc)
+
+
+## Called from PlayerUI after Fight or failed Flee.
+func confirm_encounter_fight(encounter: Dictionary) -> void:
+	_start_fight_from_prompt(encounter)
+
+
+## Keep peer suppressed after successful flee (cleared on ForceFight exit).
+func confirm_encounter_flee_success(peer_id: int) -> void:
+	_force_fight_suppressed_peers[peer_id] = true
+	_ensure_force_fight_exit_connected()
+	if multiplayer.is_server() and peer_id != multiplayer.get_unique_id():
+		# Host already suppressed in _begin_encounter_prompt_pending; ensure replicas know via path.
+		pass
+	elif not multiplayer.is_server():
+		rpc_id(1, "rpc_confirm_flee_success", peer_id)
+
+
+@rpc("any_peer", "reliable")
+func rpc_confirm_flee_success(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	_force_fight_suppressed_peers[peer_id] = true
+	_ensure_force_fight_exit_connected()
+
+
+func _start_fight_from_prompt(encounter: Dictionary) -> void:
+	var fm := _get_fight_manager()
+	if fm == null:
+		return
+	var peer_id := multiplayer.get_unique_id()
+	var enc: Dictionary = encounter.duplicate(true)
+	if not enc.has("party_roster"):
+		enc["party_roster"] = PlayerPartyState.build_party_roster_snapshot()
 	if multiplayer.is_server():
 		if fm.has_method("start_fight_with_encounter"):
-			fm.start_fight_with_encounter(peer_id, encounter)
+			fm.start_fight_with_encounter(peer_id, enc)
 		elif fm.has_method("start_fight_for_peer"):
 			fm.start_fight_for_peer(peer_id)
 	else:
-		fm.rpc_id(1, "rpc_request_start_fight_encounter", peer_id, encounter)
+		fm.rpc_id(1, "rpc_request_start_fight_encounter", peer_id, enc)
 
 
 ## After player spawn: if already overlapping, require leave before Force-Fight.
@@ -140,6 +271,7 @@ func suppress_force_fight_for_player(player: Node2D) -> void:
 func _build_encounter() -> Dictionary:
 	var enc: Dictionary = {
 		"npc_path": str(get_path()),
+		"spawn_id": str(get_meta("spawn_id", "")),
 		"npc_type": "",
 		"npc_name": name,
 		"stats": {},
@@ -285,9 +417,15 @@ func _initialize_npc() -> void:
 	if _initialization_data.has("initial_position"):
 		global_position = _initialization_data["initial_position"]
 	if _initialization_data.has("patrol_points"):
-		self.patrol_points = _initialization_data["patrol_points"]
+		var pts: Array[Vector2] = []
+		for p in _initialization_data["patrol_points"]:
+			if p is Vector2:
+				pts.append(p as Vector2)
+		self.patrol_points = pts
 	if _initialization_data.has("patrol_behavior"):
 		self.patrol_behavior = _initialization_data["patrol_behavior"]
+	if _initialization_data.has("spawn_id"):
+		set_meta("spawn_id", str(_initialization_data["spawn_id"]))
 	if _initialization_data.has("npc_type") and _initialization_data.has("spawn_index"):
 		var npc_type = _initialization_data['npc_type']
 		var spawn_index = _initialization_data['spawn_index']
@@ -340,12 +478,18 @@ func go_to_sleep():
 
 
 ## Puts the NPC to sleep without changing active_player_bubbles.
+## Authority stops AI + outbound sync; puppets keep the synchronizer receiving.
 func _force_sleep() -> void:
 	is_awake = false
 	state_machine.transition_to("IdleNPC")
 	set_physics_process(false)
-	multiplayer_synchronizer.set_process(false)
 	state_machine.set_physics_process(false)
+	if multiplayer_synchronizer == null:
+		return
+	if NetworkManagerTest.is_authority(self):
+		multiplayer_synchronizer.set_process(false)
+	else:
+		multiplayer_synchronizer.set_process(true)
 
 
 # --- Patrouillen-Werkzeuge für States ---
@@ -365,7 +509,7 @@ func start_patrol_pause():
 	# Nur der Host soll den Pausen-Timer starten.
 	if not is_multiplayer_authority():
 		return
-	if not is_inside_tree() or _fight_locked:
+	if not is_inside_tree() or _fight_locked or is_interacting:
 		return
 	if patrol_pause_timer == null or not is_instance_valid(patrol_pause_timer):
 		return
@@ -375,7 +519,7 @@ func start_patrol_pause():
 
 
 func _on_patrol_pause_finished():
-	if not is_inside_tree() or _fight_locked:
+	if not is_inside_tree() or _fight_locked or is_interacting:
 		return
 	if state_machine == null or not is_instance_valid(state_machine):
 		return
@@ -392,11 +536,11 @@ func prepare_for_removal() -> void:
 		if patrol_pause_timer.is_inside_tree():
 			patrol_pause_timer.stop()
 	set_physics_process(false)
-	if multiplayer_synchronizer:
-		multiplayer_synchronizer.set_process(false)
 	if state_machine:
 		state_machine.set_physics_process(false)
 		state_machine.transition_to("IdleNPC")
+	if multiplayer_synchronizer and NetworkManagerTest.is_authority(self):
+		multiplayer_synchronizer.set_process(false)
 
 
 func update_next_patrol_index():
@@ -463,30 +607,26 @@ func request_interaction(player_name: String):
 	var dist_sq: float = player_node.global_position.distance_squared_to(global_position)
 	
 	if dist_sq <= interaction_range * interaction_range:
-		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " genehmigt.")
 		is_interacting = true
+		stop_patrol()
 		state_machine.transition_to('IdleNPC')
 		var peer_id_to_reply_to = player_node.get_multiplayer_authority()
 		player_node.sync.interaction_approved.rpc_id(peer_id_to_reply_to, self.npc_data, self.get_path())
-	else:
-		print("Host: Interaktion von Spieler ", player_name, " mit ", self.name, " abgelehnt (Distanz).")
 
 
 @rpc("any_peer", "call_local", "reliable")
 func end_interaction():
 	if not multiplayer.is_server():
 		return
-		
+
 	if not is_interacting:
 		return
-		
-	print("Host: ", self.name, " beendet Interaktion.")
-	is_interacting = false 
-	
+
+	is_interacting = false
+
 	if active_player_bubbles <= 0:
 		_force_sleep()
 	elif not patrol_points.is_empty() or is_instance_valid(path_follower):
-		print("Host: ", self.name, " setzt Patrouille fort.")
 		state_machine.transition_to("WalkNPC")
 	else:
 		state_machine.transition_to("IdleNPC")

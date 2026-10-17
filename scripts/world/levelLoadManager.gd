@@ -65,33 +65,35 @@ func spawn_all_npcs() -> void:
 		
 		# Spawne die angegebene Anzahl von NPCs
 		for i in range(count):
-			var custom_data: Dictionary = { 
+			var custom_data: Dictionary = {
 				"npc_type": npc_type,
-				"spawn_index": i
-				}
+				"spawn_index": i,
+				"spawn_id": "%s:%s:%d" % [spawn_node_name, npc_type, i],
+			}
 			var patrol_points: Array[Vector2] = []
-			
+
 			# --- Intelligente Datensammlung basierend auf dem Node-Typ ---
 			if spawn_node is Path2D:
 				var path_follower = PathFollow2D.new()
 				path_follower.loop = false
-				
+
 				custom_data["patrol_behavior"] = NPCCharacter.PatrolBehavior.FOLLOW_PATH
-				custom_data["initial_position"] = spawn_node.curve.get_point_position(0)
-				
+				# Curve points are local to Path2D — convert to world space.
+				var local_start: Vector2 = spawn_node.curve.get_point_position(0)
+				custom_data["initial_position"] = spawn_node.to_global(local_start)
+
 				var npc_instance = multiplayer_spawner.spawn(custom_data)
-				
+
 				spawn_node.add_child(path_follower)
 				npc_instance.path_follower = path_follower
-				
-				
+
 			elif spawn_node is Area2D:
 				# 1. Lasse die Area die Punkte für uns generieren
 				if spawn_node.has_method("generate_patrol_points"):
 					patrol_points = spawn_node.generate_patrol_points(4) # z.B. 4 Punkte
 				# 2. Weise das korrekte Verhalten zu
 				custom_data["patrol_behavior"] = NPCCharacter.PatrolBehavior.PING_PONG
-			
+
 				# --- Bündelung der Daten ---
 				if not patrol_points.is_empty():
 					custom_data["initial_position"] = patrol_points[0]
@@ -99,5 +101,13 @@ func spawn_all_npcs() -> void:
 				else:
 					# Fallback, falls keine Punkte gefunden wurden, spawne am Node selbst
 					custom_data["initial_position"] = spawn_node.global_position
-					
+
+				multiplayer_spawner.spawn(custom_data)
+
+			elif spawn_node is Node2D:
+				# Marker2D / plain Node2D: stationary NPC (no patrol points → Idle).
+				custom_data["patrol_behavior"] = NPCCharacter.PatrolBehavior.LOOP
+				custom_data["initial_position"] = spawn_node.global_position
+				var empty_pts: Array[Vector2] = []
+				custom_data["patrol_points"] = empty_pts
 				multiplayer_spawner.spawn(custom_data)
