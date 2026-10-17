@@ -11,6 +11,7 @@ ui.world_selection.join,Join World,Welt beitreten
 ui.world_selection.back,Back to Menu,Zurück zum Menü
 ui.join.title,Join World,Welt beitreten
 ui.join.ok,Join,Beitreten
+ui.join.cancel,Cancel,Abbrechen
 ui.join.host_ip,Host IP address,Host-IP-Adresse
 ui.join.port,Port,Port
 ui.character_creation.title,Character Creation,Charaktererstellung

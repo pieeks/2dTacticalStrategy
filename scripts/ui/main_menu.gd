@@ -101,13 +101,16 @@ func _on_start_game_pressed() -> void:
 func _on_continue_pressed() -> void:
 	var last_id := GameSettingsScript.get_last_character_id()
 	if last_id.is_empty():
+		_show_entry_error(GameEntryScript.ERR_NO_CHARACTER)
 		return
 	PlayerPartyState.selected_character_id = last_id
 	var err := GameEntryScript.start_host(last_id)
 	if not err.is_empty():
 		_show_entry_error(err)
 		return
-	get_tree().change_scene_to_file(LEVEL_SCENE_PATH)
+	var scene_err := get_tree().change_scene_to_file(LEVEL_SCENE_PATH)
+	if scene_err != OK:
+		_show_entry_error(GameEntryScript.ERR_LOAD_FAILED)
 
 
 func _show_entry_error(key: String) -> void:

@@ -1,0 +1,23 @@
+---
+description: Commit nur nach Freigabe; Push und PR macht der User
+alwaysApply: true
+---
+
+# Git / Shipping
+
+## Commit
+
+- **Immer zuerst fragen**, bevor du `git commit` ausführst.
+- Typischer Ablauf: Änderungen fertig → User testet lokal in Godot → erst dann Commit auf ausdrückliche Freigabe („committe“, „ja commit“, …).
+- Ohne klare Freigabe: **nicht** committen (auch nicht „mitgemeint“ bei Fix-/CI-Aufgaben).
+
+## Push und Pull Requests
+
+- **Nicht** deine Aufgabe: `git push`, Remote-Branches anlegen/aktualisieren, `gh pr create` / PR mergen.
+- Der User übernimmt Push und PR selbst.
+- Nach lokalem Commit höchstens kurz melden, dass der Commit bereit ist — kein Push/PR anbieten oder anstoßen.
+
+## Do not
+
+- Eigenmächtig committen, pushen oder PRs erstellen.
+- Annehmen, dass „fertig zum Shippen“ = Commit/Push-Erlaubnis.
